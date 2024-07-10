@@ -96,26 +96,24 @@ final class NetworkManager: NSObject {
 		task.resume()
 	}
 
-	func fetchArtwork(for track: SPTAppRemoteTrack, completionHandler: @escaping ((UIImage?) -> Void)) {
+	func fetchArtwork(for track: SPTAppRemoteImageRepresentable, completionHandler: @escaping ((UIImage?) -> Void)) {
 
 		appRemote.imageAPI?.fetchImage(forItem: track, with: CGSize.zero, callback: { (image, error) in
 			if let error = error {
 				print("Error fetching track image: " + error.localizedDescription)
 			} else if let image = image as? UIImage {
 				completionHandler(image)
-//				self?.imageView.image = image
-				///VIEWMODEL BIND
 			}
 		})
 	}
 
-	func fetchContentItems(completionHandler: @escaping ((SPTAppRemoteContentItem?) -> Void)) {
-		appRemote.contentAPI?.fetchRecommendedContentItems(forType: SPTAppRemoteContentTypeDefault, flattenContainers: true, callback: { (result, error) in
+	func fetchContentItems(completionHandler: @escaping (([SPTAppRemoteContentItem]?) -> Void)) {
+
+		appRemote.contentAPI?.fetchRecommendedContentItems(forType: SPTAppRemoteContentTypeNavigation, flattenContainers: false, callback: { (result, error) in
 			if let error = error {
-				print("Error fetching track image: " + error.localizedDescription)
-			} else if let result = result as? SPTAppRemoteContentItem {
-				print("))))))))))))))))))))))))))))))))))))))))))________\(result)")
-				completionHandler(result)
+				print("Error fetching content: " + error.localizedDescription)
+			} else if let result = result {
+				completionHandler(result as? [any SPTAppRemoteContentItem])
 			}
 		})
 	}

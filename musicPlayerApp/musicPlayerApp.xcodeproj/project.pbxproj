@@ -17,8 +17,10 @@
 		B018EC342C3D6B0E0080009C /* LogInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC332C3D6B0E0080009C /* LogInViewModel.swift */; };
 		B018EC372C3D702F0080009C /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC362C3D702F0080009C /* Observable.swift */; };
 		B018EC3A2C3D717C0080009C /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC392C3D717C0080009C /* NetworkManager.swift */; };
-		B018EC3C2C3E87AA0080009C /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC3B2C3E87AA0080009C /* MainViewController.swift */; };
 		B018EC3E2C3E89C20080009C /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC3D2C3E89C20080009C /* MainViewModel.swift */; };
+		B04850352C3EB6FD00C6F899 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04850342C3EB6FD00C6F899 /* MainViewController.swift */; };
+		B04850382C3ED94E00C6F899 /* RecommendationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04850372C3ED94E00C6F899 /* RecommendationCell.swift */; };
+		B048503E2C3F015600C6F899 /* SectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B048503D2C3F015600C6F899 /* SectionCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,8 +37,10 @@
 		B018EC332C3D6B0E0080009C /* LogInViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewModel.swift; sourceTree = "<group>"; };
 		B018EC362C3D702F0080009C /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		B018EC392C3D717C0080009C /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
-		B018EC3B2C3E87AA0080009C /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		B018EC3D2C3E89C20080009C /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
+		B04850342C3EB6FD00C6F899 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		B04850372C3ED94E00C6F899 /* RecommendationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationCell.swift; sourceTree = "<group>"; };
+		B048503D2C3F015600C6F899 /* SectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,7 +79,8 @@
 				B018EC172C3BEF590080009C /* SceneDelegate.swift */,
 				B018EC2E2C3C03BD0080009C /* Constants.swift */,
 				B018EC362C3D702F0080009C /* Observable.swift */,
-				B018EC382C3D703A0080009C /* View */,
+				B04850362C3ED92600C6F899 /* View */,
+				B018EC382C3D703A0080009C /* ViewContoller */,
 				B018EC352C3D6C6A0080009C /* Network */,
 				B018EC322C3D6AE00080009C /* ViewModel */,
 				B018EC292C3BF05E0080009C /* Utils */,
@@ -111,11 +116,20 @@
 			path = Network;
 			sourceTree = "<group>";
 		};
-		B018EC382C3D703A0080009C /* View */ = {
+		B018EC382C3D703A0080009C /* ViewContoller */ = {
 			isa = PBXGroup;
 			children = (
 				B018EC192C3BEF590080009C /* LogInViewController.swift */,
-				B018EC3B2C3E87AA0080009C /* MainViewController.swift */,
+				B04850342C3EB6FD00C6F899 /* MainViewController.swift */,
+			);
+			path = ViewContoller;
+			sourceTree = "<group>";
+		};
+		B04850362C3ED92600C6F899 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B04850372C3ED94E00C6F899 /* RecommendationCell.swift */,
+				B048503D2C3F015600C6F899 /* SectionCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -193,12 +207,14 @@
 			files = (
 				B018EC1A2C3BEF590080009C /* LogInViewController.swift in Sources */,
 				B018EC162C3BEF590080009C /* AppDelegate.swift in Sources */,
+				B048503E2C3F015600C6F899 /* SectionCell.swift in Sources */,
 				B018EC182C3BEF590080009C /* SceneDelegate.swift in Sources */,
 				B018EC3A2C3D717C0080009C /* NetworkManager.swift in Sources */,
 				B018EC342C3D6B0E0080009C /* LogInViewModel.swift in Sources */,
 				B018EC372C3D702F0080009C /* Observable.swift in Sources */,
+				B04850352C3EB6FD00C6F899 /* MainViewController.swift in Sources */,
 				B018EC2F2C3C03BD0080009C /* Constants.swift in Sources */,
-				B018EC3C2C3E87AA0080009C /* MainViewController.swift in Sources */,
+				B04850382C3ED94E00C6F899 /* RecommendationCell.swift in Sources */,
 				B018EC3E2C3E89C20080009C /* MainViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

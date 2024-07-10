@@ -9,9 +9,21 @@ import Foundation
 
 final class MainViewController: UIViewController {
 
-
 	var viewModel: MainViewModel?
 	private var lastPlayerState: SPTAppRemotePlayerState?
+	private var dataSource: [SPTAppRemoteContentItem]?
+	
+	private lazy var tableView: UITableView = {
+		let view = UITableView()
+		view.translatesAutoresizingMaskIntoConstraints = false
+		view.separatorStyle = .none
+		view.register(SectionCell.self, forCellReuseIdentifier: SectionCell.identifier)
+		view.delegate = self
+		view.rowHeight = SectionCell.rowHeight
+		view.dataSource = self
+		return view
+	}()
+	
 
 	private lazy var stackView: UIStackView = {
 		let stackView = UIStackView()
@@ -43,6 +55,14 @@ final class MainViewController: UIViewController {
 		playPauseButton.addTarget(self, action: #selector(didTapPauseOrPlay), for: .primaryActionTriggered)
 		return playPauseButton
 	}()
+	private lazy var signOutButton: UIButton = {
+		let signOutButton = UIButton()
+		signOutButton.translatesAutoresizingMaskIntoConstraints = false
+		signOutButton.setTitle("Sign out", for: .normal)
+		signOutButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+		signOutButton.addTarget(self, action: #selector(didTapSignOut(_:)), for: .touchUpInside)
+		return signOutButton
+	}()
 
 	//MARK: - View LifeCycle
 	init() {
@@ -63,10 +83,9 @@ final class MainViewController: UIViewController {
 		view.backgroundColor = .brown
 		self.layout()
 		self.viewModel?.getPlayerState()
+		self.viewModel?.getContentItems()
 		self.bindViewModel()
-		self.viewModel?.network.fetchContentItems(completionHandler: { item in
-			print(item?.title)
-		})
+	}
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
@@ -76,18 +95,30 @@ final class MainViewController: UIViewController {
 
 extension MainViewController {
 	func layout() {
-		stackView.addArrangedSubview(imageView)
-		stackView.addArrangedSubview(trackLabel)
-		stackView.addArrangedSubview(playPauseButton)
+		stackView.addArrangedSubview(tableView)
+//		stackView.addArrangedSubview(imageView)
+//		stackView.addArrangedSubview(trackLabel)
+//		stackView.addArrangedSubview(playPauseButton)
+		stackView.addArrangedSubview(signOutButton)
 
 		view.addSubview(stackView)
 
 		NSLayoutConstraint.activate([
-			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+			stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+			stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+			stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+			stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+
+//			recommendationCollectionView.topAnchor.constraint(equalTo: stackView.topAnchor),
+//			recommendationCollectionView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+//			recommendationCollectionView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+
+			tableView.topAnchor.constraint(equalTo: stackView.topAnchor),
+			tableView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+			tableView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 		])
 	}
-	
+
 	func update(playerState: SPTAppRemotePlayerState?) {
 		guard let playerState = playerState else { return }
 		if lastPlayerState?.track.uri != playerState.track.uri {
@@ -105,7 +136,7 @@ extension MainViewController {
 	}
 
 	func updateViewBasedOnConnected() {
-		bindViewModel()
+		self.bindViewModel()
 		if viewModel?.network.appRemote.isConnected == true {
 			imageView.isHidden = false
 			trackLabel.isHidden = false
@@ -127,6 +158,16 @@ extension MainViewController {
 		}
 	}
 
+	@objc func didTapSignOut(_ button: UIButton) {
+		if viewModel?.network.appRemote.isConnected == true {
+			viewModel?.network.appRemote.disconnect()
+			viewModel?.network.appRemote.delegate = nil
+			let vc = LogInViewController()
+			vc.modalPresentationStyle = .fullScreen
+			self.present(vc, animated: true)
+		}
+	}
+
 	//MARK: - Binding ViewModel
 	func bindViewModel() {
 		self.viewModel?.trackPoster.bind { [weak self] trackPoster in
@@ -142,6 +183,13 @@ extension MainViewController {
 				self.update(playerState: playerState)
 			}
 		}
+
+		self.viewModel?.contentItems.bind { [weak self] content in
+			guard let self = self, let content = content else { return }
+			self.dataSource = content
+			self.tableView.reloadData()
+		}
+
 	}
 }
 //MARK: - SPTAppRemoteDelegate
@@ -156,15 +204,17 @@ extension MainViewController: SPTAppRemoteDelegate {
 			}
 		})
 		self.viewModel?.getPlayerState()
-//		self.viewModel?.network.appRemote.
+		self.viewModel?.getContentItems()
+		self.tableView.reloadData()
+		//		self.viewModel?.network.appRemote.
 	}
-	
+
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("Failed")
 		updateViewBasedOnConnected()
 		lastPlayerState = nil
 	}
-	
+
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("Disconnected With Error")
 		updateViewBasedOnConnected()
@@ -179,5 +229,26 @@ extension MainViewController: SPTAppRemotePlayerStateDelegate {
 		DispatchQueue.main.async {
 			self.update(playerState: playerState)
 		}
+	}
+}
+
+//MARK: - UITableViewDelegate & UITableViewDataSource
+extension MainViewController: UITableViewDelegate, UITableViewDataSource {
+	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+		1
+	}
+	
+	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+		guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionCell.identifier, for: indexPath) as? SectionCell else { return UITableViewCell() }
+		cell.setData(data: self.dataSource)
+		return cell
+	}
+	
+	func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+		return dataSource?[section].title
+	}
+
+	func numberOfSections(in tableView: UITableView) -> Int {
+		return dataSource?.count ?? 10
 	}
 }
