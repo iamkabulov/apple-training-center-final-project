@@ -9,21 +9,34 @@
 /* Begin PBXBuildFile section */
 		B018EC162C3BEF590080009C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC152C3BEF590080009C /* AppDelegate.swift */; };
 		B018EC182C3BEF590080009C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC172C3BEF590080009C /* SceneDelegate.swift */; };
-		B018EC1A2C3BEF590080009C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC192C3BEF590080009C /* ViewController.swift */; };
-		B018EC1D2C3BEF590080009C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B018EC1B2C3BEF590080009C /* Main.storyboard */; };
+		B018EC1A2C3BEF590080009C /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC192C3BEF590080009C /* LogInViewController.swift */; };
 		B018EC1F2C3BEF5B0080009C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B018EC1E2C3BEF5B0080009C /* Assets.xcassets */; };
 		B018EC222C3BEF5B0080009C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B018EC202C3BEF5B0080009C /* LaunchScreen.storyboard */; };
+		B018EC2F2C3C03BD0080009C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC2E2C3C03BD0080009C /* Constants.swift */; };
+		B018EC312C3C04D40080009C /* SpotifyiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B018EC302C3C04D40080009C /* SpotifyiOS.framework */; };
+		B018EC342C3D6B0E0080009C /* LogInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC332C3D6B0E0080009C /* LogInViewModel.swift */; };
+		B018EC372C3D702F0080009C /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC362C3D702F0080009C /* Observable.swift */; };
+		B018EC3A2C3D717C0080009C /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC392C3D717C0080009C /* NetworkManager.swift */; };
+		B018EC3C2C3E87AA0080009C /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC3B2C3E87AA0080009C /* MainViewController.swift */; };
+		B018EC3E2C3E89C20080009C /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC3D2C3E89C20080009C /* MainViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B018EC122C3BEF590080009C /* musicPlayerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = musicPlayerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B018EC152C3BEF590080009C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B018EC172C3BEF590080009C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		B018EC192C3BEF590080009C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		B018EC1C2C3BEF590080009C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B018EC192C3BEF590080009C /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
 		B018EC1E2C3BEF5B0080009C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B018EC212C3BEF5B0080009C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B018EC232C3BEF5B0080009C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B018EC2B2C3C00B60080009C /* musicPlayerApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "musicPlayerApp-Bridging-Header.h"; sourceTree = "<group>"; };
+		B018EC2E2C3C03BD0080009C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		B018EC302C3C04D40080009C /* SpotifyiOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SpotifyiOS.framework; sourceTree = "<group>"; };
+		B018EC332C3D6B0E0080009C /* LogInViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewModel.swift; sourceTree = "<group>"; };
+		B018EC362C3D702F0080009C /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
+		B018EC392C3D717C0080009C /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		B018EC3B2C3E87AA0080009C /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		B018EC3D2C3E89C20080009C /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B018EC312C3C04D40080009C /* SpotifyiOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +55,8 @@
 			isa = PBXGroup;
 			children = (
 				B018EC142C3BEF590080009C /* musicPlayerApp */,
+				B018EC2B2C3C00B60080009C /* musicPlayerApp-Bridging-Header.h */,
+				B018EC302C3C04D40080009C /* SpotifyiOS.framework */,
 				B018EC132C3BEF590080009C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,15 +72,52 @@
 		B018EC142C3BEF590080009C /* musicPlayerApp */ = {
 			isa = PBXGroup;
 			children = (
-				B018EC152C3BEF590080009C /* AppDelegate.swift */,
 				B018EC172C3BEF590080009C /* SceneDelegate.swift */,
-				B018EC192C3BEF590080009C /* ViewController.swift */,
-				B018EC1B2C3BEF590080009C /* Main.storyboard */,
+				B018EC2E2C3C03BD0080009C /* Constants.swift */,
+				B018EC362C3D702F0080009C /* Observable.swift */,
+				B018EC382C3D703A0080009C /* View */,
+				B018EC352C3D6C6A0080009C /* Network */,
+				B018EC322C3D6AE00080009C /* ViewModel */,
+				B018EC292C3BF05E0080009C /* Utils */,
+			);
+			path = musicPlayerApp;
+			sourceTree = "<group>";
+		};
+		B018EC292C3BF05E0080009C /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				B018EC152C3BEF590080009C /* AppDelegate.swift */,
 				B018EC1E2C3BEF5B0080009C /* Assets.xcassets */,
 				B018EC202C3BEF5B0080009C /* LaunchScreen.storyboard */,
 				B018EC232C3BEF5B0080009C /* Info.plist */,
 			);
-			path = musicPlayerApp;
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		B018EC322C3D6AE00080009C /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				B018EC332C3D6B0E0080009C /* LogInViewModel.swift */,
+				B018EC3D2C3E89C20080009C /* MainViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		B018EC352C3D6C6A0080009C /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				B018EC392C3D717C0080009C /* NetworkManager.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		B018EC382C3D703A0080009C /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B018EC192C3BEF590080009C /* LogInViewController.swift */,
+				B018EC3B2C3E87AA0080009C /* MainViewController.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -99,6 +152,7 @@
 				TargetAttributes = {
 					B018EC112C3BEF590080009C = {
 						CreatedOnToolsVersion = 15.2;
+						LastSwiftMigration = 1520;
 					};
 				};
 			};
@@ -127,7 +181,6 @@
 			files = (
 				B018EC222C3BEF5B0080009C /* LaunchScreen.storyboard in Resources */,
 				B018EC1F2C3BEF5B0080009C /* Assets.xcassets in Resources */,
-				B018EC1D2C3BEF590080009C /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,23 +191,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B018EC1A2C3BEF590080009C /* ViewController.swift in Sources */,
+				B018EC1A2C3BEF590080009C /* LogInViewController.swift in Sources */,
 				B018EC162C3BEF590080009C /* AppDelegate.swift in Sources */,
 				B018EC182C3BEF590080009C /* SceneDelegate.swift in Sources */,
+				B018EC3A2C3D717C0080009C /* NetworkManager.swift in Sources */,
+				B018EC342C3D6B0E0080009C /* LogInViewModel.swift in Sources */,
+				B018EC372C3D702F0080009C /* Observable.swift in Sources */,
+				B018EC2F2C3C03BD0080009C /* Constants.swift in Sources */,
+				B018EC3C2C3E87AA0080009C /* MainViewController.swift in Sources */,
+				B018EC3E2C3E89C20080009C /* MainViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		B018EC1B2C3BEF590080009C /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				B018EC1C2C3BEF590080009C /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		B018EC202C3BEF5B0080009C /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -290,24 +341,32 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6HVH2XY748;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = musicPlayerApp/Info.plist;
+				INFOPLIST_FILE = musicPlayerApp/Utils/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = Kabulov.musicPlayerApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "musicPlayerApp-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -318,24 +377,31 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6HVH2XY748;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = musicPlayerApp/Info.plist;
+				INFOPLIST_FILE = musicPlayerApp/Utils/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = Kabulov.musicPlayerApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "musicPlayerApp-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
