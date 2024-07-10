@@ -69,7 +69,6 @@ final class RecommendationCell: UICollectionViewCell {
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		contentView.layoutIfNeeded()
-		artistImage.image = UIImage(named: "whiteBackground")
 	}
 }
 
@@ -82,11 +81,13 @@ extension RecommendationCell {
 			hStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
 			hStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 			hStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
+			artistImage.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
 		])
 	}
 
-	func setData(_ data: SPTAppRemoteContentItem) {
-		self.artistName.text = data.title
+	func setData(_ data: SPTAppRemoteContentItem?) {
+		self.artistName.text = data?.title
 	}
 
 	func loadImage(from url: String) {

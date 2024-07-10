@@ -12,7 +12,7 @@ final class MainViewController: UIViewController {
 	var viewModel: MainViewModel?
 	private var lastPlayerState: SPTAppRemotePlayerState?
 	private var dataSource: [SPTAppRemoteContentItem]?
-	
+	private var count = 0
 	private lazy var tableView: UITableView = {
 		let view = UITableView()
 		view.translatesAutoresizingMaskIntoConstraints = false
@@ -187,6 +187,7 @@ extension MainViewController {
 		self.viewModel?.contentItems.bind { [weak self] content in
 			guard let self = self, let content = content else { return }
 			self.dataSource = content
+			self.count = 0
 			self.tableView.reloadData()
 		}
 
@@ -205,7 +206,10 @@ extension MainViewController: SPTAppRemoteDelegate {
 		})
 		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
-		self.tableView.reloadData()
+		DispatchQueue.main.async {
+			self.count = 0
+			self.tableView.reloadData()
+		}
 		//		self.viewModel?.network.appRemote.
 	}
 
@@ -238,9 +242,14 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 		1
 	}
 	
+
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionCell.identifier, for: indexPath) as? SectionCell else { return UITableViewCell() }
-		cell.setData(data: self.dataSource)
+		guard let data = self.dataSource else { return cell }
+		if data.count > self.count {
+			cell.setData(data: data[count].children)
+		}
+		count += 1
 		return cell
 	}
 	
@@ -249,6 +258,6 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 	}
 
 	func numberOfSections(in tableView: UITableView) -> Int {
-		return dataSource?.count ?? 10
+		return dataSource?.count ?? 1
 	}
 }

@@ -60,6 +60,7 @@ final class SectionCell: UITableViewCell {
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		contentView.layoutIfNeeded()
+		self.recommendationCollectionView.reloadData()
 	}
 
 	required init?(coder: NSCoder) {
@@ -69,6 +70,9 @@ final class SectionCell: UITableViewCell {
 	//MARK: - Methods
 	func setData(data: [SPTAppRemoteContentItem]?) {
 		self.dataSource = data
+		DispatchQueue.main.async {
+			self.recommendationCollectionView.reloadData()
+		}
 	}
 }
 
@@ -88,7 +92,7 @@ private extension SectionCell {
 //MARK: - UICollectionViewDataSource & UICollectionViewDelegate
 extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate {
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		guard let data = self.dataSource?[section].children else { return 10 }
+		guard let data = self.dataSource else { return 0 }
 		return data.count
 	}
 
