@@ -118,6 +118,18 @@ final class NetworkManager: NSObject {
 		})
 	}
 
+	func fetchContentItem(uri: SPTAppRemoteContentItem?, completionHandler: @escaping ((UIImage?) -> Void)) {
+		guard let uri = uri else { return }
+		appRemote.imageAPI?.fetchImage(forItem: uri, with: CGSize.zero) { image, error in
+			if let error = error {
+				print("Error fetching Item image: " + error.localizedDescription)
+			} else if let image = image as? UIImage {
+				print("________________ ПОЛУЧИЛ КАРТИНКУ")
+				completionHandler(image)
+			}
+		}
+	}
+
 	func fetchPlayerState(completionHandler: @escaping ((SPTAppRemotePlayerState?) -> Void)) {
 		appRemote.playerAPI?.getPlayerState { (playerState, error) in
 			if let error = error {

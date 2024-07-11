@@ -9,12 +9,14 @@ import UIKit
 
 
 final class SectionCell: UITableViewCell {
+
 	//MARK: - Properties
 	static var identifier: String {
 		return String(describing: self)
 	}
-
-	private var dataSource: [SPTAppRemoteContentItem]?
+	var viewModel: MainViewModel?
+	private var images: [UIImage]?
+	private var dataSource: SPTAppRemoteContentItem?
 
 	static let rowHeight: CGFloat = 100
 	private var id: Int?
@@ -29,6 +31,14 @@ final class SectionCell: UITableViewCell {
 		static let medium: CGFloat = 8
 		static let large: CGFloat = 16
 	}
+	
+	private lazy var titleLabel: UILabel = {
+		let trackLabel = UILabel()
+		trackLabel.translatesAutoresizingMaskIntoConstraints = false
+		trackLabel.font = UIFont.preferredFont(forTextStyle: .body)
+		trackLabel.textAlignment = .left
+		return trackLabel
+	}()
 
 	private lazy var recommendationCollectionView: UICollectionView = {
 		let layout = UICollectionViewFlowLayout()
@@ -60,28 +70,34 @@ final class SectionCell: UITableViewCell {
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		contentView.layoutIfNeeded()
-		self.recommendationCollectionView.reloadData()
 	}
 
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
 
+
 	//MARK: - Methods
-	func setData(data: [SPTAppRemoteContentItem]?) {
+	func setData(_ vm: MainViewModel, data: SPTAppRemoteContentItem) {
 		self.dataSource = data
+		self.viewModel = vm
 		DispatchQueue.main.async {
-			self.recommendationCollectionView.reloadData()
+			self.titleLabel.text = self.dataSource?.title
+			
 		}
+		self.recommendationCollectionView.reloadData()
 	}
 }
 
 //MARK: - SectionCell
 private extension SectionCell {
 	func setupLayout() {
+		contentView.addSubview(titleLabel)
 		contentView.addSubview(recommendationCollectionView)
 		NSLayoutConstraint.activate([
-			recommendationCollectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
+			titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
+			titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
+			recommendationCollectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.medium),
 			recommendationCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
 			recommendationCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 			recommendationCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
@@ -92,14 +108,21 @@ private extension SectionCell {
 //MARK: - UICollectionViewDataSource & UICollectionViewDelegate
 extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate {
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		guard let data = self.dataSource else { return 0 }
+		guard let data = self.dataSource?.children else { return 0 }
 		return data.count
 	}
 
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		guard let cell = self.recommendationCollectionView.dequeueReusableCell(withReuseIdentifier: RecommendationCell.identifier, for: indexPath) as? RecommendationCell else { return UICollectionViewCell() }
-		guard let data = self.dataSource else { return cell }
-		cell.setData(data[indexPath.row])
+		guard let data = self.dataSource?.children, let cell = self.recommendationCollectionView.dequeueReusableCell(
+																				withReuseIdentifier: RecommendationCell.identifier,
+																				for: indexPath) as? RecommendationCell
+		else {
+			return UICollectionViewCell()
+		}
+		if data.count > indexPath.row {
+			cell.setData(vm: self.viewModel, data[indexPath.row])
+			cell.bindViewModel()
+		}
 		return cell
 	}
 

@@ -12,7 +12,8 @@ final class MainViewController: UIViewController {
 	var viewModel: MainViewModel?
 	private var lastPlayerState: SPTAppRemotePlayerState?
 	private var dataSource: [SPTAppRemoteContentItem]?
-	private var count = 0
+//	private var images: [UIImage]?
+
 	private lazy var tableView: UITableView = {
 		let view = UITableView()
 		view.translatesAutoresizingMaskIntoConstraints = false
@@ -150,6 +151,10 @@ extension MainViewController {
 	}
 
 	//MARK: - Actions
+
+
+
+
 	@objc func didTapPauseOrPlay(_ button: UIButton) {
 		if let lastPlayerState = lastPlayerState, lastPlayerState.isPaused {
 			self.viewModel?.network.appRemote.playerAPI?.resume(nil)
@@ -187,10 +192,12 @@ extension MainViewController {
 		self.viewModel?.contentItems.bind { [weak self] content in
 			guard let self = self, let content = content else { return }
 			self.dataSource = content
-			self.count = 0
 			self.tableView.reloadData()
 		}
 
+		self.viewModel?.itemPosters.bind { [weak self] dict in
+			self?.tableView.reloadData()
+		}
 	}
 }
 //MARK: - SPTAppRemoteDelegate
@@ -206,11 +213,7 @@ extension MainViewController: SPTAppRemoteDelegate {
 		})
 		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
-		DispatchQueue.main.async {
-			self.count = 0
-			self.tableView.reloadData()
-		}
-		//		self.viewModel?.network.appRemote.
+		self.tableView.reloadData()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
@@ -239,25 +242,14 @@ extension MainViewController: SPTAppRemotePlayerStateDelegate {
 //MARK: - UITableViewDelegate & UITableViewDataSource
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		1
+		return dataSource?.count ?? 0
 	}
 	
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionCell.identifier, for: indexPath) as? SectionCell else { return UITableViewCell() }
-		guard let data = self.dataSource else { return cell }
-		if data.count > self.count {
-			cell.setData(data: data[count].children)
-		}
-		count += 1
+		guard let data = self.dataSource, let viewModel = self.viewModel else { return cell }
+		cell.setData(viewModel, data: data[indexPath.row])
 		return cell
-	}
-	
-	func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-		return dataSource?[section].title
-	}
-
-	func numberOfSections(in tableView: UITableView) -> Int {
-		return dataSource?.count ?? 1
 	}
 }
