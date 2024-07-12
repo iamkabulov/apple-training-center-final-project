@@ -15,12 +15,9 @@ final class SectionCell: UITableViewCell {
 		return String(describing: self)
 	}
 	var viewModel: MainViewModel?
-	private var images: [UIImage]?
 	private var dataSource: SPTAppRemoteContentItem?
 
-	static let rowHeight: CGFloat = 100
-	private var id: Int?
-	private var path: String?
+	static let rowHeight: CGFloat = 240
 
 	private enum Spacing {
 		enum Size {
@@ -31,11 +28,22 @@ final class SectionCell: UITableViewCell {
 		static let medium: CGFloat = 8
 		static let large: CGFloat = 16
 	}
-	
+	//MARK: - StackViews
+	private lazy var vStackView: UIStackView = {
+		let stack = UIStackView()
+		stack.addSubview(titleLabel)
+		stack.addSubview(recommendationCollectionView)
+		stack.translatesAutoresizingMaskIntoConstraints = false
+//		stack.backgroundColor = .red
+		stack.axis = .vertical
+		stack.spacing = .zero
+		return stack
+	}()
+
 	private lazy var titleLabel: UILabel = {
 		let trackLabel = UILabel()
 		trackLabel.translatesAutoresizingMaskIntoConstraints = false
-		trackLabel.font = UIFont.preferredFont(forTextStyle: .body)
+		trackLabel.font = UIFont.systemFont(ofSize: 30, weight: .bold)
 		trackLabel.textAlignment = .left
 		return trackLabel
 	}()
@@ -92,11 +100,16 @@ final class SectionCell: UITableViewCell {
 //MARK: - SectionCell
 private extension SectionCell {
 	func setupLayout() {
-		contentView.addSubview(titleLabel)
-		contentView.addSubview(recommendationCollectionView)
+		contentView.addSubview(vStackView)
 		NSLayoutConstraint.activate([
+			vStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
+			vStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
+			vStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+			vStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: Spacing.large),
+
 			titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
 			titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
+
 			recommendationCollectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.medium),
 			recommendationCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
 			recommendationCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -106,7 +119,7 @@ private extension SectionCell {
 }
 
 //MARK: - UICollectionViewDataSource & UICollectionViewDelegate
-extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate {
+extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		guard let data = self.dataSource?.children else { return 0 }
 		return data.count
@@ -127,6 +140,6 @@ extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate {
 	}
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-		return CGSize(width: 100, height: 100)
+		return CGSize(width: 130, height: 170)
 	}
 }

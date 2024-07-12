@@ -81,7 +81,7 @@ final class MainViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .brown
+		view.backgroundColor = .systemBackground
 		self.layout()
 		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
@@ -182,12 +182,12 @@ extension MainViewController {
 			}
 		}
 
-		self.viewModel?.playerState.bind { [weak self] playerState in
-			guard let self = self, let playerState = playerState else { return }
-			DispatchQueue.main.async {
-				self.update(playerState: playerState)
-			}
-		}
+//		self.viewModel?.playerState.bind { [weak self] playerState in
+//			guard let self = self, let playerState = playerState else { return }
+//			DispatchQueue.main.async {
+//				self.update(playerState: playerState)
+//			}
+//		}
 
 		self.viewModel?.contentItems.bind { [weak self] content in
 			guard let self = self, let content = content else { return }
@@ -205,13 +205,15 @@ extension MainViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("Connected ")
 		updateViewBasedOnConnected()
-		appRemote.playerAPI?.delegate = self
-		appRemote.playerAPI?.subscribe(toPlayerState: { (success, error) in
-			if let error = error {
-				print("Error subscribing to player state:" + error.localizedDescription)
-			}
-		})
-		self.viewModel?.getPlayerState()
+		/// ЭТО ДЛЯ ЗАПУСКА ПЕСНИ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		/// Перенести в networkManager
+//		appRemote.playerAPI?.delegate = self
+//		appRemote.playerAPI?.subscribe(toPlayerState: { (success, error) in
+//			if let error = error {
+//				print("Error subscribing to player state:" + error.localizedDescription)
+//			}
+//		})
+//		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
 		self.tableView.reloadData()
 	}
@@ -244,11 +246,17 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return dataSource?.count ?? 0
 	}
-	
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionCell.identifier, for: indexPath) as? SectionCell else { return UITableViewCell() }
-		guard let data = self.dataSource, let viewModel = self.viewModel else { return cell }
+		guard let data = self.dataSource,
+			  let viewModel = self.viewModel
+		else { return cell }
+
+		if data[indexPath.row].children == nil {
+			cell.setData(viewModel, data: data[0])
+			return cell
+		}
 		cell.setData(viewModel, data: data[indexPath.row])
 		return cell
 	}

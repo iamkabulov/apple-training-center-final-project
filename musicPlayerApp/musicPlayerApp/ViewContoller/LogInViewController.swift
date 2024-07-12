@@ -15,7 +15,6 @@ class LogInViewController: UIViewController {
 	let stackView = UIStackView()
 	let connectLabel = UILabel()
 	let connectButton = UIButton(type: .custom)
-	let signOutButton = UIButton(type: .system)
 
 	// MARK: App Life Cycle
 	init() {
@@ -48,7 +47,7 @@ extension LogInViewController {
 	func style() {
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.axis = .vertical
-		stackView.spacing = 20
+//		stackView.spacing = 20
 		stackView.alignment = .center
 
 		connectLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -68,31 +67,36 @@ extension LogInViewController {
 		connectButton.layer.borderColor = UIColor.systemGreen.cgColor
 		connectButton.layer.borderWidth = 2
 		connectButton.layer.cornerRadius = 14
-		connectButton.addTarget(self, action: #selector(didTapConnect), for: .primaryActionTriggered)
+		connectButton.addTarget(self, action: #selector(didTapConnect), for: .touchDown)
 	}
 
 	func layout() {
 
-		stackView.addArrangedSubview(connectLabel)
-		stackView.addArrangedSubview(connectButton)
-		stackView.addArrangedSubview(signOutButton)
+		stackView.addSubview(connectLabel)
+		stackView.addSubview(connectButton)
 
 		view.addSubview(stackView)
 
 		NSLayoutConstraint.activate([
-			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+			stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+			stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+			stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+			stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+
+			connectLabel.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 20),
+			connectLabel.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+
+			connectButton.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+			connectButton.centerYAnchor.constraint(equalTo: stackView.centerYAnchor),
 		])
 	}
 
 	func updateViewBasedOnConnected() {
 		if viewModel?.network.appRemote.isConnected == true {
 			connectButton.isHidden = true
-			signOutButton.isHidden = false
 			connectLabel.isHidden = true
 		}
 		else { // show login
-			signOutButton.isHidden = true
 			connectButton.isHidden = false
 			connectLabel.isHidden = false
 		}
@@ -104,23 +108,16 @@ extension LogInViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		updateViewBasedOnConnected()
 		viewModel?.network.appRemote.delegate = nil
-		let vc = MainViewController()
+		let vc = MusicBarController()
 		vc.modalPresentationStyle = .fullScreen
 		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
-		updateViewBasedOnConnected()
+//		updateViewBasedOnConnected()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
-		updateViewBasedOnConnected()
-	}
-}
-
-// MARK: - SPTAppRemotePlayerAPIDelegate
-extension LogInViewController: SPTAppRemotePlayerStateDelegate {
-	func playerStateDidChange(_ playerState: SPTAppRemotePlayerState) {
-		debugPrint("Spotify Track name: %@", playerState.track.name)
+//		updateViewBasedOnConnected()
 	}
 }

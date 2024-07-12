@@ -22,8 +22,8 @@ final class RecommendationCell: UICollectionViewCell {
 		stack.addSubview(artistImage)
 		stack.addSubview(artistName)
 		stack.translatesAutoresizingMaskIntoConstraints = false
-		stack.backgroundColor = .blue
-		stack.axis = .horizontal
+//		stack.backgroundColor = .blue
+		stack.axis = .vertical
 		stack.spacing = .zero
 		return stack
 	}()
@@ -32,9 +32,11 @@ final class RecommendationCell: UICollectionViewCell {
 	private lazy var artistName: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
-		label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-		label.textAlignment = .center
+		label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+		label.textAlignment = .left
+		label.textColor = .lightGray
 		label.text = "Music"
+		label.numberOfLines = 2
 		return label
 	}()
 
@@ -49,9 +51,9 @@ final class RecommendationCell: UICollectionViewCell {
 		let image = UIImageView()
 		image.translatesAutoresizingMaskIntoConstraints = false
 		image.image = nil
-		image.contentMode = .scaleAspectFill
-		image.heightAnchor.constraint(equalToConstant: 100).isActive = true
-		image.widthAnchor.constraint(equalToConstant: 100).isActive = true
+		image.contentMode = .scaleAspectFit
+		image.heightAnchor.constraint(equalToConstant: 130).isActive = true
+		image.widthAnchor.constraint(equalToConstant: 130).isActive = true
 		image.clipsToBounds = true
 		return image
 	}()
@@ -110,7 +112,12 @@ extension RecommendationCell {
 			hStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 			hStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 
-			artistImage.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+			artistImage.topAnchor.constraint(equalTo: contentView.topAnchor),
+			artistImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+
+			artistName.topAnchor.constraint(equalTo: artistImage.bottomAnchor, constant: 8),
+			artistName.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+			artistName.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
 		])
 	}
 
@@ -118,7 +125,11 @@ extension RecommendationCell {
 		guard let data = data else { return }
 		self.viewModel = vm
 		self.id = data.identifier
-		self.artistName.text = data.title
+		if data.subtitle == "" {
+			self.artistName.text = data.title
+		} else {
+			self.artistName.text = data.subtitle
+		}
 		bindViewModel()
 		if let cachedImage = viewModel?.itemPosters.value(forKey: data.identifier) {
 			DispatchQueue.main.async {

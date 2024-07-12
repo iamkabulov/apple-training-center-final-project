@@ -33,6 +33,7 @@ final class MainViewModel {
 	}
 
 	func getContentItems() {
+		print("___________________________ ITEMs GET REQUEST KETTI")
 		network.fetchContentItems { contentItems in
 			self.contentItems.value = contentItems
 		}
