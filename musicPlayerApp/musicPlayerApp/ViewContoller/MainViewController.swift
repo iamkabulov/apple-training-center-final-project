@@ -254,10 +254,10 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 		else { return cell }
 
 		if data[indexPath.row].children == nil {
-			cell.setData(viewModel, data: data[0])
+			cell.setData(viewController: self, viewModel: viewModel, data: data[0])
 			return cell
 		}
-		cell.setData(viewModel, data: data[indexPath.row])
+		cell.setData(viewController: self, viewModel: viewModel, data: data[indexPath.row])
 		return cell
 	}
 }

@@ -22,6 +22,7 @@
 		B04850382C3ED94E00C6F899 /* RecommendationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04850372C3ED94E00C6F899 /* RecommendationCell.swift */; };
 		B048503E2C3F015600C6F899 /* SectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B048503D2C3F015600C6F899 /* SectionCell.swift */; };
 		B0D53C5C2C41557400E377A3 /* MusicBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C5B2C41557400E377A3 /* MusicBarController.swift */; };
+		B0D53C5E2C42E45800E377A3 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C5D2C42E45800E377A3 /* ListViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 		B04850372C3ED94E00C6F899 /* RecommendationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationCell.swift; sourceTree = "<group>"; };
 		B048503D2C3F015600C6F899 /* SectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCell.swift; sourceTree = "<group>"; };
 		B0D53C5B2C41557400E377A3 /* MusicBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicBarController.swift; sourceTree = "<group>"; };
+		B0D53C5D2C42E45800E377A3 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +126,7 @@
 				B018EC192C3BEF590080009C /* LogInViewController.swift */,
 				B04850342C3EB6FD00C6F899 /* MainViewController.swift */,
 				B0D53C5B2C41557400E377A3 /* MusicBarController.swift */,
+				B0D53C5D2C42E45800E377A3 /* ListViewController.swift */,
 			);
 			path = ViewContoller;
 			sourceTree = "<group>";
@@ -219,6 +222,7 @@
 				B018EC2F2C3C03BD0080009C /* Constants.swift in Sources */,
 				B0D53C5C2C41557400E377A3 /* MusicBarController.swift in Sources */,
 				B04850382C3ED94E00C6F899 /* RecommendationCell.swift in Sources */,
+				B0D53C5E2C42E45800E377A3 /* ListViewController.swift in Sources */,
 				B018EC3E2C3E89C20080009C /* MainViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

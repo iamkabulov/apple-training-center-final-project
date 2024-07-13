@@ -14,6 +14,7 @@ final class MainViewModel {
 	var playerState: Observable<SPTAppRemotePlayerState> = Observable(nil)
 	var contentItems: Observable<[SPTAppRemoteContentItem]> = Observable(nil)
 	var itemPosters: ObservableDictionary<String, UIImage> = ObservableDictionary()
+	var childrenOfContent: Observable<[SPTAppRemoteContentItem]> = Observable(nil)
 	private var imageCache: [String: UIImage] = [:]
 
 	init(_ view: SPTAppRemoteDelegate) {
@@ -33,7 +34,6 @@ final class MainViewModel {
 	}
 
 	func getContentItems() {
-		print("___________________________ ITEMs GET REQUEST KETTI")
 		network.fetchContentItems { contentItems in
 			self.contentItems.value = contentItems
 		}
@@ -51,6 +51,13 @@ final class MainViewModel {
 				self.itemPosters.updateValue(image, forKey: cellID)
 				NotificationCenter.default.post(name: .imageLoaded, object: nil, userInfo: ["cellID": cellID])
 			}
+		}
+	}
+
+	func getListOf(content: SPTAppRemoteContentItem) {
+		network.fetchContentItemChildren(contentItem: content) { items in
+			print("1111111111:            \(items)")
+//			self.contentItems.value = items
 		}
 	}
 }

@@ -15,6 +15,7 @@ final class SectionCell: UITableViewCell {
 		return String(describing: self)
 	}
 	var viewModel: MainViewModel?
+	weak var viewController: MainViewController?
 	private var dataSource: SPTAppRemoteContentItem?
 
 	static let rowHeight: CGFloat = 240
@@ -84,9 +85,21 @@ final class SectionCell: UITableViewCell {
 		fatalError("init(coder:) has not been implemented")
 	}
 
+	func bindViewModel() {
+		self.viewModel?.childrenOfContent.bind { [weak self] items in
+			DispatchQueue.main.async {
+				print(items)
+			}
+		}
+	}
+
 
 	//MARK: - Methods
-	func setData(_ vm: MainViewModel, data: SPTAppRemoteContentItem) {
+	func setData(viewController controller: MainViewController,
+				 viewModel vm: MainViewModel,
+				 data: SPTAppRemoteContentItem)
+	{
+		self.viewController = controller
 		self.dataSource = data
 		self.viewModel = vm
 		DispatchQueue.main.async {
@@ -141,5 +154,14 @@ extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UIC
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 		return CGSize(width: 130, height: 170)
+	}
+
+	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+		guard let data = self.dataSource?.children else { return }
+		let vc = ListViewController()
+		vc.modalPresentationStyle = .fullScreen
+		self.viewModel?.getListOf(content: data[indexPath.row])
+		self.bindViewModel()
+//			self.viewController?.present(vc, animated: true)
 	}
 }

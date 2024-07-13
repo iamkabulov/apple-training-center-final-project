@@ -130,6 +130,18 @@ final class NetworkManager: NSObject {
 		}
 	}
 
+	func fetchContentItemChildren(contentItem: SPTAppRemoteContentItem?, completionHandler: @escaping (([SPTAppRemoteContentItem]?) -> Void)) {
+		guard let contentItem = contentItem else { return }
+		appRemote.contentAPI?.fetchChildren(of: contentItem) { items, error in
+			if let error = error {
+				print("Error fetching Item image: " + error.localizedDescription)
+			} else if let items = items as? [SPTAppRemoteContentItem] {
+				print("________________ ПОЛУЧИЛ CHILDRENs \(items)")
+				completionHandler(items)
+			}
+		}
+	}
+
 	func fetchPlayerState(completionHandler: @escaping ((SPTAppRemotePlayerState?) -> Void)) {
 		appRemote.playerAPI?.getPlayerState { (playerState, error) in
 			if let error = error {
