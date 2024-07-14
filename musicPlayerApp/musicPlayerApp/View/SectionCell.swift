@@ -161,6 +161,7 @@ extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UIC
 		let vc = ListViewController()
 		vc.modalPresentationStyle = .fullScreen
 		self.viewModel?.getListOf(content: data[indexPath.row])
+		self.viewModel?.network.search()
 		self.bindViewModel()
 //			self.viewController?.present(vc, animated: true)
 	}

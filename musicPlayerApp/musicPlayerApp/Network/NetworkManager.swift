@@ -35,6 +35,8 @@ final class NetworkManager: NSObject {
 				}
 				let accessToken = dictionary!["access_token"] as! String
 				DispatchQueue.main.async {
+					print("TUT ACCESSTOKEN_______")
+					self.accessToken = accessToken
 					self.appRemote.connectionParameters.accessToken = accessToken
 					self.appRemote.connect()
 				}
@@ -132,6 +134,8 @@ final class NetworkManager: NSObject {
 
 	func fetchContentItemChildren(contentItem: SPTAppRemoteContentItem?, completionHandler: @escaping (([SPTAppRemoteContentItem]?) -> Void)) {
 		guard let contentItem = contentItem else { return }
+
+		print(UserDefaults.standard.string(forKey: accessTokenKey))
 		appRemote.contentAPI?.fetchChildren(of: contentItem) { items, error in
 			if let error = error {
 				print("Error fetching Item image: " + error.localizedDescription)
@@ -140,6 +144,28 @@ final class NetworkManager: NSObject {
 				completionHandler(items)
 			}
 		}
+	}
+
+	func search() {
+		let url = URL(string: "https://api.spotify.com/v1/search?q=track%3A5000&type=track&include_external=audio")!
+		guard let token = self.accessToken else { return}
+		let headers = [
+			"Authorization": "Bearer \(token)"
+		]
+		var request = URLRequest(url: url)
+		request.allHTTPHeaderFields = headers
+
+		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+			if let error = error {
+				print(error)
+			} else if let data = data {
+				let str = String(data: data, encoding: .utf8)
+				print("____________________________________")
+				print(str ?? "")
+			}
+		}
+
+		task.resume()
 	}
 
 	func fetchPlayerState(completionHandler: @escaping ((SPTAppRemotePlayerState?) -> Void)) {
