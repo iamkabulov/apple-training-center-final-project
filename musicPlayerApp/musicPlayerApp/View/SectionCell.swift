@@ -85,14 +85,6 @@ final class SectionCell: UITableViewCell {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	func bindViewModel() {
-		self.viewModel?.childrenOfContent.bind { [weak self] items in
-			DispatchQueue.main.async {
-				print(items)
-			}
-		}
-	}
-
 
 	//MARK: - Methods
 	func setData(viewController controller: MainViewController,
@@ -158,11 +150,11 @@ extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UIC
 
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let data = self.dataSource?.children else { return }
-		let vc = ListViewController()
+		let vc = ListViewController(item: data[indexPath.row])
 		vc.modalPresentationStyle = .fullScreen
-		self.viewModel?.getListOf(content: data[indexPath.row])
-		self.viewModel?.network.search()
-		self.bindViewModel()
-//			self.viewController?.present(vc, animated: true)
+//		self.viewModel?.network.search()
+//		self.bindViewModel()
+		self.viewModel?.network.appRemote.delegate = nil
+		self.viewController?.navigationController?.pushViewController(vc, animated: true)
 	}
 }

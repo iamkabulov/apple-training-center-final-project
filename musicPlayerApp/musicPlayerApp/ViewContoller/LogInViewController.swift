@@ -20,6 +20,7 @@ class LogInViewController: UIViewController {
 	init() {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = LogInViewModel(self)
+		self.viewModel?.network.appRemote.delegate = self
 	}
 	
 	required init?(coder: NSCoder) {
@@ -28,6 +29,7 @@ class LogInViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		view.backgroundColor = .systemBackground
 		style()
 		layout()
 	}
@@ -52,7 +54,7 @@ extension LogInViewController {
 
 		connectLabel.translatesAutoresizingMaskIntoConstraints = false
 		connectLabel.text = "Log in to Spotify"
-		connectLabel.textColor = .white
+//		connectLabel.textColor = .
 		connectLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
 
 		connectButton.translatesAutoresizingMaskIntoConstraints = false
@@ -60,11 +62,11 @@ extension LogInViewController {
 		cfg.imagePadding = 10
 		connectButton.configuration = cfg
 		connectButton.setTitle("Continue with Spotify", for: [])
-		connectButton.tintColor = .systemGreen
+		connectButton.tintColor = .black
 		connectButton.setImage(UIImage(named: "stpGreenIcon"), for: [])
 		connectButton.imageView?.contentMode = .scaleAspectFit
 		connectButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .title2)
-		connectButton.layer.borderColor = UIColor.systemGreen.cgColor
+		connectButton.layer.borderColor = UIColor.black.cgColor
 		connectButton.layer.borderWidth = 2
 		connectButton.layer.cornerRadius = 14
 		connectButton.addTarget(self, action: #selector(didTapConnect), for: .touchDown)

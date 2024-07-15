@@ -134,8 +134,6 @@ final class NetworkManager: NSObject {
 
 	func fetchContentItemChildren(contentItem: SPTAppRemoteContentItem?, completionHandler: @escaping (([SPTAppRemoteContentItem]?) -> Void)) {
 		guard let contentItem = contentItem else { return }
-
-		print(UserDefaults.standard.string(forKey: accessTokenKey))
 		appRemote.contentAPI?.fetchChildren(of: contentItem) { items, error in
 			if let error = error {
 				print("Error fetching Item image: " + error.localizedDescription)
@@ -166,6 +164,10 @@ final class NetworkManager: NSObject {
 		}
 
 		task.resume()
+
+//		appRemote.playerAPI?.play("spotify:track:4SoNwm8ceBTUWdE5Ua5dxF", asRadio: false, callback: { response, error in
+//			print("play song")
+//		})
 	}
 
 	func fetchPlayerState(completionHandler: @escaping ((SPTAppRemotePlayerState?) -> Void)) {

@@ -220,14 +220,18 @@ extension MainViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("Failed")
-		updateViewBasedOnConnected()
-		lastPlayerState = nil
+		viewModel?.network.appRemote.delegate = nil
+		let vc = LogInViewController()
+		vc.modalPresentationStyle = .fullScreen
+		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("Disconnected With Error")
-		updateViewBasedOnConnected()
-		lastPlayerState = nil
+		viewModel?.network.appRemote.delegate = nil
+		let vc = LogInViewController()
+		vc.modalPresentationStyle = .fullScreen
+		self.present(vc, animated: true)
 	}
 }
 

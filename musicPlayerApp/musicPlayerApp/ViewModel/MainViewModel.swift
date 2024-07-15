@@ -53,13 +53,6 @@ final class MainViewModel {
 			}
 		}
 	}
-
-	func getListOf(content: SPTAppRemoteContentItem) {
-		network.fetchContentItemChildren(contentItem: content) { items in
-			print("1111111111:            \(items)")
-//			self.contentItems.value = items
-		}
-	}
 }
 
 extension Notification.Name {
