@@ -164,10 +164,16 @@ final class NetworkManager: NSObject {
 		}
 
 		task.resume()
+	}
 
-//		appRemote.playerAPI?.play("spotify:track:4SoNwm8ceBTUWdE5Ua5dxF", asRadio: false, callback: { response, error in
-//			print("play song")
-//		})
+	func play(_ uri: String) {
+		appRemote.playerAPI?.play(uri, asRadio: false, callback: { response, error in
+			if let error = error {
+				print("Error getting player state:" + error.localizedDescription)
+			} else if let response = response  {
+				print(response)
+			}
+		})
 	}
 
 	func fetchPlayerState(completionHandler: @escaping ((SPTAppRemotePlayerState?) -> Void)) {

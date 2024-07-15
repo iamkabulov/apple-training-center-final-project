@@ -163,6 +163,12 @@ extension ListViewController: UICollectionViewDataSource {
 
 		return headerView
 	}
+
+	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+		guard let uri = self.items?[indexPath.row].uri else { return }
+		self.viewModel?.network.appRemote.delegate = nil
+		self.navigationController?.pushViewController(PlayerViewController(uri), animated: true)
+	}
 }
 
 extension ListViewController: UICollectionViewDelegateFlowLayout {
@@ -180,17 +186,17 @@ extension ListViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("2")
-		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+//		viewModel?.network.appRemote.delegate = nil
+//		let vc = LogInViewController()
+//		vc.modalPresentationStyle = .fullScreen
+//		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("3")
-		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+//		viewModel?.network.appRemote.delegate = nil
+//		let vc = LogInViewController()
+//		vc.modalPresentationStyle = .fullScreen
+//		self.present(vc, animated: true)
 	}
 }

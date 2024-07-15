@@ -26,6 +26,8 @@
 		B0D53C602C44EB6600E377A3 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C5F2C44EB6600E377A3 /* HeaderView.swift */; };
 		B0D53C622C44EBD400E377A3 /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C612C44EBD400E377A3 /* ListCell.swift */; };
 		B0D53C642C45180F00E377A3 /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C632C45180F00E377A3 /* ListViewModel.swift */; };
+		B0D53C662C4570F300E377A3 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C652C4570F300E377A3 /* PlayerViewController.swift */; };
+		B0D53C682C45755600E377A3 /* PlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C672C45755600E377A3 /* PlayerViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +53,8 @@
 		B0D53C5F2C44EB6600E377A3 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		B0D53C612C44EBD400E377A3 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 		B0D53C632C45180F00E377A3 /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
+		B0D53C652C4570F300E377A3 /* PlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		B0D53C672C45755600E377A3 /* PlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +119,7 @@
 				B018EC332C3D6B0E0080009C /* LogInViewModel.swift */,
 				B018EC3D2C3E89C20080009C /* MainViewModel.swift */,
 				B0D53C632C45180F00E377A3 /* ListViewModel.swift */,
+				B0D53C672C45755600E377A3 /* PlayerViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -134,6 +139,7 @@
 				B04850342C3EB6FD00C6F899 /* MainViewController.swift */,
 				B0D53C5B2C41557400E377A3 /* MusicBarController.swift */,
 				B0D53C5D2C42E45800E377A3 /* ListViewController.swift */,
+				B0D53C652C4570F300E377A3 /* PlayerViewController.swift */,
 			);
 			path = ViewContoller;
 			sourceTree = "<group>";
@@ -229,6 +235,7 @@
 				B0D53C642C45180F00E377A3 /* ListViewModel.swift in Sources */,
 				B018EC342C3D6B0E0080009C /* LogInViewModel.swift in Sources */,
 				B018EC372C3D702F0080009C /* Observable.swift in Sources */,
+				B0D53C682C45755600E377A3 /* PlayerViewModel.swift in Sources */,
 				B04850352C3EB6FD00C6F899 /* MainViewController.swift in Sources */,
 				B018EC2F2C3C03BD0080009C /* Constants.swift in Sources */,
 				B0D53C5C2C41557400E377A3 /* MusicBarController.swift in Sources */,
@@ -236,6 +243,7 @@
 				B0D53C5E2C42E45800E377A3 /* ListViewController.swift in Sources */,
 				B018EC3E2C3E89C20080009C /* MainViewModel.swift in Sources */,
 				B0D53C602C44EB6600E377A3 /* HeaderView.swift in Sources */,
+				B0D53C662C4570F300E377A3 /* PlayerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

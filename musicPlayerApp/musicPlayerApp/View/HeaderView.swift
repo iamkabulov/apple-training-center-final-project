@@ -101,9 +101,9 @@ extension HeaderView {
 		])
 	}
 
-	override var intrinsicContentSize: CGSize {
-		return CGSize(width: 300, height: 300)
-	}
+//	override var intrinsicContentSize: CGSize {
+//		return CGSize(width: 300, height: 240)
+//	}
 
 }
 

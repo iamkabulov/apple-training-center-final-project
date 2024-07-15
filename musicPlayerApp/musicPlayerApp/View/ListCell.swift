@@ -21,6 +21,7 @@ class ListCell: UICollectionViewCell {
 		label.adjustsFontSizeToFitWidth = true
 		return label
 	}()
+	
 	private lazy var accessoryImageView: UIImageView = {
 		let imageView = UIImageView()
 
