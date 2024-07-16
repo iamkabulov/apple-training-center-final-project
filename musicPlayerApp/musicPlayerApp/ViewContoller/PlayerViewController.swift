@@ -10,8 +10,8 @@ import UIKit
 final class PlayerViewController: UIViewController {
 
 	var viewModel: PlayerViewModel?
-//	private var playerState: SPTAppRemotePlayerState?
-	private var uri: String
+	private var isPaused = false
+	private var item: SPTAppRemoteContentItem
 	private var timer: Timer?
 	private var currentTime: Double = 0
 	private var durationTime: Double = 0
@@ -25,11 +25,21 @@ final class PlayerViewController: UIViewController {
 		return imageView
 	}()
 
-	private lazy var label: UILabel = {
+	private lazy var trackLabel: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.adjustsFontForContentSizeCategory = true
-		label.font = UIFont.preferredFont(forTextStyle: .body)
+		label.font = UIFont.systemFont(ofSize: 22, weight: .bold)
+		label.textColor = .label
+		label.adjustsFontSizeToFitWidth = true
+		return label
+	}()
+
+	private lazy var artistLabel: UILabel = {
+		let label = UILabel()
+		label.translatesAutoresizingMaskIntoConstraints = false
+		label.adjustsFontForContentSizeCategory = true
+		label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
 		label.textColor = .label
 		label.adjustsFontSizeToFitWidth = true
 		return label
@@ -39,21 +49,55 @@ final class PlayerViewController: UIViewController {
 		let slider = UISlider()
 		slider.translatesAutoresizingMaskIntoConstraints = false
 		slider.widthAnchor.constraint(equalToConstant: 300).isActive = true
-		slider.thumbTintColor = UIColor.init(cgColor: (CGColor(red: 0, green: 0, blue: 0, alpha: 0.7))) // button
+		slider.thumbTintColor = .black// button
 		slider.tintColor = UIColor.init(cgColor: (CGColor(red: 0, green: 0, blue: 0, alpha: 0.7))) // used value
 //		slider.value = 0
-		slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
+		slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .touchUpInside)
+		let configuration = UIImage.SymbolConfiguration(pointSize: 12)
+		let image = UIImage(systemName: "circle.fill", withConfiguration: configuration)
+		slider.setThumbImage(image, for: .normal)
 		return slider
 	}()
 
+	private lazy var currentTimeLabel: UILabel = {
+		let label = UILabel()
+		label.translatesAutoresizingMaskIntoConstraints = false
+		label.adjustsFontForContentSizeCategory = true
+		label.font = UIFont.preferredFont(forTextStyle: .body)
+		label.textColor = .label
+		label.adjustsFontSizeToFitWidth = true
+		return label
+	}()
 
-	init(_ uri: String) {
-		self.uri = uri
+	private lazy var durationTimeLabel: UILabel = {
+		let label = UILabel()
+		label.translatesAutoresizingMaskIntoConstraints = false
+		label.adjustsFontForContentSizeCategory = true
+		label.font = UIFont.preferredFont(forTextStyle: .body)
+		label.textColor = .label
+		label.adjustsFontSizeToFitWidth = true
+		return label
+	}()
+
+	private lazy var playPauseButton: UIButton = {
+		let button = UIButton()
+		button.translatesAutoresizingMaskIntoConstraints = false
+		let configuration = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
+		button.tintColor = .black
+
+		button.addTarget(self, action: #selector(didTapPauseOrPlay), for: .touchUpInside)
+		return button
+	}()
+
+
+	init(_ item: SPTAppRemoteContentItem) {
+		self.item = item
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = PlayerViewModel(self)
-		self.viewModel?.playMusic(uri)
+		viewModel?.network.appRemote.playerAPI?.delegate = self
+		self.viewModel?.playMusic(item)
+		self.viewModel?.getPoster(for: item)
 		self.viewModel?.getPlayerState()
-
 	}
 
 	required init?(coder: NSCoder) {
@@ -62,11 +106,12 @@ final class PlayerViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		startTimer()
+//		startTimer()
 		setup()
 		view.backgroundColor = .systemBackground
 		self.navigationController?.navigationBar.topItem?.title = ""
 		bindViewModel()
+		viewModel?.subscribeToState()
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
@@ -94,18 +139,19 @@ final class PlayerViewController: UIViewController {
 		}
 
 		self.viewModel?.playerState.bind { playerState in
-			if playerState?.track.uri == self.uri {
+			if playerState?.track.uri == self.lastPlayerState?.track.uri {
 				guard let playerState = playerState else { return }
-
 				self.lastPlayerState = playerState
-				//			self.currentTime = Double(playerState.playbackPosition / 10000)
-				print(playerState.track.duration)
+
 				DispatchQueue.main.async {
 					self.durationTime = Double(playerState.track.duration / 1000)
-					print(self.durationTime)
-					print(playerState.track.name)
+					self.trackLabel.text = playerState.track.name
+					self.artistLabel.text = playerState.track.artist.name
 					self.slider.maximumValue = Float(self.durationTime)
+					self.durationTimeLabel.text = self.formatTime(self.durationTime)
 					self.slider.minimumValue = 0
+					self.startTimer()
+					self.update(playerState: playerState)
 				}
 			} else {
 				self.viewModel?.getPlayerState()
@@ -114,6 +160,10 @@ final class PlayerViewController: UIViewController {
 	}
 
 	func startTimer() {
+		if timer != nil {
+			// Если таймер уже запущен, ничего не делаем
+			return
+		}
 		timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateSlider), userInfo: nil, repeats: true)
 	}
 
@@ -124,45 +174,103 @@ final class PlayerViewController: UIViewController {
 
 	@objc func updateSlider() {
 		guard let playerState = lastPlayerState else { return }
-		if !playerState.isPaused {
+		if !isPaused {
 			currentTime += 0.1 // Увеличиваем текущее время на 100 миллисекунд (0.1 секунды)
 			if currentTime >= self.durationTime {
 				stopTimer()
 				currentTime = self.durationTime
+				self.currentTime = 0
+				self.slider.value = 0
 			}
 			slider.value = Float(currentTime)
-			print(currentTime)
-//			print(self.slider.maximumValue)
+			self.setCurrentTime(currentTime)
 		}
 	}
 
 	@objc func sliderValueChanged(_ sender: UISlider) {
 		currentTime = Double(sender.value)
+		viewModel?.network.seekToPosition(Int(sender.value)) //MARK: - Podumat'
 	}
 
-	func update(playerState: SPTAppRemotePlayerState) {
+	@objc func didTapPauseOrPlay(_ button: UIButton) {
+		if isPaused {
+			viewModel?.play()
+			startTimer()
+			isPaused = false
+		} else {
+			viewModel?.pause()
+			stopTimer()
+			isPaused = true
+		}
+		self.update(playerState: self.lastPlayerState)
+	}
+
+	private func formatTime(_ seconds: Double) -> String {
+		let minutes = Int(seconds) / 60
+		let remainingSeconds = Int(seconds) % 60
+		return String(format: "%d:%02d", minutes, remainingSeconds)
+	}
+
+	// Установка длительности трека и перезапуск таймера
+	func setCurrentTime(_ duration: Double) {
+		currentTimeLabel.text = formatTime(currentTime)
+	}
+
+	func update(playerState: SPTAppRemotePlayerState?) {
 //		if lastPlayerState?.track.uri != playerState.track.uri {
 //			fetchArtwork(for: playerState.track)
 //		}
 //		lastPlayerState = playerState
 //		trackLabel.text = playerState.track.name
 //
-//		let configuration = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
-//		if playerState.isPaused {
-//			playPauseButton.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: configuration), for: .normal)
-//		} else {
-//			playPauseButton.setImage(UIImage(systemName: "pause.circle.fill", withConfiguration: configuration), for: .normal)
-//		}
+		let configuration = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
+		if isPaused {
+			DispatchQueue.main.async {
+				self.playPauseButton.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: configuration), for: .normal)
+			}
+		} else {
+			DispatchQueue.main.async {
+				self.playPauseButton.setImage(UIImage(systemName: "pause.circle.fill", withConfiguration: configuration), for: .normal)
+
+			}
+		}
 	}
 }
 
 extension PlayerViewController {
 	func setup() {
 		view.addSubview(slider)
+		view.addSubview(currentTimeLabel)
+		view.addSubview(durationTimeLabel)
+		view.addSubview(trackLabel)
+		view.addSubview(imageView)
+		view.addSubview(artistLabel)
+		view.addSubview(playPauseButton)
 
 		NSLayoutConstraint.activate([
+			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+			imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+			trackLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
+			trackLabel.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
+			trackLabel.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
+
+			artistLabel.topAnchor.constraint(equalTo: trackLabel.bottomAnchor, constant: 10),
+			artistLabel.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
+			artistLabel.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
+
 			slider.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			slider.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+			slider.topAnchor.constraint(equalTo: artistLabel.bottomAnchor, constant: 10),
+
+			currentTimeLabel.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 4),
+			currentTimeLabel.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
+
+			durationTimeLabel.topAnchor.constraint(equalTo: currentTimeLabel.topAnchor),
+			durationTimeLabel.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
+
+			playPauseButton.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 20),
+			playPauseButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
 		])
 	}
 }
@@ -174,7 +282,7 @@ extension PlayerViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("2")
-		lastPlayerState = nil
+//		lastPlayerState = nil
 //		viewModel?.network.appRemote.delegate = nil
 //		let vc = LogInViewController()
 //		vc.modalPresentationStyle = .fullScreen
@@ -183,10 +291,22 @@ extension PlayerViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("3")
-		lastPlayerState = nil
+//		lastPlayerState = nil
 //		viewModel?.network.appRemote.delegate = nil
 //		let vc = LogInViewController()
 //		vc.modalPresentationStyle = .fullScreen
 //		self.present(vc, animated: true)
+	}
+}
+
+extension PlayerViewController: SPTAppRemotePlayerStateDelegate {
+	func playerStateDidChange(_ playerState: SPTAppRemotePlayerState) {
+		debugPrint("Spotify Track name: %@", playerState.track.name)
+		if playerState.track.uri != self.lastPlayerState?.track.uri {
+			self.lastPlayerState = playerState
+			self.viewModel?.getPoster(for: playerState.track)
+			self.viewModel?.getPlayerState()
+			self.startTimer()
+		}
 	}
 }

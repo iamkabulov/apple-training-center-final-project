@@ -166,8 +166,8 @@ final class NetworkManager: NSObject {
 		task.resume()
 	}
 
-	func play(_ uri: String) {
-		appRemote.playerAPI?.play(uri, asRadio: false, callback: { response, error in
+	func play(_ uri: SPTAppRemoteContentItem) {
+		appRemote.playerAPI?.play(uri, skipToTrackIndex: 0, callback: { response, error in
 			if let error = error {
 				print("Error getting player state:" + error.localizedDescription)
 			} else if let response = response  {
@@ -181,9 +181,29 @@ final class NetworkManager: NSObject {
 			if let error = error {
 				print("Error getting player state:" + error.localizedDescription)
 			} else if let playerState = playerState as? SPTAppRemotePlayerState {
-//				self?.update(playerState: playerState)
 				completionHandler(playerState)
-				///VIEWMODEL BIND
+			}
+		}
+	}
+
+	func play() {
+		appRemote.playerAPI?.resume(nil)
+	}
+
+	func pause() {
+		appRemote.playerAPI?.pause(nil)
+	}
+
+	func seekToPosition(_ position: Int) {
+		appRemote.playerAPI?.seek(toPosition: position * 1000)
+	}
+
+	func subscribeToState(completionHandler: @escaping (SPTAppRemotePlayerState)->Void ) {
+		appRemote.playerAPI?.subscribe { success, error in
+			if let error = error {
+				print("Error subscribing to player state:" + error.localizedDescription)
+			} else if let success = success as? SPTAppRemotePlayerState {
+				completionHandler(success)
 			}
 		}
 	}

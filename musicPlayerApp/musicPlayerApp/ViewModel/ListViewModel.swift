@@ -33,9 +33,4 @@ final class ListViewModel {
 		guard let count = self.childrenOfContent.value?.count else { return 0 }
 		return count
 	}
-
-	func playMusic(_ track: String?) {
-		guard let track = track else { return }
-		network.play(track)
-	}
 }

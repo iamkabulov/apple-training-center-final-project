@@ -69,7 +69,7 @@ extension LogInViewController {
 		connectButton.layer.borderColor = UIColor.black.cgColor
 		connectButton.layer.borderWidth = 2
 		connectButton.layer.cornerRadius = 14
-		connectButton.addTarget(self, action: #selector(didTapConnect), for: .touchDown)
+		connectButton.addTarget(self, action: #selector(didTapConnect), for: .touchUpInside)
 	}
 
 	func layout() {

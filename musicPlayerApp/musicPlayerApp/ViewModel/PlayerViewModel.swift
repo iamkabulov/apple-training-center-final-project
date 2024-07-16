@@ -30,8 +30,7 @@ final class PlayerViewModel {
 		}
 	}
 
-	func playMusic(_ track: String?) {
-		guard let track = track else { return }
+	func playMusic(_ track: SPTAppRemoteContentItem) {
 		network.play(track)
 	}
 
@@ -40,5 +39,20 @@ final class PlayerViewModel {
 			guard let playerState = playerState else { return }
 			self.playerState.value = playerState
 		}
+	}
+
+	func play() {
+		network.play()
+	}
+
+	func pause() {
+		network.pause()
+	}
+
+	func subscribeToState() {
+		network.subscribeToState { playerState in
+			self.playerState.value = playerState
+		}
+		network.appRemote.playerAPI?.setShuffle(false)
 	}
 }
