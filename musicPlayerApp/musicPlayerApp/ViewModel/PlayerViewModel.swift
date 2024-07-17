@@ -55,4 +55,16 @@ final class PlayerViewModel {
 		}
 		network.appRemote.playerAPI?.setShuffle(false)
 	}
+
+	func next() {
+		network.next { playerState in
+			self.playerState.value = playerState
+		}
+	}
+
+	func previous() {
+		network.previous { playerState in
+			self.playerState.value = playerState
+		}
+	}
 }

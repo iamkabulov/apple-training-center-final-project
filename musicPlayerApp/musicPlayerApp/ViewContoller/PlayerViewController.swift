@@ -51,7 +51,7 @@ final class PlayerViewController: UIViewController {
 		slider.widthAnchor.constraint(equalToConstant: 300).isActive = true
 		slider.thumbTintColor = .black// button
 		slider.tintColor = UIColor.init(cgColor: (CGColor(red: 0, green: 0, blue: 0, alpha: 0.7))) // used value
-//		slider.value = 0
+		//		slider.value = 0
 		slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .touchUpInside)
 		let configuration = UIImage.SymbolConfiguration(pointSize: 12)
 		let image = UIImage(systemName: "circle.fill", withConfiguration: configuration)
@@ -89,6 +89,26 @@ final class PlayerViewController: UIViewController {
 		return button
 	}()
 
+	private lazy var nextButton: UIButton = {
+		let button = UIButton()
+		button.translatesAutoresizingMaskIntoConstraints = false
+		let configuration = UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .large)
+		button.setImage(UIImage(systemName: "forward.end.fill", withConfiguration: configuration), for: .normal)
+		button.tintColor = .black
+		button.addTarget(self, action: #selector(didTapNextButton), for: .touchUpInside)
+		return button
+	}()
+
+	private lazy var previousButton: UIButton = {
+		let button = UIButton()
+		button.translatesAutoresizingMaskIntoConstraints = false
+		let configuration = UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .large)
+		button.setImage(UIImage(systemName: "backward.end.fill", withConfiguration: configuration), for: .normal)
+		button.tintColor = .black
+		button.addTarget(self, action: #selector(didTapPreviousButton), for: .touchUpInside)
+		return button
+	}()
+
 
 	init(_ item: SPTAppRemoteContentItem) {
 		self.item = item
@@ -106,7 +126,7 @@ final class PlayerViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-//		startTimer()
+		//		startTimer()
 		setup()
 		view.backgroundColor = .systemBackground
 		self.navigationController?.navigationBar.topItem?.title = ""
@@ -164,7 +184,7 @@ final class PlayerViewController: UIViewController {
 			// Если таймер уже запущен, ничего не делаем
 			return
 		}
-		timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateSlider), userInfo: nil, repeats: true)
+		timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateSlider), userInfo: nil, repeats: true)
 	}
 
 	func stopTimer() {
@@ -173,9 +193,8 @@ final class PlayerViewController: UIViewController {
 	}
 
 	@objc func updateSlider() {
-		guard let playerState = lastPlayerState else { return }
 		if !isPaused {
-			currentTime += 0.1 // Увеличиваем текущее время на 100 миллисекунд (0.1 секунды)
+			currentTime += 1 // Увеличиваем текущее время на 100 миллисекунд (0.1 секунды)
 			if currentTime >= self.durationTime {
 				stopTimer()
 				currentTime = self.durationTime
@@ -185,11 +204,14 @@ final class PlayerViewController: UIViewController {
 			slider.value = Float(currentTime)
 			self.setCurrentTime(currentTime)
 		}
+		slider.value = Float(currentTime)
+		self.setCurrentTime(currentTime)
 	}
 
 	@objc func sliderValueChanged(_ sender: UISlider) {
 		currentTime = Double(sender.value)
 		viewModel?.network.seekToPosition(Int(sender.value)) //MARK: - Podumat'
+		self.updateSlider()
 	}
 
 	@objc func didTapPauseOrPlay(_ button: UIButton) {
@@ -203,6 +225,20 @@ final class PlayerViewController: UIViewController {
 			isPaused = true
 		}
 		self.update(playerState: self.lastPlayerState)
+	}
+
+	@objc func didTapNextButton(_ button: UIButton) {
+		stopTimer()
+		self.currentTime = 0
+		self.slider.value = 0
+		self.viewModel?.next()
+	}
+
+	@objc func didTapPreviousButton(_ button: UIButton) {
+		self.currentTime = 0
+		self.slider.value = 0
+		self.updateSlider()
+		self.viewModel?.previous()
 	}
 
 	private func formatTime(_ seconds: Double) -> String {
@@ -246,6 +282,8 @@ extension PlayerViewController {
 		view.addSubview(imageView)
 		view.addSubview(artistLabel)
 		view.addSubview(playPauseButton)
+		view.addSubview(nextButton)
+		view.addSubview(previousButton)
 
 		NSLayoutConstraint.activate([
 			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -270,6 +308,12 @@ extension PlayerViewController {
 
 			playPauseButton.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 20),
 			playPauseButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+			nextButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
+			nextButton.leadingAnchor.constraint(equalTo: playPauseButton.trailingAnchor, constant: 20),
+
+			previousButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
+			previousButton.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -20)
 
 		])
 	}
