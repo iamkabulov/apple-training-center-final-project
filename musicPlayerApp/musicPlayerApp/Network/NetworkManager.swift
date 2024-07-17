@@ -214,6 +214,22 @@ final class NetworkManager: NSObject {
 		})
 	}
 
+	func shuffle(_ isShuffled: Bool, completionHandler: @escaping (SPTAppRemotePlayerState?) -> Void) {
+		appRemote.playerAPI?.setShuffle(isShuffled)
+//										, callback: { response, error in
+//			if let error = error {
+//				print("Error SHUFFLE player state:" + error.localizedDescription)
+//			} else if let playerState = response as? SPTAppRemotePlayerState {
+//				completionHandler(playerState)
+//			}
+//		})
+	}
+
+	func repeatMode(_ options: SPTAppRemotePlaybackOptionsRepeatMode) {
+		appRemote.playerAPI?.setRepeatMode(options)
+		
+	}
+
 	func seekToPosition(_ position: Int) {
 		appRemote.playerAPI?.seek(toPosition: position * 1000)
 	}

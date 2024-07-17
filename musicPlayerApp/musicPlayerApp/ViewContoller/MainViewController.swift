@@ -12,7 +12,6 @@ final class MainViewController: UIViewController {
 	var viewModel: MainViewModel?
 	private var lastPlayerState: SPTAppRemotePlayerState?
 	private var dataSource: [SPTAppRemoteContentItem]?
-//	private var images: [UIImage]?
 
 	private lazy var tableView: UITableView = {
 		let view = UITableView()
@@ -205,33 +204,26 @@ extension MainViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("Connected ")
 		updateViewBasedOnConnected()
-		/// ЭТО ДЛЯ ЗАПУСКА ПЕСНИ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		/// Перенести в networkManager
-//		appRemote.playerAPI?.delegate = self
-//		appRemote.playerAPI?.subscribe(toPlayerState: { (success, error) in
-//			if let error = error {
-//				print("Error subscribing to player state:" + error.localizedDescription)
-//			}
-//		})
-//		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
 		self.tableView.reloadData()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("Failed")
-		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+//		viewModel?.network.appRemote.delegate = nil
+//		let vc = LogInViewController()
+//		vc.modalPresentationStyle = .fullScreen
+//		self.present(vc, animated: true)
+		viewModel?.network.sessionManager?.renewSession()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("Disconnected With Error")
-		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+		//		viewModel?.network.appRemote.delegate = nil
+		//		let vc = LogInViewController()
+		//		vc.modalPresentationStyle = .fullScreen
+		//		self.present(vc, animated: true)
+		viewModel?.network.sessionManager?.renewSession()
 	}
 }
 

@@ -190,6 +190,7 @@ extension ListViewController: SPTAppRemoteDelegate {
 //		let vc = LogInViewController()
 //		vc.modalPresentationStyle = .fullScreen
 //		self.present(vc, animated: true)
+		viewModel?.network.sessionManager?.renewSession()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
@@ -198,5 +199,6 @@ extension ListViewController: SPTAppRemoteDelegate {
 //		let vc = LogInViewController()
 //		vc.modalPresentationStyle = .fullScreen
 //		self.present(vc, animated: true)
+		viewModel?.network.sessionManager?.renewSession()
 	}
 }

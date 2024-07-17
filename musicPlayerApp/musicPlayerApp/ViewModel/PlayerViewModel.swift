@@ -67,4 +67,18 @@ final class PlayerViewModel {
 			self.playerState.value = playerState
 		}
 	}
+
+	func seekToPosition(_ value: Int) {
+		network.seekToPosition(value)
+	}
+
+	func shuffle(_ isShuffeled: Bool) {
+		network.shuffle(isShuffeled) { playerState in
+			self.playerState.value = playerState
+		}
+	}
+
+	func repeatMode(_ option: SPTAppRemotePlaybackOptionsRepeatMode) {
+		network.repeatMode(option)
+	}
 }

@@ -35,19 +35,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	}
 
 	func sceneDidBecomeActive(_ scene: UIScene) {
-		if let accessToken = rootViewController.viewModel?.network.appRemote.connectionParameters.accessToken {
-			rootViewController.viewModel?.network.appRemote.connectionParameters.accessToken = accessToken
-			rootViewController.viewModel?.network.appRemote.connect()
-		} else if let accessToken = rootViewController.viewModel?.network.accessToken {
-			rootViewController.viewModel?.network.appRemote.connectionParameters.accessToken = accessToken
-			rootViewController.viewModel?.network.appRemote.connect()
-		}
+//		if let accessToken = rootViewController.viewModel?.network.appRemote.connectionParameters.accessToken {
+//			rootViewController.viewModel?.network.appRemote.connectionParameters.accessToken = accessToken
+//			rootViewController.viewModel?.network.appRemote.connect()
+//		} else if let accessToken = rootViewController.viewModel?.network.accessToken {
+//			rootViewController.viewModel?.network.appRemote.connectionParameters.accessToken = accessToken
+//			rootViewController.viewModel?.network.appRemote.connect()
+//		}
 	}
 
 	func sceneWillResignActive(_ scene: UIScene) {
 		guard let viewModel = rootViewController.viewModel else { return }
 		if viewModel.network.appRemote.isConnected {
-			rootViewController.viewModel?.network.appRemote.disconnect()
+//			rootViewController.viewModel?.network.appRemote.disconnect()
 		}
 	}
 }

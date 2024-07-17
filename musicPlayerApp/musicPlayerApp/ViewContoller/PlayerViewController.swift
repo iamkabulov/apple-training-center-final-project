@@ -16,6 +16,8 @@ final class PlayerViewController: UIViewController {
 	private var currentTime: Double = 0
 	private var durationTime: Double = 0
 	private var lastPlayerState: SPTAppRemotePlayerState?
+	private var isShuffled = false
+	private var isRepeat = false
 
 	private lazy var imageView: UIImageView = {
 		let imageView = UIImageView()
@@ -50,7 +52,7 @@ final class PlayerViewController: UIViewController {
 		slider.translatesAutoresizingMaskIntoConstraints = false
 		slider.widthAnchor.constraint(equalToConstant: 300).isActive = true
 		slider.thumbTintColor = .black// button
-		slider.tintColor = UIColor.init(cgColor: (CGColor(red: 0, green: 0, blue: 0, alpha: 0.7))) // used value
+		slider.tintColor = .black // used value
 		//		slider.value = 0
 		slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .touchUpInside)
 		let configuration = UIImage.SymbolConfiguration(pointSize: 12)
@@ -109,12 +111,33 @@ final class PlayerViewController: UIViewController {
 		return button
 	}()
 
+	private lazy var shuffleButton: UIButton = {
+		let button = UIButton()
+		button.translatesAutoresizingMaskIntoConstraints = false
+		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
+		button.setImage(UIImage(systemName: "shuffle", withConfiguration: configuration), for: .normal)
+		button.tintColor = .black
+		button.addTarget(self, action: #selector(didTapShuffleButton), for: .touchUpInside)
+		return button
+	}()
+
+	private lazy var repeatButton: UIButton = {
+		let button = UIButton()
+		button.translatesAutoresizingMaskIntoConstraints = false
+		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
+		button.setImage(UIImage(systemName: "repeat", withConfiguration: configuration), for: .normal)
+		button.tintColor = .black
+		button.addTarget(self, action: #selector(didTapRepeatButton), for: .touchUpInside)
+		return button
+	}()
+
 
 	init(_ item: SPTAppRemoteContentItem) {
 		self.item = item
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = PlayerViewModel(self)
-		viewModel?.network.appRemote.playerAPI?.delegate = self
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
+		self.viewModel?.subscribeToState()
 		self.viewModel?.playMusic(item)
 		self.viewModel?.getPoster(for: item)
 		self.viewModel?.getPlayerState()
@@ -193,24 +216,27 @@ final class PlayerViewController: UIViewController {
 	}
 
 	@objc func updateSlider() {
-		if !isPaused {
-			currentTime += 1 // Увеличиваем текущее время на 100 миллисекунд (0.1 секунды)
-			if currentTime >= self.durationTime {
-				stopTimer()
-				currentTime = self.durationTime
-				self.currentTime = 0
-				self.slider.value = 0
+		DispatchQueue.main.async {
+			if !self.isPaused {
+				self.currentTime += 1 // Увеличиваем текущее время на 100 миллисекунд (0.1 секунды)
+				if self.currentTime >= self.durationTime {
+					self.stopTimer()
+					self.currentTime = self.durationTime
+					self.currentTime = 0
+					self.slider.value = 0
+				}
+				self.slider.value = Float(self.currentTime)
+				self.setCurrentTime(self.currentTime)
 			}
-			slider.value = Float(currentTime)
-			self.setCurrentTime(currentTime)
+			self.slider.value = Float(self.currentTime)
+			self.setCurrentTime(self.currentTime)
+			self.startTimer()
 		}
-		slider.value = Float(currentTime)
-		self.setCurrentTime(currentTime)
 	}
 
 	@objc func sliderValueChanged(_ sender: UISlider) {
 		currentTime = Double(sender.value)
-		viewModel?.network.seekToPosition(Int(sender.value)) //MARK: - Podumat'
+		viewModel?.seekToPosition(Int(sender.value)) //MARK: - Podumat'
 		self.updateSlider()
 	}
 
@@ -228,9 +254,9 @@ final class PlayerViewController: UIViewController {
 	}
 
 	@objc func didTapNextButton(_ button: UIButton) {
-		stopTimer()
 		self.currentTime = 0
 		self.slider.value = 0
+		self.updateSlider()
 		self.viewModel?.next()
 	}
 
@@ -239,6 +265,34 @@ final class PlayerViewController: UIViewController {
 		self.slider.value = 0
 		self.updateSlider()
 		self.viewModel?.previous()
+	}
+
+	@objc func didTapShuffleButton(_ button: UIButton) {
+		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
+		if isShuffled {
+			self.shuffleButton.setImage(UIImage(systemName: "shuffle", withConfiguration: configuration), for: .normal)
+			self.isShuffled = false
+		} else {
+			self.shuffleButton.setImage(UIImage(systemName: "infinity", withConfiguration: configuration), for: .normal)
+			self.isShuffled = true
+		}
+		self.viewModel?.shuffle(self.isShuffled)
+	}
+
+	@objc func didTapRepeatButton(_ button: UIButton) {
+		guard let lastPlayerState = self.lastPlayerState else { return }
+		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
+		if isRepeat {
+			self.repeatButton.setImage(UIImage(systemName: "repeat", withConfiguration: configuration), for: .normal)
+			self.viewModel?.repeatMode(.off)
+			self.isRepeat = false
+		} else {
+			self.repeatButton.setImage(UIImage(systemName: "repeat.1", withConfiguration: configuration), for: .normal)
+			self.viewModel?.repeatMode(.track)
+			self.isRepeat = true
+		}
+
+		
 	}
 
 	private func formatTime(_ seconds: Double) -> String {
@@ -284,6 +338,8 @@ extension PlayerViewController {
 		view.addSubview(playPauseButton)
 		view.addSubview(nextButton)
 		view.addSubview(previousButton)
+		view.addSubview(shuffleButton)
+		view.addSubview(repeatButton)
 
 		NSLayoutConstraint.activate([
 			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -312,8 +368,14 @@ extension PlayerViewController {
 			nextButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
 			nextButton.leadingAnchor.constraint(equalTo: playPauseButton.trailingAnchor, constant: 20),
 
+			shuffleButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
+			shuffleButton.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
+
+			repeatButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
+			repeatButton.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
+
 			previousButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
-			previousButton.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -20)
+			previousButton.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -20),
 
 		])
 	}
@@ -322,6 +384,7 @@ extension PlayerViewController {
 extension PlayerViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("1")
+		viewModel?.subscribeToState()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
@@ -331,6 +394,7 @@ extension PlayerViewController: SPTAppRemoteDelegate {
 //		let vc = LogInViewController()
 //		vc.modalPresentationStyle = .fullScreen
 //		self.present(vc, animated: true)
+		viewModel?.network.sessionManager?.renewSession()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
@@ -340,6 +404,7 @@ extension PlayerViewController: SPTAppRemoteDelegate {
 //		let vc = LogInViewController()
 //		vc.modalPresentationStyle = .fullScreen
 //		self.present(vc, animated: true)
+		viewModel?.network.sessionManager?.renewSession()
 	}
 }
 
@@ -350,7 +415,9 @@ extension PlayerViewController: SPTAppRemotePlayerStateDelegate {
 			self.lastPlayerState = playerState
 			self.viewModel?.getPoster(for: playerState.track)
 			self.viewModel?.getPlayerState()
-			self.startTimer()
+			if isRepeat {
+				self.viewModel?.repeatMode(.track)
+			}
 		}
 	}
 }
