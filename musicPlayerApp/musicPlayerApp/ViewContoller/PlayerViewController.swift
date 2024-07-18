@@ -11,7 +11,7 @@ final class PlayerViewController: UIViewController {
 
 	var viewModel: PlayerViewModel?
 	private var isPaused = false
-	private var item: SPTAppRemoteContentItem
+	private var item: SPTAppRemoteContentItem?
 	private var timer: Timer?
 	private var currentTime: Double = 0
 	private var durationTime: Double = 0
@@ -131,8 +131,18 @@ final class PlayerViewController: UIViewController {
 		return button
 	}()
 
+//	private lazy var closeButton: UIButton = {
+//		let button = UIButton()
+//		button.translatesAutoresizingMaskIntoConstraints = false
+//		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular, scale: .large)
+//		button.setImage(UIImage(systemName: "xmark", withConfiguration: configuration), for: .normal)
+//		button.tintColor = .black
+//		button.addTarget(self, action: #selector(didTapClose), for: .touchUpInside)
+//		return button
+//	}()
 
-	init(_ item: SPTAppRemoteContentItem) {
+
+	init(item: SPTAppRemoteContentItem) {
 		self.item = item
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = PlayerViewModel(self)
@@ -141,6 +151,21 @@ final class PlayerViewController: UIViewController {
 		self.viewModel?.playMusic(item)
 		self.viewModel?.getPoster(for: item)
 		self.viewModel?.getPlayerState()
+//		closeButton.isHidden = true
+	}
+
+	init(playerState: SPTAppRemotePlayerState, currentTime: Double) {
+		super.init(nibName: nil, bundle: nil)
+		self.lastPlayerState = playerState
+		self.currentTime = currentTime
+		self.setCurrentTime(currentTime)
+		self.slider.value = Float(currentTime)
+		self.viewModel = PlayerViewModel(self)
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
+		self.viewModel?.subscribeToState()
+		self.viewModel?.getPoster(for: playerState.track)
+		self.viewModel?.getPlayerState()
+//		closeButton.isHidden = false
 	}
 
 	required init?(coder: NSCoder) {
@@ -280,7 +305,7 @@ final class PlayerViewController: UIViewController {
 	}
 
 	@objc func didTapRepeatButton(_ button: UIButton) {
-		guard let lastPlayerState = self.lastPlayerState else { return }
+		guard self.lastPlayerState != nil else { return }
 		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
 		if isRepeat {
 			self.repeatButton.setImage(UIImage(systemName: "repeat", withConfiguration: configuration), for: .normal)
@@ -291,8 +316,10 @@ final class PlayerViewController: UIViewController {
 			self.viewModel?.repeatMode(.track)
 			self.isRepeat = true
 		}
+	}
 
-		
+	@objc func didTapClose(_ button: UIButton) {
+		dismiss(animated: true)
 	}
 
 	private func formatTime(_ seconds: Double) -> String {
@@ -340,6 +367,7 @@ extension PlayerViewController {
 		view.addSubview(previousButton)
 		view.addSubview(shuffleButton)
 		view.addSubview(repeatButton)
+//		view.addSubview(closeButton)
 
 		NSLayoutConstraint.activate([
 			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -377,6 +405,8 @@ extension PlayerViewController {
 			previousButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
 			previousButton.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -20),
 
+//			closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
+//			closeButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -5)
 		])
 	}
 }

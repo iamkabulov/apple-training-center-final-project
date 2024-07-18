@@ -54,7 +54,3 @@ final class MainViewModel {
 		}
 	}
 }
-
-extension Notification.Name {
-	static let imageLoaded = Notification.Name("imageLoaded")
-}

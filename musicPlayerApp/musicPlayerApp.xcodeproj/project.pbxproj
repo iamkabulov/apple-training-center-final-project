@@ -28,6 +28,8 @@
 		B0D53C642C45180F00E377A3 /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C632C45180F00E377A3 /* ListViewModel.swift */; };
 		B0D53C662C4570F300E377A3 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C652C4570F300E377A3 /* PlayerViewController.swift */; };
 		B0D53C682C45755600E377A3 /* PlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C672C45755600E377A3 /* PlayerViewModel.swift */; };
+		B0D53C6A2C48F4CB00E377A3 /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C692C48F4CB00E377A3 /* MiniPlayerView.swift */; };
+		B0D53C6C2C48F72F00E377A3 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C6B2C48F72F00E377A3 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +57,8 @@
 		B0D53C632C45180F00E377A3 /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 		B0D53C652C4570F300E377A3 /* PlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		B0D53C672C45755600E377A3 /* PlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewModel.swift; sourceTree = "<group>"; };
+		B0D53C692C48F4CB00E377A3 /* MiniPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerView.swift; sourceTree = "<group>"; };
+		B0D53C6B2C48F72F00E377A3 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +97,7 @@
 				B018EC172C3BEF590080009C /* SceneDelegate.swift */,
 				B018EC2E2C3C03BD0080009C /* Constants.swift */,
 				B018EC362C3D702F0080009C /* Observable.swift */,
+				B0D53C6B2C48F72F00E377A3 /* Extensions.swift */,
 				B04850362C3ED92600C6F899 /* View */,
 				B018EC382C3D703A0080009C /* ViewContoller */,
 				B018EC352C3D6C6A0080009C /* Network */,
@@ -151,6 +156,7 @@
 				B048503D2C3F015600C6F899 /* SectionCell.swift */,
 				B0D53C5F2C44EB6600E377A3 /* HeaderView.swift */,
 				B0D53C612C44EBD400E377A3 /* ListCell.swift */,
+				B0D53C692C48F4CB00E377A3 /* MiniPlayerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -240,6 +246,8 @@
 				B018EC2F2C3C03BD0080009C /* Constants.swift in Sources */,
 				B0D53C5C2C41557400E377A3 /* MusicBarController.swift in Sources */,
 				B04850382C3ED94E00C6F899 /* RecommendationCell.swift in Sources */,
+				B0D53C6A2C48F4CB00E377A3 /* MiniPlayerView.swift in Sources */,
+				B0D53C6C2C48F72F00E377A3 /* Extensions.swift in Sources */,
 				B0D53C5E2C42E45800E377A3 /* ListViewController.swift in Sources */,
 				B018EC3E2C3E89C20080009C /* MainViewModel.swift in Sources */,
 				B0D53C602C44EB6600E377A3 /* HeaderView.swift in Sources */,

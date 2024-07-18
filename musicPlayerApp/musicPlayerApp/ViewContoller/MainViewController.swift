@@ -8,8 +8,9 @@
 import Foundation
 
 final class MainViewController: UIViewController {
-
 	var viewModel: MainViewModel?
+	private var timer: Timer?
+	private var currentTime: Double = 0
 	private var lastPlayerState: SPTAppRemotePlayerState?
 	private var dataSource: [SPTAppRemoteContentItem]?
 
@@ -23,7 +24,6 @@ final class MainViewController: UIViewController {
 		view.dataSource = self
 		return view
 	}()
-	
 
 	private lazy var stackView: UIStackView = {
 		let stackView = UIStackView()
@@ -34,31 +34,18 @@ final class MainViewController: UIViewController {
 		return stackView
 	}()
 
-	private lazy var imageView: UIImageView = {
-		let imageView = UIImageView()
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		imageView.contentMode = .scaleAspectFit
-		return imageView
+	private lazy var miniPlayerView: MiniPlayerView = {
+		let mini = MiniPlayerView()
+		mini.translatesAutoresizingMaskIntoConstraints = false
+		mini.layer.cornerRadius = 10
+		return mini
 	}()
 
-	private lazy var trackLabel: UILabel = {
-		let trackLabel = UILabel()
-		trackLabel.translatesAutoresizingMaskIntoConstraints = false
-		trackLabel.font = UIFont.preferredFont(forTextStyle: .body)
-		trackLabel.textAlignment = .center
-		return trackLabel
-	}()
-
-	private lazy var playPauseButton: UIButton = {
-		let playPauseButton = UIButton()
-		playPauseButton.translatesAutoresizingMaskIntoConstraints = false
-		playPauseButton.addTarget(self, action: #selector(didTapPauseOrPlay), for: .primaryActionTriggered)
-		return playPauseButton
-	}()
 	private lazy var signOutButton: UIButton = {
 		let signOutButton = UIButton()
 		signOutButton.translatesAutoresizingMaskIntoConstraints = false
 		signOutButton.setTitle("Sign out", for: .normal)
+		signOutButton.setTitleColor(.black, for: .normal)
 		signOutButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .bold)
 		signOutButton.addTarget(self, action: #selector(didTapSignOut(_:)), for: .touchUpInside)
 		return signOutButton
@@ -76,6 +63,12 @@ final class MainViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		guard let playerState = self.lastPlayerState else { return }
+		self.viewModel?.getPlayerState()
+		self.miniPlayerView.setTrack(name: playerState.track.name,
+									 artist: playerState.track.artist.name,
+									 isPaused: playerState.isPaused)
+		self.bindViewModel()
 	}
 
 	override func viewDidLoad() {
@@ -85,21 +78,43 @@ final class MainViewController: UIViewController {
 		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
 		self.bindViewModel()
+		self.miniPlayerView.playPauseTappedDelegate = { isPlay in
+			if isPlay {
+				self.viewModel?.network.play()
+			} else {
+				self.viewModel?.network.pause()
+			}
+		}
+		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-		updateViewBasedOnConnected()
+		self.bindViewModel()
+	}
+
+	func startTimer() {
+		if timer != nil {
+			return
+		}
+		timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateValue), userInfo: nil, repeats: true)
+	}
+
+	func stopTimer() {
+		timer?.invalidate()
+		timer = nil
+	}
+
+	@objc func updateValue() {
+		self.currentTime += 1
 	}
 }
 
 extension MainViewController {
 	func layout() {
 		stackView.addArrangedSubview(tableView)
-//		stackView.addArrangedSubview(imageView)
-//		stackView.addArrangedSubview(trackLabel)
-//		stackView.addArrangedSubview(playPauseButton)
 		stackView.addArrangedSubview(signOutButton)
+		stackView.addSubview(miniPlayerView)
 
 		view.addSubview(stackView)
 
@@ -109,13 +124,14 @@ extension MainViewController {
 			stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 			stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
 
-//			recommendationCollectionView.topAnchor.constraint(equalTo: stackView.topAnchor),
-//			recommendationCollectionView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-//			recommendationCollectionView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-
 			tableView.topAnchor.constraint(equalTo: stackView.topAnchor),
 			tableView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
 			tableView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+
+			miniPlayerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			miniPlayerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			miniPlayerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+			miniPlayerView.heightAnchor.constraint(equalToConstant: 64)
 		])
 	}
 
@@ -124,30 +140,25 @@ extension MainViewController {
 		if lastPlayerState?.track.uri != playerState.track.uri {
 			self.viewModel?.getPoster(for: playerState.track)
 		}
-		lastPlayerState = playerState
-		trackLabel.text = playerState.track.name
-
-		let configuration = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
-		if playerState.isPaused {
-			playPauseButton.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: configuration), for: .normal)
-		} else {
-			playPauseButton.setImage(UIImage(systemName: "pause.circle.fill", withConfiguration: configuration), for: .normal)
-		}
+		self.startTimer()
+		self.miniPlayerView.setTrack(name: playerState.track.name, 
+									 artist: playerState.track.artist.name,
+									 isPaused: playerState.isPaused)
 	}
-
-	func updateViewBasedOnConnected() {
-		self.bindViewModel()
-		if viewModel?.network.appRemote.isConnected == true {
-			imageView.isHidden = false
-			trackLabel.isHidden = false
-			playPauseButton.isHidden = false
-		}
-		else { // show login
-			imageView.isHidden = true
-			trackLabel.isHidden = true
-			playPauseButton.isHidden = true
-		}
-	}
+//
+//	func updateViewBasedOnConnected() {
+//		self.bindViewModel()
+//		if viewModel?.network.appRemote.isConnected == true {
+//			imageView.isHidden = false
+//			trackLabel.isHidden = false
+//			playPauseButton.isHidden = false
+//		}
+//		else { // show login
+//			imageView.isHidden = true
+//			trackLabel.isHidden = true
+//			playPauseButton.isHidden = true
+//		}
+//	}
 
 	//MARK: - Actions
 
@@ -172,21 +183,30 @@ extension MainViewController {
 		}
 	}
 
+	@objc private func miniPlayerTapped() {
+		guard let playerState = self.lastPlayerState else { return }
+		let fullScreenPlayerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime)
+		fullScreenPlayerVC.modalPresentationStyle = .formSheet
+		self.present(fullScreenPlayerVC, animated: true, completion: nil)
+	}
+
 	//MARK: - Binding ViewModel
 	func bindViewModel() {
 		self.viewModel?.trackPoster.bind { [weak self] trackPoster in
 			guard let trackPoster = trackPoster else { return }
 			DispatchQueue.main.async {
-				self?.imageView.image = trackPoster
+				self?.miniPlayerView.setPoster(trackPoster)
 			}
 		}
 
-//		self.viewModel?.playerState.bind { [weak self] playerState in
-//			guard let self = self, let playerState = playerState else { return }
-//			DispatchQueue.main.async {
-//				self.update(playerState: playerState)
-//			}
-//		}
+		self.viewModel?.playerState.bind { [weak self] playerState in
+			guard let self = self, let playerState = playerState else { return }
+			self.lastPlayerState = playerState
+			DispatchQueue.main.async {
+				self.update(playerState: playerState)
+				self.viewModel?.getPoster(for: playerState.track)
+			}
+		}
 
 		self.viewModel?.contentItems.bind { [weak self] content in
 			guard let self = self, let content = content else { return }
@@ -203,7 +223,7 @@ extension MainViewController {
 extension MainViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("Connected ")
-		updateViewBasedOnConnected()
+//		updateViewBasedOnConnected()
 		self.viewModel?.getContentItems()
 		self.tableView.reloadData()
 	}
