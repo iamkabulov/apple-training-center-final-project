@@ -55,12 +55,14 @@ final class MusicBarController: UITabBarController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		self.viewModel?.getPlayerState()
+		self.viewModel?.subscribeToState()
 		self.bindViewModel()
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		self.viewModel?.getPlayerState()
+		self.viewModel?.subscribeToState()
 		self.bindViewModel()
 	}
 
@@ -125,6 +127,7 @@ final class MusicBarController: UITabBarController {
 			self.lastPlayerState = playerState
 			DispatchQueue.main.async {
 				self.update(playerState: playerState)
+				self.playerStateDidChange(playerState)
 				self.viewModel?.getPoster(for: playerState.track)
 			}
 		}
@@ -144,6 +147,13 @@ final class MusicBarController: UITabBarController {
 
 	@objc func updateValue() {
 		self.currentTime += 1
+	}
+
+	func update(_ uri: String) {
+		if uri != self.lastPlayerState?.track.uri {
+			self.viewModel?.getPlayerState()
+		}
+		self.viewModel?.subscribeToState()
 	}
 }
 
@@ -212,12 +222,12 @@ extension MusicBarController: SPTAppRemotePlayerStateDelegate {
 	func playerStateDidChange(_ playerState: SPTAppRemotePlayerState) {
 		debugPrint("Spotify Track name: %@", playerState.track.name)
 		DispatchQueue.main.async {
-			self.update(playerState: playerState)
 			if playerState.track.uri != self.lastPlayerState?.track.uri {
 				self.lastPlayerState = playerState
 				self.viewModel?.getPoster(for: playerState.track)
 				self.viewModel?.getPlayerState()
 			}
+			self.update(playerState: playerState)
 		}
 		stopTimer()
 		startTimer()

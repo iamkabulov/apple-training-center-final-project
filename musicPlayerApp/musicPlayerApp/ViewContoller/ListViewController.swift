@@ -12,6 +12,7 @@ final class ListViewController: UIViewController {
 		return String(describing: self)
 	}
 	var viewModel: ListViewModel?
+	var vc: MusicBarController?
 	private var item: SPTAppRemoteContentItem?
 	private var items: [SPTAppRemoteContentItem]?
 	var collectionView: UICollectionView! = nil
@@ -25,6 +26,7 @@ final class ListViewController: UIViewController {
 		self.title = item.title
 		self.item = item
 		self.floatingHeaderView.set(data: item)
+//		self.vc = vc
 	}
 	
 	required init?(coder: NSCoder) {
@@ -168,6 +170,9 @@ extension ListViewController: UICollectionViewDataSource {
 		guard let item = self.items?[indexPath.row] else { return }
 //		self.viewModel?.network.appRemote.delegate = nil
 		self.viewModel?.network.play(item)
+		if let tabBarController = self.tabBarController as? MusicBarController, tabBarController is MusicBarController {
+			tabBarController.update(item.uri)
+		}
 //		self.navigationController?.pushViewController(PlayerViewController(item: item), animated: true)
 	}
 }

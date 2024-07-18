@@ -151,7 +151,7 @@ extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UIC
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let data = self.dataSource?.children else { return }
 		let vc = ListViewController(item: data[indexPath.row])
-		vc.modalPresentationStyle = .fullScreen
+//		vc.modalPresentationStyle = .fullScreen
 //		self.viewModel?.network.search()
 //		self.bindViewModel()
 		self.viewModel?.network.appRemote.delegate = nil

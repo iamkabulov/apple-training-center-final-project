@@ -199,7 +199,7 @@ final class PlayerViewController: UIViewController {
 		viewModel?.network.appRemote.delegate = nil
 		guard let vc = self.vc else { return }
 		viewModel?.network.appRemote.playerAPI?.delegate = vc
-		lastPlayerState = nil
+//		lastPlayerState = nil
 	}
 
 	func bindViewModel() {

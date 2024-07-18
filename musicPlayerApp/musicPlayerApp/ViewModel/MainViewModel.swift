@@ -21,12 +21,6 @@ final class MainViewModel {
 		self.network.appRemote.delegate = view
 	}
 
-	func getPoster(for track: SPTAppRemoteImageRepresentable) {
-		network.fetchArtwork(for: track) { image in
-			self.trackPoster.value = image
-		}
-	}
-
 	func getPlayerState() {
 		network.fetchPlayerState { playerState in
 			self.playerState.value = playerState
@@ -37,20 +31,6 @@ final class MainViewModel {
 		network.fetchContentItems { contentItems in
 			self.contentItems.value = contentItems
 		}
-	}
-
-	func subscribeToState() {
-		network.subscribeToState { playerState in
-			self.playerState.value = playerState
-		}
-	}
-
-	func play() {
-		network.play()
-	}
-
-	func pause() {
-		network.pause()
 	}
 
 	func getPosters(forCellWithID cellID: String, for uri: SPTAppRemoteContentItem?) {

@@ -9,7 +9,6 @@ import Foundation
 
 final class MainViewController: UIViewController {
 	var viewModel: MainViewModel?
-	private var timer: Timer?
 	private var currentTime: Double = 0
 	private var lastPlayerState: SPTAppRemotePlayerState?
 	private var dataSource: [SPTAppRemoteContentItem]?
@@ -34,13 +33,6 @@ final class MainViewController: UIViewController {
 		return stackView
 	}()
 
-	private lazy var miniPlayerView: MiniPlayerView = {
-		let mini = MiniPlayerView()
-		mini.translatesAutoresizingMaskIntoConstraints = false
-		mini.layer.cornerRadius = 10
-		return mini
-	}()
-
 	private lazy var signOutButton: UIButton = {
 		let signOutButton = UIButton()
 		signOutButton.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +47,7 @@ final class MainViewController: UIViewController {
 	init() {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = MainViewModel(self)
-		self.viewModel?.network.appRemote.playerAPI?.delegate = self
+//		self.viewModel?.network.appRemote.playerAPI?.delegate = self
 	}
 
 	required init?(coder: NSCoder) {
@@ -64,12 +56,6 @@ final class MainViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		self.viewModel?.network.appRemote.playerAPI?.delegate = self
-		guard let playerState = self.lastPlayerState else { return }
-		self.viewModel?.getPlayerState()
-		self.miniPlayerView.setTrack(name: playerState.track.name,
-									 artist: playerState.track.artist.name,
-									 isPaused: playerState.isPaused)
 		self.bindViewModel()
 	}
 
@@ -79,37 +65,12 @@ final class MainViewController: UIViewController {
 		self.layout()
 		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
-		self.viewModel?.subscribeToState()
 		self.bindViewModel()
-		self.miniPlayerView.playPauseTappedDelegate = { isPlay in
-			if isPlay {
-				self.viewModel?.play()
-			} else {
-				self.viewModel?.pause()
-			}
-		}
-//		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		self.bindViewModel()
-	}
-
-	func startTimer() {
-		if timer != nil {
-			return
-		}
-		timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateValue), userInfo: nil, repeats: true)
-	}
-
-	func stopTimer() {
-		timer?.invalidate()
-		timer = nil
-	}
-
-	@objc func updateValue() {
-		self.currentTime += 1
 	}
 }
 
@@ -138,36 +99,7 @@ extension MainViewController {
 		])
 	}
 
-	func update(playerState: SPTAppRemotePlayerState?) {
-		guard let playerState = playerState else { return }
-		if lastPlayerState?.track.uri != playerState.track.uri {
-			self.viewModel?.getPoster(for: playerState.track)
-		}
-		self.startTimer()
-		self.miniPlayerView.setTrack(name: playerState.track.name, 
-									 artist: playerState.track.artist.name,
-									 isPaused: playerState.isPaused)
-	}
-//
-//	func updateViewBasedOnConnected() {
-//		self.bindViewModel()
-//		if viewModel?.network.appRemote.isConnected == true {
-//			imageView.isHidden = false
-//			trackLabel.isHidden = false
-//			playPauseButton.isHidden = false
-//		}
-//		else { // show login
-//			imageView.isHidden = true
-//			trackLabel.isHidden = true
-//			playPauseButton.isHidden = true
-//		}
-//	}
-
 	//MARK: - Actions
-
-
-
-
 	@objc func didTapPauseOrPlay(_ button: UIButton) {
 		if let lastPlayerState = lastPlayerState, lastPlayerState.isPaused {
 			self.viewModel?.network.appRemote.playerAPI?.resume(nil)
@@ -186,31 +118,8 @@ extension MainViewController {
 		}
 	}
 
-	@objc private func miniPlayerTapped() {
-		guard let playerState = self.lastPlayerState else { return }
-//		let fullScreenPlayerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
-//		fullScreenPlayerVC.modalPresentationStyle = .pageSheet
-//		self.present(fullScreenPlayerVC, animated: true, completion: nil)
-	}
-
 	//MARK: - Binding ViewModel
 	func bindViewModel() {
-		self.viewModel?.trackPoster.bind { [weak self] trackPoster in
-			guard let trackPoster = trackPoster else { return }
-			DispatchQueue.main.async {
-				self?.miniPlayerView.setPoster(trackPoster)
-			}
-		}
-
-		self.viewModel?.playerState.bind { [weak self] playerState in
-			guard let self = self, let playerState = playerState else { return }
-			self.lastPlayerState = playerState
-			DispatchQueue.main.async {
-				self.update(playerState: playerState)
-				self.viewModel?.getPoster(for: playerState.track)
-			}
-		}
-
 		self.viewModel?.contentItems.bind { [weak self] content in
 			guard let self = self, let content = content else { return }
 			self.dataSource = content
@@ -247,16 +156,6 @@ extension MainViewController: SPTAppRemoteDelegate {
 		//		vc.modalPresentationStyle = .fullScreen
 		//		self.present(vc, animated: true)
 		viewModel?.network.sessionManager?.renewSession()
-	}
-}
-
-// MARK: - SPTAppRemotePlayerAPIDelegate
-extension MainViewController: SPTAppRemotePlayerStateDelegate {
-	func playerStateDidChange(_ playerState: SPTAppRemotePlayerState) {
-		debugPrint("Spotify Track name: %@", playerState.track.name)
-		DispatchQueue.main.async {
-			self.update(playerState: playerState)
-		}
 	}
 }
 
