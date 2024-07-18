@@ -96,7 +96,6 @@ extension ListViewController {
 
 		view.addSubview(floatingHeaderView)
 
-//		floatingHeaderView.track = Track(imageName: "Spotify_Primary_Logo_RGB_Green")
 		floatingHeaderView.isFloating = true
 		NSLayoutConstraint.activate([
 			floatingHeaderView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -157,8 +156,6 @@ extension ListViewController: UICollectionViewDataSource {
 			withReuseIdentifier: HeaderView.reuseIdentifier,
 			for: indexPath) as! HeaderView
 
-//		let track = Track(imageName: "Spotify_Primary_Logo_RGB_Green")
-//		headerView.track = track
 
 		self.headerView = headerView
 		self.headerView?.isHidden = true
@@ -168,12 +165,7 @@ extension ListViewController: UICollectionViewDataSource {
 
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let item = self.items?[indexPath.row] else { return }
-//		self.viewModel?.network.appRemote.delegate = nil
 		self.viewModel?.network.play(item)
-		if let tabBarController = self.tabBarController as? MusicBarController, tabBarController is MusicBarController {
-			tabBarController.update(item.uri)
-		}
-//		self.navigationController?.pushViewController(PlayerViewController(item: item), animated: true)
 	}
 }
 
@@ -192,19 +184,17 @@ extension ListViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("2")
-//		viewModel?.network.appRemote.delegate = nil
-//		let vc = LogInViewController()
-//		vc.modalPresentationStyle = .fullScreen
-//		self.present(vc, animated: true)
-		viewModel?.network.sessionManager?.renewSession()
+		viewModel?.network.appRemote.delegate = nil
+		let vc = LogInViewController()
+		vc.modalPresentationStyle = .fullScreen
+		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("3")
-//		viewModel?.network.appRemote.delegate = nil
-//		let vc = LogInViewController()
-//		vc.modalPresentationStyle = .fullScreen
-//		self.present(vc, animated: true)
-		viewModel?.network.sessionManager?.renewSession()
+		viewModel?.network.appRemote.delegate = nil
+		let vc = LogInViewController()
+		vc.modalPresentationStyle = .fullScreen
+		self.present(vc, animated: true)
 	}
 }
