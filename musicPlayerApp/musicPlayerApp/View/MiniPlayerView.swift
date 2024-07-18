@@ -81,8 +81,8 @@ class MiniPlayerView: UIView {
 		if albumImageView.layer.animation(forKey: "rotate") == nil {
 			let rotation = CABasicAnimation(keyPath: "transform.rotation")
 			rotation.fromValue = self.currentRotationAngle
-			rotation.toValue = NSNumber(value: Double.pi * 2)
-			rotation.duration = 5 // Duration of one full rotation
+			rotation.toValue = CGFloat.pi * 2
+			rotation.duration = 10 // Duration of one full rotation
 			rotation.isRemovedOnCompletion = false
 			rotation.repeatCount = .infinity
 			albumImageView.layer.add(rotation, forKey: "rotationAnimation")
