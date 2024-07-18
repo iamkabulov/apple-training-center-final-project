@@ -30,6 +30,7 @@
 		B0D53C682C45755600E377A3 /* PlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C672C45755600E377A3 /* PlayerViewModel.swift */; };
 		B0D53C6A2C48F4CB00E377A3 /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C692C48F4CB00E377A3 /* MiniPlayerView.swift */; };
 		B0D53C6C2C48F72F00E377A3 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C6B2C48F72F00E377A3 /* Extensions.swift */; };
+		B0D53C6E2C4962CA00E377A3 /* MusicBarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C6D2C4962CA00E377A3 /* MusicBarViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +60,7 @@
 		B0D53C672C45755600E377A3 /* PlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewModel.swift; sourceTree = "<group>"; };
 		B0D53C692C48F4CB00E377A3 /* MiniPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerView.swift; sourceTree = "<group>"; };
 		B0D53C6B2C48F72F00E377A3 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		B0D53C6D2C4962CA00E377A3 /* MusicBarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicBarViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 				B018EC3D2C3E89C20080009C /* MainViewModel.swift */,
 				B0D53C632C45180F00E377A3 /* ListViewModel.swift */,
 				B0D53C672C45755600E377A3 /* PlayerViewModel.swift */,
+				B0D53C6D2C4962CA00E377A3 /* MusicBarViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -244,6 +247,7 @@
 				B0D53C682C45755600E377A3 /* PlayerViewModel.swift in Sources */,
 				B04850352C3EB6FD00C6F899 /* MainViewController.swift in Sources */,
 				B018EC2F2C3C03BD0080009C /* Constants.swift in Sources */,
+				B0D53C6E2C4962CA00E377A3 /* MusicBarViewModel.swift in Sources */,
 				B0D53C5C2C41557400E377A3 /* MusicBarController.swift in Sources */,
 				B04850382C3ED94E00C6F899 /* RecommendationCell.swift in Sources */,
 				B0D53C6A2C48F4CB00E377A3 /* MiniPlayerView.swift in Sources */,

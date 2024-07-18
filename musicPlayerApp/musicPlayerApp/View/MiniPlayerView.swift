@@ -10,6 +10,8 @@ import UIKit
 class MiniPlayerView: UIView {
 
 	var playPauseTappedDelegate: ((Bool) -> Void)?
+	private var currentRotationAngle: CGFloat = 0
+	private var isAnimationPaused = false
 	private var isPlaying = true
 	lazy var albumImageView: UIImageView = {
 		let imageView = UIImageView()
@@ -76,15 +78,23 @@ class MiniPlayerView: UIView {
 	}
 
 	private func startAlbumImageRotation() {
-		let rotation = CABasicAnimation(keyPath: "transform.rotation.z")
-		rotation.toValue = NSNumber(value: Double.pi * 2)
-		rotation.duration = 10 // Duration of one full rotation
-		rotation.isCumulative = true
-		rotation.repeatCount = .infinity
-		albumImageView.layer.add(rotation, forKey: "rotationAnimation")
+		if albumImageView.layer.animation(forKey: "rotate") == nil {
+			let rotation = CABasicAnimation(keyPath: "transform.rotation")
+			rotation.fromValue = self.currentRotationAngle
+			rotation.toValue = NSNumber(value: Double.pi * 2)
+			rotation.duration = 5 // Duration of one full rotation
+			rotation.isRemovedOnCompletion = false
+			rotation.repeatCount = .infinity
+			albumImageView.layer.add(rotation, forKey: "rotationAnimation")
+		}
 	}
 
 	private func stopAlbumImageRotation() {
+		if let presentationLayer = albumImageView.layer.presentation() {
+			let currentRotation = presentationLayer.value(forKeyPath: "transform.rotation.z") as! CGFloat
+			albumImageView.layer.transform = CATransform3DMakeRotation(currentRotation, 0, 0, 1)
+			self.currentRotationAngle = currentRotation
+		}
 		albumImageView.layer.removeAnimation(forKey: "rotationAnimation")
 	}
 

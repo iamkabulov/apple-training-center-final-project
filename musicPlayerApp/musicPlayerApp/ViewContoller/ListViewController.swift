@@ -166,8 +166,9 @@ extension ListViewController: UICollectionViewDataSource {
 
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let item = self.items?[indexPath.row] else { return }
-		self.viewModel?.network.appRemote.delegate = nil
-		self.navigationController?.pushViewController(PlayerViewController(item: item), animated: true)
+//		self.viewModel?.network.appRemote.delegate = nil
+		self.viewModel?.network.play(item)
+//		self.navigationController?.pushViewController(PlayerViewController(item: item), animated: true)
 	}
 }
 

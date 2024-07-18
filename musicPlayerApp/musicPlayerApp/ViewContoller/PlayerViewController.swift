@@ -10,7 +10,7 @@ import UIKit
 final class PlayerViewController: UIViewController {
 
 	var viewModel: PlayerViewModel?
-	private var vc: UIViewController?
+	private var vc: MusicBarController?
 	private var isPaused = false
 	private var item: SPTAppRemoteContentItem?
 	private var timer: Timer?
@@ -155,7 +155,7 @@ final class PlayerViewController: UIViewController {
 //		closeButton.isHidden = true
 	}
 
-	init(playerState: SPTAppRemotePlayerState, currentTime: Double, vc: UIViewController) {
+	init(playerState: SPTAppRemotePlayerState, currentTime: Double, vc: MusicBarController) {
 		super.init(nibName: nil, bundle: nil)
 		self.vc = vc
 		self.lastPlayerState = playerState
@@ -198,7 +198,7 @@ final class PlayerViewController: UIViewController {
 		super.viewDidDisappear(animated)
 		viewModel?.network.appRemote.delegate = nil
 		guard let vc = self.vc else { return }
-		viewModel?.network.appRemote.playerAPI?.delegate = vc as? SPTAppRemotePlayerStateDelegate
+		viewModel?.network.appRemote.playerAPI?.delegate = vc
 		lastPlayerState = nil
 	}
 
@@ -453,5 +453,6 @@ extension PlayerViewController: SPTAppRemotePlayerStateDelegate {
 				self.viewModel?.repeatMode(.track)
 			}
 		}
+		self.vc?.playerStateDidChange(playerState)
 	}
 }

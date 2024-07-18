@@ -88,7 +88,7 @@ final class MainViewController: UIViewController {
 				self.viewModel?.pause()
 			}
 		}
-		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
+//		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -116,8 +116,8 @@ final class MainViewController: UIViewController {
 extension MainViewController {
 	func layout() {
 		stackView.addArrangedSubview(tableView)
-		stackView.addArrangedSubview(signOutButton)
-		stackView.addSubview(miniPlayerView)
+//		stackView.addArrangedSubview(signOutButton)
+//		stackView.addSubview(miniPlayerView)
 
 		view.addSubview(stackView)
 
@@ -131,10 +131,10 @@ extension MainViewController {
 			tableView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
 			tableView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
-			miniPlayerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			miniPlayerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			miniPlayerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-			miniPlayerView.heightAnchor.constraint(equalToConstant: 64)
+//			miniPlayerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+//			miniPlayerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//			miniPlayerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+//			miniPlayerView.heightAnchor.constraint(equalToConstant: 64)
 		])
 	}
 
@@ -188,9 +188,9 @@ extension MainViewController {
 
 	@objc private func miniPlayerTapped() {
 		guard let playerState = self.lastPlayerState else { return }
-		let fullScreenPlayerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
-		fullScreenPlayerVC.modalPresentationStyle = .pageSheet
-		self.present(fullScreenPlayerVC, animated: true, completion: nil)
+//		let fullScreenPlayerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
+//		fullScreenPlayerVC.modalPresentationStyle = .pageSheet
+//		self.present(fullScreenPlayerVC, animated: true, completion: nil)
 	}
 
 	//MARK: - Binding ViewModel
