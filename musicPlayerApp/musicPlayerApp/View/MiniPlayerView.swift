@@ -41,6 +41,7 @@ class MiniPlayerView: UIView {
 		let button = UIButton()
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+		button.tintColor = .black
 		button.addTarget(self, action: #selector(playPauseTapped), for: .touchUpInside)
 		return button
 	}()
@@ -124,8 +125,8 @@ class MiniPlayerView: UIView {
 
 			playPauseButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
 			playPauseButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-			playPauseButton.widthAnchor.constraint(equalToConstant: 24),
-			playPauseButton.heightAnchor.constraint(equalToConstant: 24),
+			playPauseButton.widthAnchor.constraint(equalToConstant: 40),
+			playPauseButton.heightAnchor.constraint(equalToConstant: 40),
 		])
 	}
 }

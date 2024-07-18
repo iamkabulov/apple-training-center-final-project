@@ -10,6 +10,7 @@ import UIKit
 final class PlayerViewController: UIViewController {
 
 	var viewModel: PlayerViewModel?
+	private var vc: UIViewController?
 	private var isPaused = false
 	private var item: SPTAppRemoteContentItem?
 	private var timer: Timer?
@@ -154,8 +155,9 @@ final class PlayerViewController: UIViewController {
 //		closeButton.isHidden = true
 	}
 
-	init(playerState: SPTAppRemotePlayerState, currentTime: Double) {
+	init(playerState: SPTAppRemotePlayerState, currentTime: Double, vc: UIViewController) {
 		super.init(nibName: nil, bundle: nil)
+		self.vc = vc
 		self.lastPlayerState = playerState
 		self.currentTime = currentTime
 		self.setCurrentTime(currentTime)
@@ -195,6 +197,8 @@ final class PlayerViewController: UIViewController {
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
 		viewModel?.network.appRemote.delegate = nil
+		guard let vc = self.vc else { return }
+		viewModel?.network.appRemote.playerAPI?.delegate = vc as? SPTAppRemotePlayerStateDelegate
 		lastPlayerState = nil
 	}
 

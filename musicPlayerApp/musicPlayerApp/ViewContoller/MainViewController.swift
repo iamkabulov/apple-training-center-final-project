@@ -55,6 +55,7 @@ final class MainViewController: UIViewController {
 	init() {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = MainViewModel(self)
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
 	}
 
 	required init?(coder: NSCoder) {
@@ -63,6 +64,7 @@ final class MainViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
 		guard let playerState = self.lastPlayerState else { return }
 		self.viewModel?.getPlayerState()
 		self.miniPlayerView.setTrack(name: playerState.track.name,
@@ -77,12 +79,13 @@ final class MainViewController: UIViewController {
 		self.layout()
 		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
+		self.viewModel?.subscribeToState()
 		self.bindViewModel()
 		self.miniPlayerView.playPauseTappedDelegate = { isPlay in
 			if isPlay {
-				self.viewModel?.network.play()
+				self.viewModel?.play()
 			} else {
-				self.viewModel?.network.pause()
+				self.viewModel?.pause()
 			}
 		}
 		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
@@ -185,8 +188,8 @@ extension MainViewController {
 
 	@objc private func miniPlayerTapped() {
 		guard let playerState = self.lastPlayerState else { return }
-		let fullScreenPlayerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime)
-		fullScreenPlayerVC.modalPresentationStyle = .formSheet
+		let fullScreenPlayerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
+		fullScreenPlayerVC.modalPresentationStyle = .pageSheet
 		self.present(fullScreenPlayerVC, animated: true, completion: nil)
 	}
 

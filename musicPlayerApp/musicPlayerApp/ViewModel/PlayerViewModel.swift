@@ -53,7 +53,6 @@ final class PlayerViewModel {
 		network.subscribeToState { playerState in
 			self.playerState.value = playerState
 		}
-		network.appRemote.playerAPI?.setShuffle(false)
 	}
 
 	func next() {

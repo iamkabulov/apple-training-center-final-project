@@ -39,6 +39,20 @@ final class MainViewModel {
 		}
 	}
 
+	func subscribeToState() {
+		network.subscribeToState { playerState in
+			self.playerState.value = playerState
+		}
+	}
+
+	func play() {
+		network.play()
+	}
+
+	func pause() {
+		network.pause()
+	}
+
 	func getPosters(forCellWithID cellID: String, for uri: SPTAppRemoteContentItem?) {
 		if let cachedImage = imageCache[cellID] {
 			self.itemPosters.updateValue(cachedImage, forKey: cellID)
