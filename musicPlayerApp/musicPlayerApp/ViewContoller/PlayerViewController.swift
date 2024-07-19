@@ -11,6 +11,8 @@ final class PlayerViewController: UIViewController {
 
 	var viewModel: PlayerViewModel?
 	private var vc: MusicBarController?
+	var isRepeatHandler: ((Bool) -> Void)?
+	var isShuffleHandler: ((Bool) -> Void)?
 	private var isPaused = false
 	private var item: SPTAppRemoteContentItem?
 	private var timer: Timer?
@@ -155,19 +157,25 @@ final class PlayerViewController: UIViewController {
 //		closeButton.isHidden = true
 	}
 
-	init(playerState: SPTAppRemotePlayerState, currentTime: Double, vc: MusicBarController) {
+	init(playerState: SPTAppRemotePlayerState, currentTime: Double, vc: MusicBarController, isRepeat: Bool, isShuffled: Bool) {
 		super.init(nibName: nil, bundle: nil)
 		self.vc = vc
+		self.viewModel = PlayerViewModel(self)
 		self.lastPlayerState = playerState
 		self.currentTime = currentTime
 		self.setCurrentTime(currentTime)
 		self.slider.value = Float(currentTime)
-		self.viewModel = PlayerViewModel(self)
 		self.viewModel?.network.appRemote.playerAPI?.delegate = self
 		self.viewModel?.subscribeToState()
 		self.viewModel?.getPoster(for: playerState.track)
+		self.isPaused = playerState.isPaused
 		self.viewModel?.getPlayerState()
-//		closeButton.isHidden = false
+		self.startTimer()
+		self.update()
+
+
+
+
 	}
 
 	required init?(coder: NSCoder) {
@@ -176,7 +184,7 @@ final class PlayerViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		//		startTimer()
+		startTimer()
 		setup()
 		view.backgroundColor = .systemBackground
 		self.navigationController?.navigationBar.topItem?.title = ""
@@ -186,11 +194,14 @@ final class PlayerViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		if isPaused {
-			isPaused = false
-		} else {
-			isPaused = true
-		}
+		self.setCurrentTime(currentTime)
+		self.slider.value = Float(currentTime)
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
+		self.viewModel?.subscribeToState()
+		self.isPaused = self.lastPlayerState?.isPaused ?? false
+		self.viewModel?.getPlayerState()
+		self.startTimer()
+		self.update()
 		bindViewModel()
 	}
 
@@ -201,17 +212,13 @@ final class PlayerViewController: UIViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
-		viewModel?.network.appRemote.delegate = nil
-		guard let vc = self.vc else { return }
-		viewModel?.network.appRemote.playerAPI?.delegate = vc
-//		lastPlayerState = nil
 	}
 
 	func bindViewModel() {
-		self.viewModel?.trackPoster.bind { img in
+		self.viewModel?.trackPoster.bind { [weak self] img in
 			DispatchQueue.main.async {
 				guard let image = img else { return }
-				self.imageView.image = image
+				self?.imageView.image = image
 			}
 		}
 
@@ -228,12 +235,17 @@ final class PlayerViewController: UIViewController {
 					self.durationTimeLabel.text = self.formatTime(self.durationTime)
 					self.slider.minimumValue = 0
 					self.startTimer()
-					self.update(playerState: playerState)
+					self.update()
 				}
 			} else {
 				self.viewModel?.getPlayerState()
 			}
 		}
+	}
+
+	func upToDate(currentTime: Double) {
+		self.currentTime += currentTime
+		self.slider.value = Float(currentTime)
 	}
 
 	func startTimer() {
@@ -270,7 +282,7 @@ final class PlayerViewController: UIViewController {
 
 	@objc func sliderValueChanged(_ sender: UISlider) {
 		currentTime = Double(sender.value)
-		viewModel?.seekToPosition(Int(sender.value)) //MARK: - Podumat'
+		viewModel?.seekToPosition(Int(sender.value))
 		self.updateSlider()
 	}
 
@@ -284,7 +296,7 @@ final class PlayerViewController: UIViewController {
 			stopTimer()
 			isPaused = true
 		}
-		self.update(playerState: self.lastPlayerState)
+		self.update()
 	}
 
 	@objc func didTapNextButton(_ button: UIButton) {
@@ -292,6 +304,9 @@ final class PlayerViewController: UIViewController {
 		self.slider.value = 0
 		self.updateSlider()
 		self.viewModel?.next()
+		self.isRepeat = false
+		self.isRepeatHandler?(self.isRepeat)
+		self.update()
 	}
 
 	@objc func didTapPreviousButton(_ button: UIButton) {
@@ -299,6 +314,9 @@ final class PlayerViewController: UIViewController {
 		self.slider.value = 0
 		self.updateSlider()
 		self.viewModel?.previous()
+		self.isRepeat = false
+		self.isRepeatHandler?(self.isRepeat)
+		self.update()
 	}
 
 	@objc func didTapShuffleButton(_ button: UIButton) {
@@ -310,6 +328,7 @@ final class PlayerViewController: UIViewController {
 			self.shuffleButton.setImage(UIImage(systemName: "infinity", withConfiguration: configuration), for: .normal)
 			self.isShuffled = true
 		}
+		self.isShuffleHandler?(self.isShuffled)
 		self.viewModel?.shuffle(self.isShuffled)
 	}
 
@@ -325,10 +344,7 @@ final class PlayerViewController: UIViewController {
 			self.viewModel?.repeatMode(.track)
 			self.isRepeat = true
 		}
-	}
-
-	@objc func didTapClose(_ button: UIButton) {
-		dismiss(animated: true)
+		isRepeatHandler?(self.isRepeat)
 	}
 
 	private func formatTime(_ seconds: Double) -> String {
@@ -342,14 +358,9 @@ final class PlayerViewController: UIViewController {
 		currentTimeLabel.text = formatTime(currentTime)
 	}
 
-	func update(playerState: SPTAppRemotePlayerState?) {
-//		if lastPlayerState?.track.uri != playerState.track.uri {
-//			fetchArtwork(for: playerState.track)
-//		}
-//		lastPlayerState = playerState
-//		trackLabel.text = playerState.track.name
-//
+	func update() {
 		let configuration = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
+
 		if isPaused {
 			DispatchQueue.main.async {
 				self.playPauseButton.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: configuration), for: .normal)
@@ -359,6 +370,20 @@ final class PlayerViewController: UIViewController {
 				self.playPauseButton.setImage(UIImage(systemName: "pause.circle.fill", withConfiguration: configuration), for: .normal)
 
 			}
+		}
+
+
+		let configurationSmall = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
+		if isRepeat {
+			self.repeatButton.setImage(UIImage(systemName: "repeat.1", withConfiguration: configurationSmall), for: .normal)
+		} else {
+			self.repeatButton.setImage(UIImage(systemName: "repeat", withConfiguration: configurationSmall), for: .normal)
+		}
+
+		if isShuffled {
+			self.shuffleButton.setImage(UIImage(systemName: "infinity", withConfiguration: configurationSmall), for: .normal)
+		} else {
+			self.shuffleButton.setImage(UIImage(systemName: "shuffle", withConfiguration: configurationSmall), for: .normal)
 		}
 	}
 }

@@ -1,6 +1,7 @@
 import Foundation
 
 let accessTokenKey = "access-token-key"
+let clientCredentialKey = "client-credentials"
 let redirectUri = URL(string:"musicPlayerApp://")!
 let spotifyClientId = "6c4cd976ad414790a825b0dc135137ad"
 let spotifyClientSecretKey = "f25ee638c8e7431dbef93ee5cce0d991"

@@ -165,7 +165,7 @@ extension ListViewController: UICollectionViewDataSource {
 
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let item = self.items?[indexPath.row] else { return }
-		self.viewModel?.network.play(item)
+		self.viewModel?.network.play(item: item)
 	}
 }
 

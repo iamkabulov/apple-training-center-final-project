@@ -31,7 +31,7 @@ final class PlayerViewModel {
 	}
 
 	func playMusic(_ track: SPTAppRemoteContentItem) {
-		network.play(track)
+		network.play(item: track)
 	}
 
 	func getPlayerState() {

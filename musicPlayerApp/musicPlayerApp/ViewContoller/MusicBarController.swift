@@ -16,21 +16,19 @@ final class MusicBarController: UITabBarController {
 		return mini
 	}()
 
-	private var playerVC: PlayerViewController?
-
 	let miniPlayerHeight: CGFloat = 64
 	private var viewModel: MusicBarViewModel?
+	private var isShuffled = false
+	private var isRepeat = false
 	private var timer: Timer?
 	private var currentTime: Double = 0
+	private var durationTime: Double = 0
 	private var lastPlayerState: SPTAppRemotePlayerState?
 
 	init() {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = MusicBarViewModel(self)
 		self.viewModel?.network.appRemote.playerAPI?.delegate = self
-
-		guard let playerState = self.lastPlayerState else { return }
-		self.playerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
 	}
 	
 	required init?(coder: NSCoder) {
@@ -68,24 +66,31 @@ final class MusicBarController: UITabBarController {
 		self.viewModel?.getPlayerState()
 		self.viewModel?.subscribeToState()
 		self.bindViewModel()
-
-		guard let playerState = self.lastPlayerState else { return }
-		self.playerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
 	}
 
 	@objc private func miniPlayerTapped() {
-		guard let playerState = self.lastPlayerState, let vc = self.playerVC else { return }
+		guard let playerState = self.lastPlayerState else { return }
+		let vc = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self, isRepeat: self.isRepeat, isShuffled: self.isShuffled)
+
+		vc.upToDate(currentTime: self.currentTime)
+		vc.isRepeatHandler = { value in
+			self.isRepeat = value
+		}
+
+		vc.isShuffleHandler = { value in
+			self.isShuffled = value
+		}
 		vc.modalPresentationStyle = .pageSheet
 		self.present(vc, animated: true, completion: nil)
 	}
 
 	func setupViews() {
 		let mainViewController = MainViewController()
-		let profileController = UIViewController()
+		let profileController = SearchViewController()
 
 		let homeNav = UINavigationController(rootViewController: mainViewController)
 		mainViewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), selectedImage: nil)
-		profileController.tabBarItem = UITabBarItem(title: "Profile", image: UIImage(systemName: "person.crop.circle"), selectedImage: nil)
+		profileController.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), selectedImage: nil)
 
 		let tabBarList = [homeNav, profileController]
 		self.viewControllers = tabBarList
@@ -112,6 +117,8 @@ final class MusicBarController: UITabBarController {
 		guard let playerState = playerState else { return }
 		if lastPlayerState?.track.uri != playerState.track.uri {
 			self.viewModel?.getPoster(for: playerState.track)
+				self.currentTime = 0
+				self.startTimer()
 		}
 		self.startTimer()
 		self.miniPlayerView.setTrack(name: playerState.track.name,
@@ -135,6 +142,7 @@ final class MusicBarController: UITabBarController {
 				self.update(playerState: playerState)
 				self.playerStateDidChange(playerState)
 				self.viewModel?.getPoster(for: playerState.track)
+				self.durationTime = Double(playerState.track.duration / 1000)
 			}
 		}
 	}
@@ -152,7 +160,16 @@ final class MusicBarController: UITabBarController {
 	}
 
 	@objc func updateValue() {
-		self.currentTime += 1
+		guard let playerState = self.lastPlayerState else { return }
+		if !playerState.isPaused {
+			self.currentTime += 1 // Увеличиваем текущее время на 100 миллисекунд (0.1 секунды)
+			if self.currentTime >= self.durationTime {
+				self.stopTimer()
+				self.currentTime = self.durationTime
+				self.currentTime = 0
+			}
+		}
+		self.startTimer()
 	}
 
 	func update(_ uri: String) {
