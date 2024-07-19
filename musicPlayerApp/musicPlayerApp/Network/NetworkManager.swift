@@ -19,10 +19,25 @@ final class NetworkManager: NSObject {
 		return appRemote
 	}()
 
+	lazy private var urlComponent: URLComponents = {
+			var component = URLComponents()
+			component.scheme = "https"
+			component.host = "api.spotify.com"
+
+			return component
+		}()
+
 	var accessToken = UserDefaults.standard.string(forKey: accessTokenKey) {
 		didSet {
 			let defaults = UserDefaults.standard
 			defaults.set(accessToken, forKey: accessTokenKey)
+		}
+	}
+
+	var clientCredentials = UserDefaults.standard.string(forKey: clientCredentialKey) {
+		didSet {
+			let defaults = UserDefaults.standard
+			defaults.set(clientCredentials, forKey: clientCredentialKey)
 		}
 	}
 
@@ -35,7 +50,6 @@ final class NetworkManager: NSObject {
 				}
 				let accessToken = dictionary!["access_token"] as! String
 				DispatchQueue.main.async {
-					print("TUT ACCESSTOKEN_______")
 					self.accessToken = accessToken
 					self.appRemote.connectionParameters.accessToken = accessToken
 					self.appRemote.connect()
@@ -144,30 +158,103 @@ final class NetworkManager: NSObject {
 		}
 	}
 
-	func search() {
-		let url = URL(string: "https://api.spotify.com/v1/search?q=track%3A5000&type=track&include_external=audio")!
-		guard let token = self.accessToken else { return}
-		let headers = [
-			"Authorization": "Bearer \(token)"
-		]
-		var request = URLRequest(url: url)
-		request.allHTTPHeaderFields = headers
+	func fetchAccessTokenClient(completion: @escaping (String?) -> Void) {
+		let tokenURL = "https://accounts.spotify.com/api/token"
+		var request = URLRequest(url: URL(string: tokenURL)!)
+		request.httpMethod = "POST"
+		request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 
-		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-			if let error = error {
-				print(error)
-			} else if let data = data {
-				let str = String(data: data, encoding: .utf8)
-				print("____________________________________")
-				print(str ?? "")
+		let authStr = "\(spotifyClientId):\(spotifyClientSecretKey)"
+		let authData = authStr.data(using: .utf8)
+		let base64AuthStr = authData?.base64EncodedString() ?? ""
+		request.setValue("Basic \(base64AuthStr)", forHTTPHeaderField: "Authorization")
+
+		let bodyStr = "grant_type=client_credentials"
+		request.httpBody = bodyStr.data(using: .utf8)
+
+		let task = URLSession.shared.dataTask(with: request) { data, response, error in
+			guard let data = data, error == nil else {
+				print("Error fetching access token: \(error?.localizedDescription ?? "Unknown error")")
+				completion(nil)
+				return
+			}
+
+			do {
+				if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+				   let accessToken = json["access_token"] as? String {
+					completion(accessToken)
+				} else {
+					completion(nil)
+				}
+			} catch {
+				print("Error parsing JSON: \(error.localizedDescription)")
+				completion(nil)
 			}
 		}
 
 		task.resume()
 	}
 
-	func play(_ uri: SPTAppRemoteContentItem) {
+	func getTokenForSearch() {
+		fetchAccessTokenClient { [weak self] accessToken in
+			guard let self = self, let token = accessToken else {
+				print("Failed to fetch access token")
+				return
+			}
+			clientCredentials = token
+		}
+	}
+
+
+	func search(byName: String, completionHandler: @escaping ((TrackEntity) -> Void)) {
+
+		self.urlComponent.path = "/v1/search"
+		self.urlComponent.queryItems = [URLQueryItem(name: "q", value: byName),
+										URLQueryItem(name: "type", value: "track"),
+										URLQueryItem(name: "market", value: "KZ"),
+										URLQueryItem(name: "limit", value: "10"),
+										URLQueryItem(name: "offset", value: "0")]
+		guard let requestURL = self.urlComponent.url else { return }
+		guard let token = self.clientCredentials else { return }
+		let headers = [
+			"Authorization": "Bearer \(token)"
+		]
+		var request = URLRequest(url: requestURL)
+		print(request)
+		request.allHTTPHeaderFields = headers
+		
+		print(request)
+		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+			guard let data = data, error == nil else { return }
+			do {
+				let str = String(data: data, encoding: .utf8)
+				print("____________________________________")
+				print(str ?? "")
+				let response = try JSONDecoder().decode(TrackEntity.self, from: data)
+//				print(response)
+				completionHandler(response)
+				return
+			} catch {
+				return print(error)
+			}
+		}
+
+
+		task.resume()
+	}
+
+	func play(item uri: SPTAppRemoteContentItem) {
 		appRemote.playerAPI?.play(uri, skipToTrackIndex: 0, callback: { response, error in
+			if let error = error {
+				print("Error getting player state:" + error.localizedDescription)
+			} else if let response = response  {
+				print(response)
+			}
+		})
+	}
+
+	func play(trackUri uri: String) {
+		appRemote.playerAPI?.play(uri, asRadio: false, callback: { response, error in
 			if let error = error {
 				print("Error getting player state:" + error.localizedDescription)
 			} else if let response = response  {
