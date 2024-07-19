@@ -32,6 +32,11 @@ class HeaderView: UICollectionReusableView {
 		imageView.translatesAutoresizingMaskIntoConstraints = false
 		self.widthConstraint = imageView.widthAnchor.constraint(equalToConstant: 200)
 		self.heightConstraint = imageView.heightAnchor.constraint(equalToConstant: 200)
+		imageView.layer.shadowColor = UIColor.black.cgColor
+		imageView.layer.shadowOpacity = 0.7
+		imageView.layer.shadowOffset = CGSize.zero
+		imageView.layer.shadowRadius = 10
+		imageView.layer.masksToBounds = false
 		return imageView
 	}()
 

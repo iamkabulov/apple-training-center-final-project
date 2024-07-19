@@ -12,10 +12,11 @@ final class MusicBarController: UITabBarController {
 	private lazy var miniPlayerView: MiniPlayerView = {
 		let mini = MiniPlayerView()
 		mini.translatesAutoresizingMaskIntoConstraints = false
-		mini.backgroundColor = UIColor.gray.withAlphaComponent(0.98)
 		mini.layer.cornerRadius = 10
 		return mini
 	}()
+
+	private var playerVC: PlayerViewController?
 
 	let miniPlayerHeight: CGFloat = 64
 	private var viewModel: MusicBarViewModel?
@@ -27,6 +28,9 @@ final class MusicBarController: UITabBarController {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = MusicBarViewModel(self)
 		self.viewModel?.network.appRemote.playerAPI?.delegate = self
+
+		guard let playerState = self.lastPlayerState else { return }
+		self.playerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
 	}
 	
 	required init?(coder: NSCoder) {
@@ -64,13 +68,15 @@ final class MusicBarController: UITabBarController {
 		self.viewModel?.getPlayerState()
 		self.viewModel?.subscribeToState()
 		self.bindViewModel()
+
+		guard let playerState = self.lastPlayerState else { return }
+		self.playerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
 	}
 
 	@objc private func miniPlayerTapped() {
-		guard let playerState = self.lastPlayerState else { return }
-		let fullScreenPlayerVC = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self)
-		fullScreenPlayerVC.modalPresentationStyle = .pageSheet
-		self.present(fullScreenPlayerVC, animated: true, completion: nil)
+		guard let playerState = self.lastPlayerState, let vc = self.playerVC else { return }
+		vc.modalPresentationStyle = .pageSheet
+		self.present(vc, animated: true, completion: nil)
 	}
 
 	func setupViews() {
@@ -207,7 +213,6 @@ class MiniPlayerCollapseAnimator: NSObject, UIViewControllerAnimatedTransitionin
 
 	func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
 		guard let fromVC = transitionContext.viewController(forKey: .from) else { return }
-		let containerView = transitionContext.containerView
 
 		UIView.animate(withDuration: transitionDuration(using: transitionContext), animations: {
 			fromVC.view.frame = self.miniPlayerView.frame
@@ -229,6 +234,8 @@ extension MusicBarController: SPTAppRemotePlayerStateDelegate {
 			}
 			self.update(playerState: playerState)
 		}
+
+		self.miniPlayerView.setPlayerState(playerState.isPaused)
 		stopTimer()
 		startTimer()
 	}

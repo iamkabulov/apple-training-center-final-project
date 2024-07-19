@@ -186,6 +186,11 @@ final class PlayerViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		if isPaused {
+			isPaused = false
+		} else {
+			isPaused = true
+		}
 		bindViewModel()
 	}
 
@@ -423,22 +428,20 @@ extension PlayerViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("2")
-//		lastPlayerState = nil
-//		viewModel?.network.appRemote.delegate = nil
-//		let vc = LogInViewController()
-//		vc.modalPresentationStyle = .fullScreen
-//		self.present(vc, animated: true)
-		viewModel?.network.sessionManager?.renewSession()
+		lastPlayerState = nil
+		viewModel?.network.appRemote.delegate = nil
+		let vc = LogInViewController()
+		vc.modalPresentationStyle = .fullScreen
+		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("3")
-//		lastPlayerState = nil
-//		viewModel?.network.appRemote.delegate = nil
-//		let vc = LogInViewController()
-//		vc.modalPresentationStyle = .fullScreen
-//		self.present(vc, animated: true)
-		viewModel?.network.sessionManager?.renewSession()
+		lastPlayerState = nil
+		viewModel?.network.appRemote.delegate = nil
+		let vc = LogInViewController()
+		vc.modalPresentationStyle = .fullScreen
+		self.present(vc, animated: true)
 	}
 }
 

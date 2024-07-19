@@ -10,6 +10,7 @@ import UIKit
 class MiniPlayerView: UIView {
 
 	var playPauseTappedDelegate: ((Bool) -> Void)?
+	private let buttonConfiguration = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular, scale: .default)
 	private var currentRotationAngle: CGFloat = 0
 	private var isAnimationPaused = false
 	private var isPlaying = true
@@ -35,6 +36,7 @@ class MiniPlayerView: UIView {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.font = UIFont.systemFont(ofSize: 12)
+		label.textColor = .systemGray
 		label.text = "Artis"
 		return label
 	}()
@@ -42,7 +44,9 @@ class MiniPlayerView: UIView {
 	lazy var playPauseButton: UIButton = {
 		let button = UIButton()
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+		button.setImage(UIImage(systemName: "pause.fill",
+								withConfiguration: self.buttonConfiguration),
+						for: .normal)
 		button.tintColor = .black
 		button.addTarget(self, action: #selector(playPauseTapped), for: .touchUpInside)
 		return button
@@ -51,8 +55,8 @@ class MiniPlayerView: UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		setupView()
+		backgroundColor = UIColor.systemGray6.withAlphaComponent(0.97)
 		addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
-		startAlbumImageRotation()
 	}
 
 	required init?(coder: NSCoder) {
@@ -64,7 +68,9 @@ class MiniPlayerView: UIView {
 	}
 
 	@objc private func playPauseTapped() {
-		let newImage = isPlaying ? UIImage(systemName: "play.fill") : UIImage(systemName: "pause.fill")
+		let playingImage = UIImage(systemName: "play.fill", withConfiguration: self.buttonConfiguration)
+		let pausedImage = UIImage(systemName: "pause.fill", withConfiguration: self.buttonConfiguration)
+		let newImage = isPlaying ? playingImage : pausedImage
 		playPauseButton.setImage(newImage, for: .normal)
 
 		if !isPlaying {
@@ -110,6 +116,14 @@ class MiniPlayerView: UIView {
 
 	func setPoster(_ img: UIImage) {
 		self.albumImageView.image = img
+	}
+
+	func setPlayerState(_ value: Bool) {
+		self.isPlaying = !value
+		let playingImage = UIImage(systemName: "play.fill", withConfiguration: self.buttonConfiguration)
+		let pausedImage = UIImage(systemName: "pause.fill", withConfiguration: self.buttonConfiguration)
+		let newImage = self.isPlaying ? pausedImage : playingImage
+		playPauseButton.setImage(newImage, for: .normal)
 	}
 
 	private func setupView() {
