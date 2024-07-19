@@ -169,6 +169,8 @@ final class PlayerViewController: UIViewController {
 		self.viewModel?.subscribeToState()
 		self.viewModel?.getPoster(for: playerState.track)
 		self.isPaused = playerState.isPaused
+		self.isRepeat = isRepeat
+		self.isShuffled = isShuffled
 		self.viewModel?.getPlayerState()
 		self.startTimer()
 		self.update()
@@ -404,7 +406,7 @@ extension PlayerViewController {
 //		view.addSubview(closeButton)
 
 		NSLayoutConstraint.activate([
-			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
 			imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
 			trackLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
