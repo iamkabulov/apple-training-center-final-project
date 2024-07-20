@@ -321,11 +321,31 @@ final class NetworkManager: NSObject {
 		appRemote.playerAPI?.seek(toPosition: position * 1000)
 	}
 
-	func subscribeToState(completionHandler: @escaping (SPTAppRemotePlayerState)->Void ) {
+	func subscribeToState(completionHandler: @escaping (SPTAppRemotePlayerState)->Void) {
 		appRemote.playerAPI?.subscribe { success, error in
 			if let error = error {
 				print("Error subscribing to player state:" + error.localizedDescription)
 			} else if let success = success as? SPTAppRemotePlayerState {
+				completionHandler(success)
+			}
+		}
+	}
+
+	func addToLibraryWith(uri: String) {
+		appRemote.userAPI?.addItemToLibrary(withURI: uri) { success, error in
+			if let error = error {
+				print("Error subscribing to player state:" + error.localizedDescription)
+			} else if let success = success as? SPTAppRemoteLibraryState {
+				print(success)
+			}
+		}
+	}
+
+	func getTrackState(uri: String, completionHandler: @escaping (SPTAppRemoteLibraryState)->Void) {
+		appRemote.userAPI?.fetchLibraryState(forURI: uri) { success, error in
+			if let error = error {
+				print("Error subscribing to player state:" + error.localizedDescription)
+			} else if let success = success as? SPTAppRemoteLibraryState {
 				completionHandler(success)
 			}
 		}

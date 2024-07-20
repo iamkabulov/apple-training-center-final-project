@@ -147,6 +147,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 		guard let uri = self.dataSource?[indexPath.row].uri else { return }
 		print(uri)
 		self.viewModel?.network.play(trackUri: uri)
+		tableView.deselectRow(at: indexPath, animated: true)
 	}
 }
 
@@ -155,28 +156,12 @@ extension SearchViewController: UITextFieldDelegate {
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
 		guard let title = textField.text else { return true }
 		if title == "" {
-//			networking.recommendationList() { data in
-//				self.movieData = data.results ?? []
-//				DispatchQueue.main.async {
-//					self.showNotFound(!self.movieData.isEmpty)
-//					self.hideRecommendedList(false)
-//
-//				}
-//			}
+			//пусто
 		} else {
 			viewModel?.search(title)
 		}
 
 		textField.resignFirstResponder()
 		return true
-	}
-
-	func showNotFound(_ value: Bool) {
-//		notFoundImage.isHidden = value
-//		infoLabel.isHidden = value
-	}
-
-	func hideRecommendedList(_ value: Bool) {
-//		recommendedLabel.isHidden = value
 	}
 }

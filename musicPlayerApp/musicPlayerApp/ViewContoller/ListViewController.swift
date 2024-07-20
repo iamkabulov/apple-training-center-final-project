@@ -15,6 +15,7 @@ final class ListViewController: UIViewController {
 	var vc: MusicBarController?
 	private var item: SPTAppRemoteContentItem?
 	private var items: [SPTAppRemoteContentItem]?
+	private var libraryStates: [String: SPTAppRemoteLibraryState]?
 	var collectionView: UICollectionView! = nil
 
 	var headerView: HeaderView?
@@ -60,6 +61,11 @@ final class ListViewController: UIViewController {
 				guard let image = img else { return }
 				self.floatingHeaderView.set(image: image)
 			}
+		}
+
+		self.viewModel?.libraryStates.bind { states in
+			self.libraryStates = states
+			self.collectionView.reloadData()
 		}
 	}
 }
@@ -144,8 +150,20 @@ extension ListViewController: UICollectionViewDataSource {
 		let cell = collectionView.dequeueReusableCell(
 			withReuseIdentifier: ListCell.reuseIdentifier,
 			for: indexPath) as! ListCell
-
-		cell.set(title: items?[indexPath.item].title)
+		
+		guard let item = items?[indexPath.item] else { return cell }
+		viewModel?.getTrackState(uri: item.uri)
+		cell.set(title: item.title)
+		if let state = libraryStates?[item.uri] {
+			if state.isAdded {
+				cell.hideButton()
+			}
+		}
+		cell.addButtonTappedHandler = {
+			self.viewModel?.addToLibrary(uri: item.uri)
+			self.viewModel?.getTrackState(uri: item.uri)
+			cell.hideButton()
+		}
 		return cell
 	}
 

@@ -246,7 +246,7 @@ final class PlayerViewController: UIViewController {
 	}
 
 	func upToDate(currentTime: Double) {
-		self.currentTime += currentTime
+		self.currentTime = currentTime
 		self.slider.value = Float(currentTime)
 	}
 

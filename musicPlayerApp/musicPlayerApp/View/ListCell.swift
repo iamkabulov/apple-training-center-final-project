@@ -12,6 +12,7 @@ class ListCell: UICollectionViewCell {
 		return String(describing: self)
 	}
 
+	var addButtonTappedHandler: (() -> Void)?
 	private lazy var label: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
@@ -33,6 +34,19 @@ class ListCell: UICollectionViewCell {
 		imageView.tintColor = .systemGray
 		return imageView
 	}()
+
+	private lazy var addToLibraryButton: UIButton = {
+		let button = UIButton()
+		button.translatesAutoresizingMaskIntoConstraints = false
+		let buttonConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .light, scale: .default)
+		button.setImage(UIImage(systemName: "plus",
+								withConfiguration: buttonConfiguration),
+						for: .normal)
+		button.tintColor = .black
+		button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+		return button
+	}()
+
 	private lazy var seperatorView: UIView = {
 		let view = UIView()
 		view.translatesAutoresizingMaskIntoConstraints = false
@@ -47,25 +61,30 @@ class ListCell: UICollectionViewCell {
 	required init?(coder: NSCoder) {
 		fatalError("not implemented")
 	}
+
+	override func prepareForReuse() {
+		super.prepareForReuse()
+		addToLibraryButton.isHidden = false
+	}
 }
 
 extension ListCell {
 	func layout() {
 		contentView.addSubview(self.seperatorView)
 		contentView.addSubview(self.label)
-		contentView.addSubview(self.accessoryImageView)
+		contentView.addSubview(self.addToLibraryButton)
 
 		let inset = CGFloat(10)
 		NSLayoutConstraint.activate([
 			label.topAnchor.constraint(equalTo: contentView.topAnchor, constant: inset),
 			label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: inset),
 			label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -inset),
-			label.trailingAnchor.constraint(equalTo: accessoryImageView.leadingAnchor, constant: -inset),
+			label.trailingAnchor.constraint(equalTo: addToLibraryButton.leadingAnchor, constant: -inset),
 
-			accessoryImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-			accessoryImageView.widthAnchor.constraint(equalToConstant: 13),
-			accessoryImageView.heightAnchor.constraint(equalToConstant: 20),
-			accessoryImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -inset),
+			addToLibraryButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+			addToLibraryButton.widthAnchor.constraint(equalToConstant: 30),
+			addToLibraryButton.heightAnchor.constraint(equalToConstant: 30),
+			addToLibraryButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -inset),
 			
 			seperatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: inset),
 			seperatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
@@ -76,5 +95,13 @@ extension ListCell {
 
 	func set(title: String?) {
 		label.text = title
+	}
+
+	@objc func addButtonTapped() {
+		addButtonTappedHandler?()
+	}
+
+	func hideButton() {
+		addToLibraryButton.isHidden = true
 	}
 }

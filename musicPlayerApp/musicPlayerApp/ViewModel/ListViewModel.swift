@@ -14,6 +14,7 @@ final class ListViewModel {
 	var playerPoster: Observable<UIImage> = Observable(nil)
 	var childrenOfContent: Observable<[SPTAppRemoteContentItem]> = Observable(nil)
 	var playerState: Observable<SPTAppRemotePlayerState> = Observable(nil)
+	var libraryStates: ObservableDictionary<String, SPTAppRemoteLibraryState> = ObservableDictionary()
 
 	init(_ view: SPTAppRemoteDelegate) {
 		self.network.appRemote.delegate = view
@@ -52,6 +53,21 @@ final class ListViewModel {
 	func subscribeToState() {
 		network.subscribeToState { playerState in
 			self.playerState.value = playerState
+		}
+	}
+
+	func addToLibrary(uri: String) {
+		network.addToLibraryWith(uri: uri)
+	}
+
+	func getTrackState(uri: String) {
+		if let _ = libraryStates[uri] {
+			return
+		}
+		
+		network.getTrackState(uri: uri) { libraryState in
+			self.libraryStates.updateValue(libraryState, forKey: uri)
+//			NotificationCenter.default.post(name: .imageLoaded, object: nil, userInfo: ["cellID": cellID])
 		}
 	}
 }

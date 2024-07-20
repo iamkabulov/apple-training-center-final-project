@@ -56,4 +56,17 @@ final class ObservableDictionary<Key: Hashable, Value> {
 	func value(forKey key: Key) -> Value? {
 		return self.dictionary[key]
 	}
+
+	func index(forKey key: Key) -> Dictionary<Key, Value>.Index? {
+		return dictionary.index(forKey: key)
+	}
+
+	subscript(key: Key) -> Value? {
+		get {
+			return dictionary[key]
+		}
+		set {
+			dictionary[key] = newValue
+		}
+	}
 }
