@@ -27,6 +27,7 @@ final class Observable<T> {
 		self.listener = listener
 	}
 }
+
 final class ObservableDictionary<Key: Hashable, Value> {
 
 	var dictionary: [Key: Value] {
@@ -50,6 +51,11 @@ final class ObservableDictionary<Key: Hashable, Value> {
 
 	func updateValue(_ value: Value, forKey key: Key) {
 		self.dictionary[key] = value
+		listener?(dictionary)
+	}
+	
+	func removeValue(forKey key: Key) {
+		self.dictionary.removeValue(forKey: key)
 		listener?(dictionary)
 	}
 

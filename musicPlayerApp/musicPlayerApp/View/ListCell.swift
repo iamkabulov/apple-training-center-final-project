@@ -12,7 +12,7 @@ class ListCell: UICollectionViewCell {
 		return String(describing: self)
 	}
 
-	var addButtonTappedHandler: (() -> Void)?
+	var addRemoveButtonTappedHandler: (() -> Void)?
 	private lazy var label: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
@@ -43,7 +43,7 @@ class ListCell: UICollectionViewCell {
 								withConfiguration: buttonConfiguration),
 						for: .normal)
 		button.tintColor = .black
-		button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+		button.addTarget(self, action: #selector(addRemoveButtonTapped), for: .touchUpInside)
 		return button
 	}()
 
@@ -64,7 +64,6 @@ class ListCell: UICollectionViewCell {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
-		addToLibraryButton.isHidden = false
 	}
 }
 
@@ -97,11 +96,21 @@ extension ListCell {
 		label.text = title
 	}
 
-	@objc func addButtonTapped() {
-		addButtonTappedHandler?()
+	@objc func addRemoveButtonTapped() {
+		addRemoveButtonTappedHandler?()
 	}
 
-	func hideButton() {
-		addToLibraryButton.isHidden = true
+	func changeButtonState(_ value: Bool) {
+		if value {
+			let buttonConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .light, scale: .default)
+			addToLibraryButton.setImage(UIImage(systemName: "minus",
+									withConfiguration: buttonConfiguration),
+							for: .normal)
+		} else {
+			let buttonConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .light, scale: .default)
+			addToLibraryButton.setImage(UIImage(systemName: "plus",
+									withConfiguration: buttonConfiguration),
+							for: .normal)
+		}
 	}
 }

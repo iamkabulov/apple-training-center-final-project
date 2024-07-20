@@ -341,6 +341,16 @@ final class NetworkManager: NSObject {
 		}
 	}
 
+	func removeFromLibrary(uri: String) {
+		appRemote.userAPI?.removeItemFromLibrary(withURI: uri) { success, error in
+			if let error = error {
+				print("Error subscribing to player state:" + error.localizedDescription)
+			} else if let success = success as? SPTAppRemoteLibraryState {
+				print(success)
+			}
+		}
+	}
+
 	func getTrackState(uri: String, completionHandler: @escaping (SPTAppRemoteLibraryState)->Void) {
 		appRemote.userAPI?.fetchLibraryState(forURI: uri) { success, error in
 			if let error = error {

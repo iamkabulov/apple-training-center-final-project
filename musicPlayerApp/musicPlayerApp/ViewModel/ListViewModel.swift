@@ -60,6 +60,10 @@ final class ListViewModel {
 		network.addToLibraryWith(uri: uri)
 	}
 
+	func removeFromLibrary(uri: String) {
+		network.removeFromLibrary(uri: uri)
+	}
+
 	func getTrackState(uri: String) {
 		if let _ = libraryStates[uri] {
 			return
@@ -67,7 +71,6 @@ final class ListViewModel {
 		
 		network.getTrackState(uri: uri) { libraryState in
 			self.libraryStates.updateValue(libraryState, forKey: uri)
-//			NotificationCenter.default.post(name: .imageLoaded, object: nil, userInfo: ["cellID": cellID])
 		}
 	}
 }

@@ -68,6 +68,16 @@ final class ListViewController: UIViewController {
 			self.collectionView.reloadData()
 		}
 	}
+
+	func showAlert(on viewController: UIViewController) {
+		let alert = UIAlertController(title: "Music", message: "has been added", preferredStyle: .alert)
+		viewController.present(alert, animated: true) {
+			// Закрытие алерта через 2 секунды
+			DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+				alert.dismiss(animated: true, completion: nil)
+			}
+		}
+	}
 }
 
 // MARK: Layout
@@ -154,15 +164,24 @@ extension ListViewController: UICollectionViewDataSource {
 		guard let item = items?[indexPath.item] else { return cell }
 		viewModel?.getTrackState(uri: item.uri)
 		cell.set(title: item.title)
+		
 		if let state = libraryStates?[item.uri] {
+			cell.changeButtonState(state.isAdded)
 			if state.isAdded {
-				cell.hideButton()
+				cell.addRemoveButtonTappedHandler = {
+					self.viewModel?.removeFromLibrary(uri: item.uri)
+					self.viewModel?.getTrackState(uri: item.uri)
+					self.showAlert(on: self)
+					cell.changeButtonState(false)
+				}
+			} else {
+				cell.addRemoveButtonTappedHandler = {
+					self.viewModel?.addToLibrary(uri: item.uri)
+					self.viewModel?.getTrackState(uri: item.uri)
+					self.showAlert(on: self)
+					cell.changeButtonState(true)
+				}
 			}
-		}
-		cell.addButtonTappedHandler = {
-			self.viewModel?.addToLibrary(uri: item.uri)
-			self.viewModel?.getTrackState(uri: item.uri)
-			cell.hideButton()
 		}
 		return cell
 	}
