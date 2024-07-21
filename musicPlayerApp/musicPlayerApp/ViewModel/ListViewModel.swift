@@ -58,10 +58,12 @@ final class ListViewModel {
 
 	func addToLibrary(uri: String) {
 		network.addToLibraryWith(uri: uri)
+		self.libraryStates.removeValue(forKey: uri)
 	}
 
 	func removeFromLibrary(uri: String) {
 		network.removeFromLibrary(uri: uri)
+		self.libraryStates.removeValue(forKey: uri)
 	}
 
 	func getTrackState(uri: String) {

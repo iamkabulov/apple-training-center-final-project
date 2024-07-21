@@ -18,6 +18,11 @@ final class ListViewController: UIViewController {
 	private var libraryStates: [String: SPTAppRemoteLibraryState]?
 	var collectionView: UICollectionView! = nil
 
+	private enum Action {
+		static let addMessage = "has been added to favourite library"
+		static let removeMessage = "has been removed from favourite library"
+	}
+
 	var headerView: HeaderView?
 	var floatingHeaderView = HeaderView()
 
@@ -41,6 +46,7 @@ final class ListViewController: UIViewController {
 		self.viewModel?.getListOf(content: item)
 		self.viewModel?.getPoster(for: item)
 		self.navigationController?.navigationBar.topItem?.title = ""
+		bindViewModel()
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -69,8 +75,8 @@ final class ListViewController: UIViewController {
 		}
 	}
 
-	func showAlert(on viewController: UIViewController) {
-		let alert = UIAlertController(title: "Music", message: "has been added", preferredStyle: .alert)
+	func showAlert(on viewController: UIViewController, title: String, withMessage: String) {
+		let alert = UIAlertController(title: title, message: withMessage, preferredStyle: .alert)
 		viewController.present(alert, animated: true) {
 			// Закрытие алерта через 2 секунды
 			DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -161,25 +167,21 @@ extension ListViewController: UICollectionViewDataSource {
 			withReuseIdentifier: ListCell.reuseIdentifier,
 			for: indexPath) as! ListCell
 		
-		guard let item = items?[indexPath.item] else { return cell }
-		viewModel?.getTrackState(uri: item.uri)
+		guard let item = items?[indexPath.row] else { return cell }
 		cell.set(title: item.title)
-		
+		viewModel?.getTrackState(uri: item.uri)
 		if let state = libraryStates?[item.uri] {
 			cell.changeButtonState(state.isAdded)
-			if state.isAdded {
-				cell.addRemoveButtonTappedHandler = {
+			cell.addRemoveButtonTappedHandler = {
+				if state.isAdded {
 					self.viewModel?.removeFromLibrary(uri: item.uri)
-					self.viewModel?.getTrackState(uri: item.uri)
-					self.showAlert(on: self)
 					cell.changeButtonState(false)
+					self.showAlert(on: self, title: item.title ?? "Music", withMessage: Action.removeMessage)
 				}
-			} else {
-				cell.addRemoveButtonTappedHandler = {
+				else {
 					self.viewModel?.addToLibrary(uri: item.uri)
-					self.viewModel?.getTrackState(uri: item.uri)
-					self.showAlert(on: self)
 					cell.changeButtonState(true)
+					self.showAlert(on: self, title: item.title ?? "Music", withMessage: Action.addMessage)
 				}
 			}
 		}
