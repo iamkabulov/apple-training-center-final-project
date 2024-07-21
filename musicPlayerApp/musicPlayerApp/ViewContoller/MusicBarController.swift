@@ -52,6 +52,12 @@ final class MusicBarController: UITabBarController {
 				self.viewModel?.pause()
 			}
 		}
+
+		let appearance = tabBar.standardAppearance
+		appearance.configureWithOpaqueBackground()
+		appearance.shadowImage = nil
+		appearance.shadowColor = nil
+		tabBar.standardAppearance = appearance
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
@@ -103,8 +109,8 @@ final class MusicBarController: UITabBarController {
 		view.addSubview(miniPlayerView)
 
 		NSLayoutConstraint.activate([
-			miniPlayerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			miniPlayerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			miniPlayerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 4),
+			miniPlayerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -4),
 			miniPlayerView.bottomAnchor.constraint(equalTo: tabBar.topAnchor),
 			miniPlayerView.heightAnchor.constraint(equalToConstant: miniPlayerHeight)
 		])

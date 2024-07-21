@@ -55,7 +55,7 @@ class MiniPlayerView: UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		setupView()
-		backgroundColor = UIColor.systemGray6.withAlphaComponent(0.97)
+		backgroundColor = UIColor.systemGray3.withAlphaComponent(0.97)
 		addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
 	}
 
