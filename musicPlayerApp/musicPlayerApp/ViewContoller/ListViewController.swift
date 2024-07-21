@@ -38,11 +38,6 @@ final class ListViewController: UIViewController {
 	init() {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = ListViewModel(self)
-		viewModel?.getItem() { item in
-			self.title = item.title
-			self.item = item
-			self.floatingHeaderView.set(data: item)
-		}
 	}
 
 	required init?(coder: NSCoder) {
@@ -52,7 +47,14 @@ final class ListViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		layout()
-		guard let item = self.item else { return }
+		guard let item = self.item else {
+			viewModel?.getItem() { item in
+				self.item = item
+				self.floatingHeaderView.set(data: item)
+				self.viewModel?.getPoster(for: item)
+			}
+			return
+		}
 		self.viewModel?.getListOf(content: item)
 		self.viewModel?.getPoster(for: item)
 		self.navigationController?.navigationBar.topItem?.title = ""
@@ -61,11 +63,8 @@ final class ListViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		viewModel?.getItem() { item in
-			self.title = item.title
-			self.item = item
-			self.floatingHeaderView.set(data: item)
-		}
+		guard let item = self.item else { return }
+		self.viewModel?.getListOf(content: item)
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -162,7 +161,7 @@ extension ListViewController {
 
 		// Header layout
 		let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-													 heightDimension: .estimated(250))
+													 heightDimension: .estimated(300))
 		let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
 			layoutSize: headerFooterSize,
 			elementKind: ListViewController.headerKind, alignment: .top)

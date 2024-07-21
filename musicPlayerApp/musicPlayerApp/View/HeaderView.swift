@@ -97,17 +97,17 @@ extension HeaderView {
 			widthConstraint!,
 			heightConstraint!,
 
-			imageView.topAnchor.constraint(equalTo: stackView.topAnchor),
+			imageView.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 10),
 			imageView.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
 
 			albumTitle.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
 			albumTitle.centerXAnchor.constraint(equalTo: centerXAnchor),
-			albumTitle.widthAnchor.constraint(equalToConstant: 300)
+			albumTitle.widthAnchor.constraint(equalToConstant: 350)
 		])
 	}
 
 //	override var intrinsicContentSize: CGSize {
-//		return CGSize(width: 300, height: 240)
+//		return CGSize(width: 300, height: 400)
 //	}
 
 }
