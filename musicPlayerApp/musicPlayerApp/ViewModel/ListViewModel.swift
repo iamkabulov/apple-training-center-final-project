@@ -32,6 +32,13 @@ final class ListViewModel {
 		}
 	}
 
+	func getItem(completionHadler: @escaping (SPTAppRemoteContentItem)->Void) {
+		network.getFavouriteLibrary { item in
+			self.getListOf(content: item)
+			completionHadler(item)
+		}
+	}
+
 	func getCount() -> Int {
 		guard let count = self.childrenOfContent.value?.count else { return 0 }
 		return count

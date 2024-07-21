@@ -158,6 +158,16 @@ final class NetworkManager: NSObject {
 		}
 	}
 
+	func getFavouriteLibrary(completionHandler: @escaping ((SPTAppRemoteContentItem) -> Void)) {
+		appRemote.contentAPI?.fetchContentItem(forURI: "spotify:user:31pnwwukd7usbaxhwzmcqjrrczxe:collection", callback: { res, error in
+			if let error = error {
+				print("Error fetching Item image: " + error.localizedDescription)
+			} else if let item = res as? SPTAppRemoteContentItem {
+				completionHandler(item)
+			}
+		})
+	}
+
 	func fetchAccessTokenClient(completion: @escaping (String?) -> Void) {
 		let tokenURL = "https://accounts.spotify.com/api/token"
 		var request = URLRequest(url: URL(string: tokenURL)!)

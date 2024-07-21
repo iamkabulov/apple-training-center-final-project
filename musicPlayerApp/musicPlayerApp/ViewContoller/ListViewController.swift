@@ -34,7 +34,17 @@ final class ListViewController: UIViewController {
 		self.floatingHeaderView.set(data: item)
 //		self.vc = vc
 	}
-	
+
+	init() {
+		super.init(nibName: nil, bundle: nil)
+		self.viewModel = ListViewModel(self)
+		viewModel?.getItem() { item in
+			self.title = item.title
+			self.item = item
+			self.floatingHeaderView.set(data: item)
+		}
+	}
+
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
@@ -47,6 +57,15 @@ final class ListViewController: UIViewController {
 		self.viewModel?.getPoster(for: item)
 		self.navigationController?.navigationBar.topItem?.title = ""
 		bindViewModel()
+	}
+
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		viewModel?.getItem() { item in
+			self.title = item.title
+			self.item = item
+			self.floatingHeaderView.set(data: item)
+		}
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -102,7 +121,7 @@ extension ListViewController {
 			collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
 			collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+			collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -64),
 		])
 
 		collectionView.register(ListCell.self, forCellWithReuseIdentifier: ListCell.reuseIdentifier)

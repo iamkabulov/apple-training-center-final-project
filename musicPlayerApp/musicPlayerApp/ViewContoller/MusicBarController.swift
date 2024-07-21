@@ -87,12 +87,14 @@ final class MusicBarController: UITabBarController {
 	func setupViews() {
 		let mainViewController = MainViewController()
 		let profileController = SearchViewController()
+		let playListController = ListViewController()
 
 		let homeNav = UINavigationController(rootViewController: mainViewController)
 		mainViewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), selectedImage: nil)
 		profileController.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), selectedImage: nil)
+		playListController.tabBarItem = UITabBarItem(title: "Favourites", image: UIImage(systemName: "music.note.list"), selectedImage: nil)
 
-		let tabBarList = [homeNav, profileController]
+		let tabBarList = [homeNav, profileController, playListController]
 		self.viewControllers = tabBarList
 	}
 
