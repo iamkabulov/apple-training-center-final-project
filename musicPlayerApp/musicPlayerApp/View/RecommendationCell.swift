@@ -22,7 +22,6 @@ final class RecommendationCell: UICollectionViewCell {
 		stack.addSubview(artistImage)
 		stack.addSubview(artistName)
 		stack.translatesAutoresizingMaskIntoConstraints = false
-//		stack.backgroundColor = .blue
 		stack.axis = .vertical
 		stack.spacing = .zero
 		return stack
@@ -35,7 +34,6 @@ final class RecommendationCell: UICollectionViewCell {
 		label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
 		label.textAlignment = .left
 		label.textColor = .lightGray
-		label.text = "Music"
 		label.numberOfLines = 2
 		return label
 	}()
@@ -134,12 +132,8 @@ extension RecommendationCell {
 		if let cachedImage = viewModel?.itemPosters.value(forKey: data.identifier) {
 			DispatchQueue.main.async {
 				self.artistImage.image = cachedImage
-				self.spinner.stopAnimating()
-				self.spinner.isHidden = true
 			}
 		} else {
-			self.spinner.startAnimating()
-			self.spinner.isHidden = false
 			self.viewModel?.getPosters(forCellWithID: data.identifier, for: data)
 		}
 	}

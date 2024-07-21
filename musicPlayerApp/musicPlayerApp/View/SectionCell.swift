@@ -44,7 +44,8 @@ final class SectionCell: UITableViewCell {
 	private lazy var titleLabel: UILabel = {
 		let trackLabel = UILabel()
 		trackLabel.translatesAutoresizingMaskIntoConstraints = false
-		trackLabel.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+		trackLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+		trackLabel.numberOfLines = 0
 		trackLabel.textAlignment = .left
 		return trackLabel
 	}()
@@ -91,12 +92,19 @@ final class SectionCell: UITableViewCell {
 				 viewModel vm: MainViewModel,
 				 data: SPTAppRemoteContentItem)
 	{
+		
 		self.viewController = controller
 		self.dataSource = data
 		self.viewModel = vm
-		DispatchQueue.main.async {
-			self.titleLabel.text = self.dataSource?.title
-			
+		if let textTitle = data.title {
+			let components = textTitle.components(separatedBy: ": ")
+			if components.count > 1 {
+				guard let first = components.first, let second = components.last else { return }
+				self.styleLabel(label: self.titleLabel, small: "\(first):\n", large: second)
+			} else {
+				self.titleLabel.text = data.title
+			}
+
 		}
 		self.recommendationCollectionView.reloadData()
 	}
@@ -114,12 +122,37 @@ private extension SectionCell {
 
 			titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
 			titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
+			titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.large),
+//			titleLabel.heightAnchor.constraint(equalToConstant: 50),
 
 			recommendationCollectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.medium),
 			recommendationCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
 			recommendationCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 			recommendationCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 		])
+	}
+
+	func styleLabel(label: UILabel, small: String, large: String) {
+		let attributedText = NSMutableAttributedString()
+
+		let smallText = NSAttributedString(
+			string: "\(small)",
+			attributes: [
+				.font: UIFont.systemFont(ofSize: 12, weight: .bold),
+				.foregroundColor: UIColor.systemGray2
+			]
+		)
+		attributedText.append(smallText)
+
+		let largeText = NSAttributedString(
+			string: "\(large)",
+			attributes: [
+				.font: UIFont.systemFont(ofSize: 24, weight: .bold)
+			]
+		)
+		attributedText.append(largeText)
+
+		label.attributedText = attributedText
 	}
 }
 

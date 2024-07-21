@@ -167,12 +167,14 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionCell.identifier, for: indexPath) as? SectionCell else { return UITableViewCell() }
+		cell.selectionStyle = .none
 		guard let data = self.dataSource,
 			  let viewModel = self.viewModel
 		else { return cell }
 
 		if data[indexPath.row].children == nil {
 			cell.setData(viewController: self, viewModel: viewModel, data: data[0])
+			///Сделать чтобы не было ячейки вообще если нет дочерних объектов
 			return cell
 		}
 		cell.setData(viewController: self, viewModel: viewModel, data: data[indexPath.row])
