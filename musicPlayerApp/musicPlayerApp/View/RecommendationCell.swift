@@ -38,13 +38,7 @@ final class RecommendationCell: UICollectionViewCell {
 		return label
 	}()
 
-	//MARK: - Image and Spinner
-	private lazy var spinner: UIActivityIndicatorView = {
-		let spinner = UIActivityIndicatorView(style: .medium)
-		spinner.translatesAutoresizingMaskIntoConstraints = false
-		return spinner
-	}()
-
+	//MARK: - Image
 	private lazy var artistImage: UIImageView = {
 		let image = UIImageView()
 		image.translatesAutoresizingMaskIntoConstraints = false
@@ -56,7 +50,7 @@ final class RecommendationCell: UICollectionViewCell {
 		return image
 	}()
 
-//MARK: - LifeCycle
+	//MARK: - LifeCycle
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		setupView()
@@ -73,8 +67,6 @@ final class RecommendationCell: UICollectionViewCell {
 		 DispatchQueue.main.async {
 			 if let image = self.viewModel?.itemPosters.value(forKey: cellID) {
 				 self.artistImage.image = image
-				 self.spinner.stopAnimating()
-				 self.spinner.isHidden = true
 			 }
 		 }
 	 }

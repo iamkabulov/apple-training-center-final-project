@@ -35,7 +35,6 @@ final class SectionCell: UITableViewCell {
 		stack.addSubview(titleLabel)
 		stack.addSubview(recommendationCollectionView)
 		stack.translatesAutoresizingMaskIntoConstraints = false
-//		stack.backgroundColor = .red
 		stack.axis = .vertical
 		stack.spacing = .zero
 		return stack
@@ -63,12 +62,6 @@ final class SectionCell: UITableViewCell {
 		view.register(RecommendationCell.self, forCellWithReuseIdentifier: RecommendationCell.identifier)
 		view.translatesAutoresizingMaskIntoConstraints = false
 		return view
-	}()
-
-	private lazy var spinner: UIActivityIndicatorView = {
-		let spinner = UIActivityIndicatorView(style: .medium)
-		spinner.translatesAutoresizingMaskIntoConstraints = false
-		return spinner
 	}()
 
 	//MARK: - ViewLifeCycle
@@ -125,7 +118,7 @@ private extension SectionCell {
 			titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.large),
 //			titleLabel.heightAnchor.constraint(equalToConstant: 50),
 
-			recommendationCollectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.medium),
+			recommendationCollectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.small),
 			recommendationCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
 			recommendationCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 			recommendationCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
@@ -184,9 +177,6 @@ extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UIC
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let data = self.dataSource?.children else { return }
 		let vc = ListViewController(item: data[indexPath.row])
-//		vc.modalPresentationStyle = .fullScreen
-//		self.viewModel?.network.search()
-//		self.bindViewModel()
 		self.viewModel?.network.appRemote.delegate = nil
 		self.viewController?.navigationController?.pushViewController(vc, animated: true)
 	}

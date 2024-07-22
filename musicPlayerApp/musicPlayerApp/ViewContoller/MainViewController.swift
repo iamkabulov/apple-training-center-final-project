@@ -56,6 +56,7 @@ final class MainViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		self.navigationController?.setNavigationBarHidden(true, animated: animated)
 		self.bindViewModel()
 	}
 
@@ -72,13 +73,15 @@ final class MainViewController: UIViewController {
 		super.viewDidAppear(animated)
 		self.bindViewModel()
 	}
+
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+	}
 }
 
 extension MainViewController {
 	func layout() {
-		stackView.addArrangedSubview(tableView)
-//		stackView.addArrangedSubview(signOutButton)
-//		stackView.addSubview(miniPlayerView)
+		stackView.addSubview(tableView)
 
 		view.addSubview(stackView)
 
@@ -91,23 +94,11 @@ extension MainViewController {
 			tableView.topAnchor.constraint(equalTo: stackView.topAnchor),
 			tableView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
 			tableView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-
-//			miniPlayerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-//			miniPlayerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-//			miniPlayerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-//			miniPlayerView.heightAnchor.constraint(equalToConstant: 64)
+			tableView.bottomAnchor.constraint(equalTo: stackView.bottomAnchor, constant: -64)
 		])
 	}
 
 	//MARK: - Actions
-	@objc func didTapPauseOrPlay(_ button: UIButton) {
-		if let lastPlayerState = lastPlayerState, lastPlayerState.isPaused {
-			self.viewModel?.network.appRemote.playerAPI?.resume(nil)
-		} else {
-			self.viewModel?.network.appRemote.playerAPI?.pause(nil)
-		}
-	}
-
 	@objc func didTapSignOut(_ button: UIButton) {
 		if viewModel?.network.appRemote.isConnected == true {
 			viewModel?.network.appRemote.disconnect()
@@ -122,7 +113,7 @@ extension MainViewController {
 	func bindViewModel() {
 		self.viewModel?.contentItems.bind { [weak self] content in
 			guard let self = self, let content = content else { return }
-			self.dataSource = content
+			self.dataSource = content.filter { $0.children != nil }
 			self.tableView.reloadData()
 		}
 
@@ -162,21 +153,14 @@ extension MainViewController: SPTAppRemoteDelegate {
 //MARK: - UITableViewDelegate & UITableViewDataSource
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return dataSource?.count ?? 0
+		guard let data = dataSource else { return 0 }
+		return data.count
 	}
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionCell.identifier, for: indexPath) as? SectionCell else { return UITableViewCell() }
 		cell.selectionStyle = .none
-		guard let data = self.dataSource,
-			  let viewModel = self.viewModel
-		else { return cell }
-
-		if data[indexPath.row].children == nil {
-			cell.setData(viewController: self, viewModel: viewModel, data: data[0])
-			///Сделать чтобы не было ячейки вообще если нет дочерних объектов
-			return cell
-		}
+		guard let data = self.dataSource, let viewModel = self.viewModel else { return cell }
 		cell.setData(viewController: self, viewModel: viewModel, data: data[indexPath.row])
 		return cell
 	}

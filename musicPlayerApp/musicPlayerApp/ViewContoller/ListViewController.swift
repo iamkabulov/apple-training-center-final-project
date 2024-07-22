@@ -63,6 +63,7 @@ final class ListViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		self.navigationController?.setNavigationBarHidden(false, animated: animated)
 		guard let item = self.item else { return }
 		self.viewModel?.getListOf(content: item)
 	}
