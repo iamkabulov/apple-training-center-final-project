@@ -174,10 +174,6 @@ final class PlayerViewController: UIViewController {
 		self.viewModel?.getPlayerState()
 		self.startTimer()
 		self.update()
-
-
-
-
 	}
 
 	required init?(coder: NSCoder) {
@@ -214,6 +210,8 @@ final class PlayerViewController: UIViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
+		viewModel?.trackPoster.unbind()
+		viewModel?.trackPoster.unbind()
 	}
 
 	func bindViewModel() {
@@ -224,23 +222,23 @@ final class PlayerViewController: UIViewController {
 			}
 		}
 
-		self.viewModel?.playerState.bind { playerState in
-			if playerState?.track.uri == self.lastPlayerState?.track.uri {
+		self.viewModel?.playerState.bind { [weak self] playerState in
+			if playerState?.track.uri == self?.lastPlayerState?.track.uri {
 				guard let playerState = playerState else { return }
-				self.lastPlayerState = playerState
+				self?.lastPlayerState = playerState
 
 				DispatchQueue.main.async {
-					self.durationTime = Double(playerState.track.duration / 1000)
-					self.trackLabel.text = playerState.track.name
-					self.artistLabel.text = playerState.track.artist.name
-					self.slider.maximumValue = Float(self.durationTime)
-					self.durationTimeLabel.text = self.formatTime(self.durationTime)
-					self.slider.minimumValue = 0
-					self.startTimer()
-					self.update()
+					self?.durationTime = Double(playerState.track.duration / 1000)
+					self?.trackLabel.text = playerState.track.name
+					self?.artistLabel.text = playerState.track.artist.name
+					self?.slider.maximumValue = Float(self?.durationTime ?? 0)
+					self?.durationTimeLabel.text = self?.formatTime(self?.durationTime ?? 0)
+					self?.slider.minimumValue = 0
+					self?.startTimer()
+					self?.update()
 				}
 			} else {
-				self.viewModel?.getPlayerState()
+				self?.viewModel?.getPlayerState()
 			}
 		}
 	}
@@ -403,7 +401,6 @@ extension PlayerViewController {
 		view.addSubview(previousButton)
 		view.addSubview(shuffleButton)
 		view.addSubview(repeatButton)
-//		view.addSubview(closeButton)
 
 		NSLayoutConstraint.activate([
 			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),

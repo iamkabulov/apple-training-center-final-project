@@ -17,6 +17,10 @@ final class SearchViewModel {
 		self.network.appRemote.delegate = view
 	}
 
+	func authForSearch() {
+		network.getTokenForSearch()
+	}
+
 	func getPoster(for track: SPTAppRemoteImageRepresentable) {
 		network.fetchArtwork(for: track) { image in
 			self.trackPoster.value = image

@@ -48,7 +48,7 @@ final class SearchViewController: UIViewController {
 	init() {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = SearchViewModel(self)
-		viewModel?.network.getTokenForSearch()
+		viewModel?.authForSearch()
 	}
 
 	required init?(coder: NSCoder) {
@@ -69,6 +69,11 @@ final class SearchViewController: UIViewController {
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		self.bindViewModel()
+	}
+
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+		viewModel?.items.unbind()
 	}
 }
 

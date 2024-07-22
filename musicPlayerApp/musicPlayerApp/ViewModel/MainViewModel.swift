@@ -15,7 +15,6 @@ final class MainViewModel {
 	var contentItems: Observable<[SPTAppRemoteContentItem]> = Observable(nil)
 	var itemPosters: ObservableDictionary<String, UIImage> = ObservableDictionary()
 	var childrenOfContent: Observable<[SPTAppRemoteContentItem]> = Observable(nil)
-	private var imageCache: [String: UIImage] = [:]
 
 	init(_ view: SPTAppRemoteDelegate) {
 		self.network.appRemote.delegate = view
@@ -34,14 +33,8 @@ final class MainViewModel {
 	}
 
 	func getPosters(forCellWithID cellID: String, for uri: SPTAppRemoteContentItem?) {
-		if let cachedImage = imageCache[cellID] {
-			self.itemPosters.updateValue(cachedImage, forKey: cellID)
-			return
-		}
-
 		network.fetchContentItem(uri: uri) { image in
 			if let image = image {
-				self.imageCache[cellID] = image
 				self.itemPosters.updateValue(image, forKey: cellID)
 				NotificationCenter.default.post(name: .imageLoaded, object: nil, userInfo: ["cellID": cellID])
 			}

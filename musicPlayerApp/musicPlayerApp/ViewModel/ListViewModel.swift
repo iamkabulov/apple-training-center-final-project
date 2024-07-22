@@ -82,4 +82,8 @@ final class ListViewModel {
 			self.libraryStates.updateValue(libraryState, forKey: uri)
 		}
 	}
+
+	func play(item: SPTAppRemoteContentItem) {
+		network.play(item: item)
+	}
 }

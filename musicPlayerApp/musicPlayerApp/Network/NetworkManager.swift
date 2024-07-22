@@ -8,9 +8,8 @@
 import UIKit
 
 
-final class NetworkManager: NSObject {
-	
-	
+final class NetworkManager: NSObject
+{
 	static let shared = NetworkManager()
 
 	lazy var appRemote: SPTAppRemote = {
@@ -23,9 +22,8 @@ final class NetworkManager: NSObject {
 			var component = URLComponents()
 			component.scheme = "https"
 			component.host = "api.spotify.com"
-
 			return component
-		}()
+	}()
 
 	var accessToken = UserDefaults.standard.string(forKey: accessTokenKey) {
 		didSet {
@@ -60,11 +58,7 @@ final class NetworkManager: NSObject {
 
 	lazy var configuration: SPTConfiguration = {
 		let configuration = SPTConfiguration(clientID: spotifyClientId, redirectURL: redirectUri)
-		// Set the playURI to a non-nil value so that Spotify plays music after authenticating
-		// otherwise another app switch will be required
 		configuration.playURI = ""
-		// Set these url's to your backend which contains the secret to exchange for an access token
-		// You can use the provided ruby script spotify_token_swap.rb for testing purposes
 		configuration.tokenSwapURL = URL(string: "http://localhost:1234/swap")
 		configuration.tokenRefreshURL = URL(string: "http://localhost:1234/refresh")
 		return configuration
@@ -75,56 +69,23 @@ final class NetworkManager: NSObject {
 		return manager
 	}()
 
-	func fetchAccessToken(completion: @escaping ([String: Any]?, Error?) -> Void) {
-		let url = URL(string: "https://accounts.spotify.com/api/token")!
-		var request = URLRequest(url: url)
-		request.httpMethod = "POST"
-		let spotifyAuthKey = "Basic \((spotifyClientId + ":" + spotifyClientSecretKey).data(using: .utf8)!.base64EncodedString())"
-		request.allHTTPHeaderFields = ["Authorization": spotifyAuthKey,
-									   "Content-Type": "application/x-www-form-urlencoded"]
-
-		var requestBodyComponents = URLComponents()
-		let scopeAsString = stringScopes.joined(separator: " ")
-
-		requestBodyComponents.queryItems = [
-			URLQueryItem(name: "client_id", value: spotifyClientId),
-			URLQueryItem(name: "grant_type", value: "authorization_code"),
-			URLQueryItem(name: "code", value: responseCode!),
-			URLQueryItem(name: "redirect_uri", value: redirectUri.absoluteString),
-			URLQueryItem(name: "code_verifier", value: ""), // not currently used
-			URLQueryItem(name: "scope", value: scopeAsString),
-		]
-
-		request.httpBody = requestBodyComponents.query?.data(using: .utf8)
-
-		let task = URLSession.shared.dataTask(with: request) { data, response, error in
-			guard let data = data,                              // is there data
-				  let response = response as? HTTPURLResponse,  // is there HTTP response
-				  (200 ..< 300) ~= response.statusCode,         // is statusCode 2XX
-				  error == nil else {                           // was there no error, otherwise ...
-					  print("Error fetching token \(error?.localizedDescription ?? "")")
-					  return completion(nil, error)
-				  }
-			let responseObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-			print("Access Token Dictionary=", responseObject ?? "")
-			completion(responseObject, nil)
-		}
-		task.resume()
-	}
-
 	func fetchArtwork(for track: SPTAppRemoteImageRepresentable, completionHandler: @escaping ((UIImage?) -> Void)) {
-
-		appRemote.imageAPI?.fetchImage(forItem: track, with: CGSize.zero, callback: { (image, error) in
-			if let error = error {
-				print("Error fetching track image: " + error.localizedDescription)
-			} else if let image = image as? UIImage {
-				completionHandler(image)
-			}
-		})
+		let cachedKey = track.imageIdentifier
+		if let cachedImage = ImageCache.shared.object(forKey: cachedKey as NSString) {
+			completionHandler(cachedImage)
+		} else {
+			appRemote.imageAPI?.fetchImage(forItem: track, with: CGSize.zero, callback: { (image, error) in
+				if let error = error {
+					print("Error fetching track image: " + error.localizedDescription)
+				} else if let image = image as? UIImage {
+					ImageCache.shared.setObject(image, forKey: cachedKey as NSString)
+					completionHandler(image)
+				}
+			})
+		}
 	}
 
 	func fetchContentItems(completionHandler: @escaping (([SPTAppRemoteContentItem]?) -> Void)) {
-
 		appRemote.contentAPI?.fetchRecommendedContentItems(forType: SPTAppRemoteContentTypeNavigation, flattenContainers: false, callback: { (result, error) in
 			if let error = error {
 				print("Error fetching content: " + error.localizedDescription)
@@ -136,12 +97,16 @@ final class NetworkManager: NSObject {
 
 	func fetchContentItem(uri: SPTAppRemoteContentItem?, completionHandler: @escaping ((UIImage?) -> Void)) {
 		guard let uri = uri else { return }
-		appRemote.imageAPI?.fetchImage(forItem: uri, with: CGSize.zero) { image, error in
-			if let error = error {
-				print("Error fetching Item image: " + error.localizedDescription)
-			} else if let image = image as? UIImage {
-				print("________________ ПОЛУЧИЛ КАРТИНКУ")
-				completionHandler(image)
+		if let cachedImage = ImageCache.shared.object(forKey: uri.uri as NSString) {
+			completionHandler(cachedImage)
+		} else {
+			appRemote.imageAPI?.fetchImage(forItem: uri, with: CGSize.zero) { image, error in
+				if let error = error {
+					print("Error fetching Item image: " + error.localizedDescription)
+				} else if let image = image as? UIImage {
+					ImageCache.shared.setObject(image, forKey: uri.uri as NSString)
+					completionHandler(image)
+				}
 			}
 		}
 	}
@@ -168,56 +133,7 @@ final class NetworkManager: NSObject {
 		})
 	}
 
-	func fetchAccessTokenClient(completion: @escaping (String?) -> Void) {
-		let tokenURL = "https://accounts.spotify.com/api/token"
-		var request = URLRequest(url: URL(string: tokenURL)!)
-		request.httpMethod = "POST"
-		request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-
-		let authStr = "\(spotifyClientId):\(spotifyClientSecretKey)"
-		let authData = authStr.data(using: .utf8)
-		let base64AuthStr = authData?.base64EncodedString() ?? ""
-		request.setValue("Basic \(base64AuthStr)", forHTTPHeaderField: "Authorization")
-
-		let bodyStr = "grant_type=client_credentials"
-		request.httpBody = bodyStr.data(using: .utf8)
-
-		let task = URLSession.shared.dataTask(with: request) { data, response, error in
-			guard let data = data, error == nil else {
-				print("Error fetching access token: \(error?.localizedDescription ?? "Unknown error")")
-				completion(nil)
-				return
-			}
-
-			do {
-				if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-				   let accessToken = json["access_token"] as? String {
-					completion(accessToken)
-				} else {
-					completion(nil)
-				}
-			} catch {
-				print("Error parsing JSON: \(error.localizedDescription)")
-				completion(nil)
-			}
-		}
-
-		task.resume()
-	}
-
-	func getTokenForSearch() {
-		fetchAccessTokenClient { [weak self] accessToken in
-			guard let self = self, let token = accessToken else {
-				print("Failed to fetch access token")
-				return
-			}
-			clientCredentials = token
-		}
-	}
-
-
 	func search(byName: String, completionHandler: @escaping ((TrackEntity) -> Void)) {
-
 		self.urlComponent.path = "/v1/search"
 		self.urlComponent.queryItems = [URLQueryItem(name: "q", value: byName),
 										URLQueryItem(name: "type", value: "track"),
@@ -313,13 +229,6 @@ final class NetworkManager: NSObject {
 
 	func shuffle(_ isShuffled: Bool, completionHandler: @escaping (SPTAppRemotePlayerState?) -> Void) {
 		appRemote.playerAPI?.setShuffle(isShuffled)
-//										, callback: { response, error in
-//			if let error = error {
-//				print("Error SHUFFLE player state:" + error.localizedDescription)
-//			} else if let playerState = response as? SPTAppRemotePlayerState {
-//				completionHandler(playerState)
-//			}
-//		})
 	}
 
 	func repeatMode(_ options: SPTAppRemotePlaybackOptionsRepeatMode) {
@@ -376,9 +285,6 @@ extension NetworkManager: SPTSessionManagerDelegate {
 	func sessionManager(manager: SPTSessionManager, didFailWith error: Error) {
 		if error.localizedDescription == "The operation couldn’t be completed. (com.spotify.sdk.login error 1.)" {
 			print("AUTHENTICATE with WEBAPI")
-		} else {
-//			presentAlertController(title: "Authorization Failed", message: error.localizedDescription, buttonTitle: "Bummer")
-			///VIEW BIND
 		}
 	}
 

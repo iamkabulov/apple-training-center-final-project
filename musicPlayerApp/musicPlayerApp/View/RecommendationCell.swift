@@ -60,6 +60,7 @@ final class RecommendationCell: UICollectionViewCell {
 
 	deinit {
 		NotificationCenter.default.removeObserver(self)
+		print("RECCOMMENDATION DEINIT")
 	}
 
 	@objc private func updateImage(notification: Notification) {
@@ -77,8 +78,9 @@ final class RecommendationCell: UICollectionViewCell {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
-		contentView.layoutIfNeeded()
 		artistImage.image = nil
+		viewModel = nil
+		contentView.layoutIfNeeded()
 	}
 
 	func bindViewModel() {
@@ -89,6 +91,11 @@ final class RecommendationCell: UICollectionViewCell {
 				}
 			}
 		}
+	}
+
+	func unBindViewModel() {
+		self.viewModel?.itemPosters.unbind()
+		self.viewModel = nil
 	}
 }
 
@@ -120,13 +127,6 @@ extension RecommendationCell {
 		} else {
 			self.artistName.text = data.subtitle
 		}
-		bindViewModel()
-		if let cachedImage = viewModel?.itemPosters.value(forKey: data.identifier) {
-			DispatchQueue.main.async {
-				self.artistImage.image = cachedImage
-			}
-		} else {
-			self.viewModel?.getPosters(forCellWithID: data.identifier, for: data)
-		}
+		self.viewModel?.getPosters(forCellWithID: data.identifier, for: data)
 	}
 }

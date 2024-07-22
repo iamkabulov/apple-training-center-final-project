@@ -48,10 +48,10 @@ final class ListViewController: UIViewController {
 		super.viewDidLoad()
 		layout()
 		guard let item = self.item else {
-			viewModel?.getItem() { item in
-				self.item = item
-				self.floatingHeaderView.set(data: item)
-				self.viewModel?.getPoster(for: item)
+			viewModel?.getItem() { [weak self] item in
+				self?.item = item
+				self?.floatingHeaderView.set(data: item)
+				self?.viewModel?.getPoster(for: item)
 			}
 			return
 		}
@@ -73,24 +73,45 @@ final class ListViewController: UIViewController {
 		bindViewModel()
 	}
 
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		viewModel?.trackPoster.unbind()
+		viewModel?.childrenOfContent.unbind()
+		viewModel?.libraryStates.unbind()
+		viewModel?.network.appRemote.delegate = nil
+		viewModel = nil
+		self.navigationController?.popViewController(animated: true)
+	}
+
+	deinit {
+		viewModel?.trackPoster.unbind()
+		viewModel?.childrenOfContent.unbind()
+		viewModel?.libraryStates.unbind()
+		viewModel?.network.appRemote.delegate = nil
+		viewModel = nil
+		items = nil
+		item = nil
+		print("ListViewController deinitialized")
+	}
+
 	func bindViewModel() {
-		self.viewModel?.childrenOfContent.bind { items in
+		self.viewModel?.childrenOfContent.bind { [weak self] items in
 			DispatchQueue.main.async {
-				self.items = items
-				self.collectionView.reloadData()
+				self?.items = items
+				self?.collectionView.reloadData()
 			}
 		}
 
-		self.viewModel?.trackPoster.bind { img in
+		self.viewModel?.trackPoster.bind { [weak self] img in
 			DispatchQueue.main.async {
 				guard let image = img else { return }
-				self.floatingHeaderView.set(image: image)
+				self?.floatingHeaderView.set(image: image)
 			}
 		}
 
-		self.viewModel?.libraryStates.bind { states in
-			self.libraryStates = states
-			self.collectionView.reloadData()
+		self.viewModel?.libraryStates.bind { [weak self] states in
+			self?.libraryStates = states
+			self?.collectionView.reloadData()
 		}
 	}
 
@@ -191,7 +212,8 @@ extension ListViewController: UICollectionViewDataSource {
 		viewModel?.getTrackState(uri: item.uri)
 		if let state = libraryStates?[item.uri] {
 			cell.changeButtonState(state.isAdded)
-			cell.addRemoveButtonTappedHandler = {
+			cell.addRemoveButtonTappedHandler = { [weak self, weak cell] in
+				guard let self = self, let cell = cell else { return }
 				if state.isAdded {
 					self.viewModel?.removeFromLibrary(uri: item.uri)
 					cell.changeButtonState(false)
@@ -223,7 +245,7 @@ extension ListViewController: UICollectionViewDataSource {
 
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let item = self.items?[indexPath.row] else { return }
-		self.viewModel?.network.play(item: item)
+		self.viewModel?.play(item: item)
 	}
 }
 
@@ -245,7 +267,7 @@ extension ListViewController: SPTAppRemoteDelegate {
 		viewModel?.network.appRemote.delegate = nil
 		let vc = LogInViewController()
 		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+//		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
@@ -253,6 +275,6 @@ extension ListViewController: SPTAppRemoteDelegate {
 		viewModel?.network.appRemote.delegate = nil
 		let vc = LogInViewController()
 		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+//		self.present(vc, animated: true)
 	}
 }

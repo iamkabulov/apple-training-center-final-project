@@ -72,11 +72,18 @@ final class SectionCell: UITableViewCell {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
+		viewController = nil
+		viewModel = nil
+		dataSource = nil
 		contentView.layoutIfNeeded()
 	}
 
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+
+	deinit {
+		print("DEINIT")
 	}
 
 
@@ -97,9 +104,9 @@ final class SectionCell: UITableViewCell {
 			} else {
 				self.titleLabel.text = data.title
 			}
-
+			self.recommendationCollectionView.reloadData() ////тут подумать как сделать retainCycle
 		}
-		self.recommendationCollectionView.reloadData()
+//		self.recommendationCollectionView.reloadData() ////тут подумать как сделать retainCycle
 	}
 }
 
@@ -157,9 +164,8 @@ extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UIC
 	}
 
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		guard let data = self.dataSource?.children, let cell = self.recommendationCollectionView.dequeueReusableCell(
-																				withReuseIdentifier: RecommendationCell.identifier,
-																				for: indexPath) as? RecommendationCell
+		guard let data = self.dataSource?.children, let cell = self.recommendationCollectionView.dequeueReusableCell(withReuseIdentifier: RecommendationCell.identifier,
+																  for: indexPath) as? RecommendationCell
 		else {
 			return UICollectionViewCell()
 		}
@@ -177,7 +183,11 @@ extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UIC
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let data = self.dataSource?.children else { return }
 		let vc = ListViewController(item: data[indexPath.row])
-		self.viewModel?.network.appRemote.delegate = nil
+		let cell = collectionView.cellForItem(at: indexPath) as? RecommendationCell
 		self.viewController?.navigationController?.pushViewController(vc, animated: true)
+
+		cell?.unBindViewModel()
+		viewModel = nil
+		viewController = nil
 	}
 }

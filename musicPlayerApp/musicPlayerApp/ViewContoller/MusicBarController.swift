@@ -74,6 +74,12 @@ final class MusicBarController: UITabBarController {
 		self.bindViewModel()
 	}
 
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+		self.viewModel?.playerState.unbind()
+		self.viewModel?.trackPoster.unbind()
+	}
+
 	@objc private func miniPlayerTapped() {
 		guard let playerState = self.lastPlayerState else { return }
 		let vc = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self, isRepeat: self.isRepeat, isShuffled: self.isShuffled)

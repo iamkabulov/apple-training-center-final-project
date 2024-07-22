@@ -57,6 +57,8 @@ final class MainViewController: UIViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		self.navigationController?.setNavigationBarHidden(true, animated: animated)
+		self.viewModel = MainViewModel(self)
+		self.viewModel?.network.appRemote.delegate = self
 		self.bindViewModel()
 	}
 
@@ -78,6 +80,8 @@ final class MainViewController: UIViewController {
 		super.viewDidDisappear(animated)
 		self.viewModel?.contentItems.unbind()
 		self.viewModel?.itemPosters.unbind()
+		self.viewModel?.network.appRemote.delegate = nil
+		self.viewModel = nil
 	}
 }
 
@@ -129,7 +133,7 @@ extension MainViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("Connected ")
 //		updateViewBasedOnConnected()
-		self.viewModel?.getContentItems()
+//		self.viewModel?.getContentItems()
 		self.tableView.reloadData()
 	}
 

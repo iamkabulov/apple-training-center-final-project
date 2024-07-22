@@ -64,6 +64,11 @@ class ListCell: UICollectionViewCell {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
+		addRemoveButtonTappedHandler = nil
+	}
+
+	deinit {
+		print("List Cell deinited")
 	}
 }
 
