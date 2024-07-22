@@ -104,9 +104,9 @@ final class SectionCell: UITableViewCell {
 			} else {
 				self.titleLabel.text = data.title
 			}
-			self.recommendationCollectionView.reloadData() ////тут подумать как сделать retainCycle
+//			self.recommendationCollectionView.reloadData() ////тут подумать как сделать retainCycle
 		}
-//		self.recommendationCollectionView.reloadData() ////тут подумать как сделать retainCycle
+		self.recommendationCollectionView.reloadData() ////тут подумать как сделать retainCycle
 	}
 }
 
