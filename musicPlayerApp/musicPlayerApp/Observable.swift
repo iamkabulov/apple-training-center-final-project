@@ -26,6 +26,10 @@ final class Observable<T> {
 		listener(value)
 		self.listener = listener
 	}
+
+	func unbind() {
+		self.listener = nil
+	}
 }
 
 final class ObservableDictionary<Key: Hashable, Value> {
@@ -74,5 +78,9 @@ final class ObservableDictionary<Key: Hashable, Value> {
 		set {
 			dictionary[key] = newValue
 		}
+	}
+
+	func unbind() {
+		self.listener = nil
 	}
 }

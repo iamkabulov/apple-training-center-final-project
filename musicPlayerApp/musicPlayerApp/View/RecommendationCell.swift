@@ -13,7 +13,7 @@ final class RecommendationCell: UICollectionViewCell {
 		return String(describing: self)
 	}
 
-	var viewModel: MainViewModel?
+	weak var viewModel: MainViewModel?
 	var id: String?
 
 	//MARK: - StackViews

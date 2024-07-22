@@ -14,7 +14,7 @@ final class SectionCell: UITableViewCell {
 	static var identifier: String {
 		return String(describing: self)
 	}
-	var viewModel: MainViewModel?
+	weak var viewModel: MainViewModel?
 	weak var viewController: MainViewController?
 	private var dataSource: SPTAppRemoteContentItem?
 

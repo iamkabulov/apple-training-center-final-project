@@ -33,15 +33,15 @@ final class MainViewController: UIViewController {
 		return stackView
 	}()
 
-	private lazy var signOutButton: UIButton = {
-		let signOutButton = UIButton()
-		signOutButton.translatesAutoresizingMaskIntoConstraints = false
-		signOutButton.setTitle("Sign out", for: .normal)
-		signOutButton.setTitleColor(.black, for: .normal)
-		signOutButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-		signOutButton.addTarget(self, action: #selector(didTapSignOut(_:)), for: .touchUpInside)
-		return signOutButton
-	}()
+//	private lazy var signOutButton: UIButton = {
+//		let signOutButton = UIButton()
+//		signOutButton.translatesAutoresizingMaskIntoConstraints = false
+//		signOutButton.setTitle("Sign out", for: .normal)
+//		signOutButton.setTitleColor(.black, for: .normal)
+//		signOutButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+//		signOutButton.addTarget(self, action: #selector(didTapSignOut(_:)), for: .touchUpInside)
+//		return signOutButton
+//	}()
 
 	//MARK: - View LifeCycle
 	init() {
@@ -76,6 +76,8 @@ final class MainViewController: UIViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
+		self.viewModel?.contentItems.unbind()
+		self.viewModel?.itemPosters.unbind()
 	}
 }
 
@@ -99,15 +101,15 @@ extension MainViewController {
 	}
 
 	//MARK: - Actions
-	@objc func didTapSignOut(_ button: UIButton) {
-		if viewModel?.network.appRemote.isConnected == true {
-			viewModel?.network.appRemote.disconnect()
-			viewModel?.network.appRemote.delegate = nil
-			let vc = LogInViewController()
-			vc.modalPresentationStyle = .fullScreen
-			self.present(vc, animated: true)
-		}
-	}
+//	@objc func didTapSignOut(_ button: UIButton) {
+//		if viewModel?.network.appRemote.isConnected == true {
+//			viewModel?.network.appRemote.disconnect()
+//			viewModel?.network.appRemote.delegate = nil
+//			let vc = LogInViewController()
+//			vc.modalPresentationStyle = .fullScreen
+//			self.present(vc, animated: true)
+//		}
+//	}
 
 	//MARK: - Binding ViewModel
 	func bindViewModel() {
