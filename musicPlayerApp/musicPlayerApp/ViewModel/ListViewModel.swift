@@ -15,6 +15,7 @@ final class ListViewModel {
 	var childrenOfContent: Observable<[SPTAppRemoteContentItem]> = Observable(nil)
 	var playerState: Observable<SPTAppRemotePlayerState> = Observable(nil)
 	var libraryStates: ObservableDictionary<String, SPTAppRemoteLibraryState> = ObservableDictionary()
+	var item: Observable<SPTAppRemoteContentItem> = Observable(nil)
 
 	init(_ view: SPTAppRemoteDelegate) {
 		self.network.appRemote.delegate = view
@@ -32,10 +33,9 @@ final class ListViewModel {
 		}
 	}
 
-	func getItem(completionHadler: @escaping (SPTAppRemoteContentItem)->Void) {
+	func getItem() {
 		network.getFavouriteLibrary { item in
-			self.getListOf(content: item)
-			completionHadler(item)
+			self.item.value = item
 		}
 	}
 

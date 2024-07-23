@@ -48,11 +48,7 @@ final class ListViewController: UIViewController {
 		super.viewDidLoad()
 		layout()
 		guard let item = self.item else {
-			viewModel?.getItem() { [weak self] item in
-				self?.item = item
-				self?.floatingHeaderView.set(data: item)
-				self?.viewModel?.getPoster(for: item)
-			}
+			viewModel?.getItem()
 			return
 		}
 		self.viewModel?.getListOf(content: item)
@@ -64,8 +60,25 @@ final class ListViewController: UIViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		self.navigationController?.setNavigationBarHidden(false, animated: animated)
-		guard let item = self.item else { return }
-		self.viewModel?.getListOf(content: item)
+
+		if let viewModel = viewModel {
+			if let item = self.item  {
+				viewModel.getListOf(content: item)
+				viewModel.getPoster(for: item)
+			} else {
+				viewModel.getItem()
+			}
+		} else {
+			self.viewModel = ListViewModel(self)
+			if let item = self.item  {
+				self.viewModel?.getListOf(content: item)
+				self.viewModel?.getPoster(for: item)
+			} else {
+				self.viewModel?.getItem()
+			}
+		}
+
+		bindViewModel()
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -78,6 +91,7 @@ final class ListViewController: UIViewController {
 		viewModel?.trackPoster.unbind()
 		viewModel?.childrenOfContent.unbind()
 		viewModel?.libraryStates.unbind()
+		viewModel?.item.unbind()
 		viewModel?.network.appRemote.delegate = nil
 		viewModel = nil
 		self.navigationController?.popViewController(animated: true)
@@ -90,7 +104,7 @@ final class ListViewController: UIViewController {
 		viewModel?.network.appRemote.delegate = nil
 		viewModel = nil
 		items = nil
-		item = nil
+		viewModel?.item.unbind()
 		print("ListViewController deinitialized")
 	}
 
@@ -112,6 +126,14 @@ final class ListViewController: UIViewController {
 		self.viewModel?.libraryStates.bind { [weak self] states in
 			self?.libraryStates = states
 			self?.collectionView.reloadData()
+		}
+
+		self.viewModel?.item.bind { [weak self] item in
+			guard let item = item else { return }
+			self?.item = item
+			self?.floatingHeaderView.set(data: item)
+			self?.viewModel?.getListOf(content: item)
+			self?.viewModel?.getPoster(for: item)
 		}
 	}
 
