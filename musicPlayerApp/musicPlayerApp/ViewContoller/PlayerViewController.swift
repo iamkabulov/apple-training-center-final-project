@@ -13,6 +13,8 @@ final class PlayerViewController: UIViewController {
 	private var vc: MusicBarController?
 	var isRepeatHandler: ((Bool) -> Void)?
 	var isShuffleHandler: ((Bool) -> Void)?
+	var openArtistViewHandler: ((SPTAppRemoteArtist) -> Void)?
+	var artistItem: SPTAppRemoteArtist?
 	private var isPaused = false
 	private var item: SPTAppRemoteContentItem?
 	private var timer: Timer?
@@ -40,14 +42,14 @@ final class PlayerViewController: UIViewController {
 		return label
 	}()
 
-	private lazy var artistLabel: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.adjustsFontForContentSizeCategory = true
-		label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-		label.textColor = .label
-		label.adjustsFontSizeToFitWidth = true
-		return label
+	private lazy var artistButton: UIButton = {
+		let button = UIButton()
+		button.translatesAutoresizingMaskIntoConstraints = false
+		button.titleLabel?.textColor = .black
+		button.setTitleColor(.systemGray2, for: .normal)
+		button.contentHorizontalAlignment = .left
+		button.addTarget(self, action: #selector(didTappedArtist), for: .touchUpInside)
+		return button
 	}()
 
 	private lazy var slider: UISlider = {
@@ -230,7 +232,8 @@ final class PlayerViewController: UIViewController {
 				DispatchQueue.main.async {
 					self?.durationTime = Double(playerState.track.duration / 1000)
 					self?.trackLabel.text = playerState.track.name
-					self?.artistLabel.text = playerState.track.artist.name
+					self?.artistItem = playerState.track.artist
+					self?.artistButton.setTitle(playerState.track.artist.name, for: .normal)
 					self?.slider.maximumValue = Float(self?.durationTime ?? 0)
 					self?.durationTimeLabel.text = self?.formatTime(self?.durationTime ?? 0)
 					self?.slider.minimumValue = 0
@@ -278,6 +281,12 @@ final class PlayerViewController: UIViewController {
 			self.setCurrentTime(self.currentTime)
 			self.startTimer()
 		}
+	}
+
+	@objc func didTappedArtist() {
+		self.dismiss(animated: true)
+		guard let artistItem = self.artistItem else { return }
+		openArtistViewHandler?(artistItem)
 	}
 
 	@objc func sliderValueChanged(_ sender: UISlider) {
@@ -395,7 +404,7 @@ extension PlayerViewController {
 		view.addSubview(durationTimeLabel)
 		view.addSubview(trackLabel)
 		view.addSubview(imageView)
-		view.addSubview(artistLabel)
+		view.addSubview(artistButton)
 		view.addSubview(playPauseButton)
 		view.addSubview(nextButton)
 		view.addSubview(previousButton)
@@ -410,12 +419,12 @@ extension PlayerViewController {
 			trackLabel.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
 			trackLabel.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
 
-			artistLabel.topAnchor.constraint(equalTo: trackLabel.bottomAnchor, constant: 10),
-			artistLabel.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
-			artistLabel.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
+			artistButton.topAnchor.constraint(equalTo: trackLabel.bottomAnchor, constant: 10),
+			artistButton.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
+			artistButton.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
 
 			slider.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			slider.topAnchor.constraint(equalTo: artistLabel.bottomAnchor, constant: 10),
+			slider.topAnchor.constraint(equalTo: artistButton.bottomAnchor, constant: 10),
 
 			currentTimeLabel.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 4),
 			currentTimeLabel.leadingAnchor.constraint(equalTo: slider.leadingAnchor),

@@ -16,6 +16,11 @@ final class MusicBarController: UITabBarController {
 		return mini
 	}()
 
+
+	let mainViewController = MainViewController()
+	let profileController = SearchViewController()
+	let playListController = ListViewController()
+
 	let miniPlayerHeight: CGFloat = 64
 	private var viewModel: MusicBarViewModel?
 	private var isShuffled = false
@@ -41,6 +46,7 @@ final class MusicBarController: UITabBarController {
 		setupViews()
 		configure()
 		setupMiniPlayer()
+
 		viewModel?.getPlayerState()
 		viewModel?.subscribeToState()
 		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
@@ -84,6 +90,11 @@ final class MusicBarController: UITabBarController {
 		guard let playerState = self.lastPlayerState else { return }
 		let vc = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self, isRepeat: self.isRepeat, isShuffled: self.isShuffled)
 
+		vc.openArtistViewHandler = { [weak self] artist in
+			let vc = ArtistViewController(item: artist)
+//			vc.modalPresentationStyle = .pageSheet
+			self?.mainViewController.navigationController?.pushViewController(vc, animated: true)
+		}
 		vc.upToDate(currentTime: self.currentTime)
 		vc.isRepeatHandler = { value in
 			self.isRepeat = value
@@ -97,9 +108,6 @@ final class MusicBarController: UITabBarController {
 	}
 
 	func setupViews() {
-		let mainViewController = MainViewController()
-		let profileController = SearchViewController()
-		let playListController = ListViewController()
 
 		let homeNav = UINavigationController(rootViewController: mainViewController)
 		mainViewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), selectedImage: nil)

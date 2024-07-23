@@ -117,7 +117,6 @@ final class NetworkManager: NSObject
 			if let error = error {
 				print("Error fetching Item image: " + error.localizedDescription)
 			} else if let items = items as? [SPTAppRemoteContentItem] {
-				print("________________ ПОЛУЧИЛ CHILDRENs \(items)")
 				completionHandler(items)
 			}
 		}
@@ -148,8 +147,7 @@ final class NetworkManager: NSObject
 		var request = URLRequest(url: requestURL)
 		print(request)
 		request.allHTTPHeaderFields = headers
-		
-		print(request)
+
 		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
 			guard let data = data, error == nil else { return }
 			do {
@@ -164,8 +162,45 @@ final class NetworkManager: NSObject
 				return print(error)
 			}
 		}
+		task.resume()
+	}
 
+	func getArtistDetails(uri: String, completionHandler: @escaping ((ArtistEntity) -> Void)) {
+		self.urlComponent.path = "/v1/artists/\(uri)"
+		guard let requestURL = self.urlComponent.url else { return }
+		guard let token = self.clientCredentials else { return }
+		let headers = [
+			"Authorization": "Bearer \(token)"
+		]
+		var request = URLRequest(url: requestURL)
+		print(request)
+		request.allHTTPHeaderFields = headers
 
+		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+			guard let data = data, error == nil else { return }
+			do {
+				let str = String(data: data, encoding: .utf8)
+				print(str ?? "")
+				let response = try JSONDecoder().decode(ArtistEntity.self, from: data)
+				completionHandler(response)
+				return
+			} catch {
+				return print(error)
+			}
+		}
+		task.resume()
+	}
+
+	func fetchArtistImage(url: String, completionHandler: @escaping ((UIImage) -> Void)) {
+		guard let URL = URL(string: url) else { return }
+		var request = URLRequest(url: URL)
+
+		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+			guard let data = data, error == nil else { return }
+			guard let response = UIImage(data: data) else { return }
+			completionHandler(response)
+			return
+		}
 		task.resume()
 	}
 
