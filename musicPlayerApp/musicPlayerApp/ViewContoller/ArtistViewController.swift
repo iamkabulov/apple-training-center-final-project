@@ -53,6 +53,7 @@ class ArtistViewController: UIViewController {
 		self.viewModel?.network.appRemote.delegate = nil
 		viewModel = nil
 		self.navigationController?.popViewController(animated: true)
+		self.viewModel?.details.unbind()
 	}
 
 	deinit {
