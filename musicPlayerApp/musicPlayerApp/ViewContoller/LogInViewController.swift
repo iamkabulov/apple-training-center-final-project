@@ -38,10 +38,14 @@ class LogInViewController: UIViewController {
 		super.viewDidAppear(animated)
 	}
 
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+		self.viewModel?.network.appRemote.delegate = nil
+		self.viewModel = nil
+	}
+
 	@objc func didTapConnect(_ button: UIButton) {
-		guard let sessionManager = viewModel?.network.sessionManager else { return }
-		sessionManager.initiateSession(with: scopes, options: .clientOnly, campaign: "")
-		if let appRemote = viewModel?.network.appRemote, appRemote.isConnected {
+		viewModel?.getToken() { appRemote in
 			self.appRemoteDidEstablishConnection(appRemote)
 		}
 	}
@@ -52,12 +56,10 @@ extension LogInViewController {
 	func style() {
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.axis = .vertical
-//		stackView.spacing = 20
 		stackView.alignment = .center
 
 		connectLabel.translatesAutoresizingMaskIntoConstraints = false
 		connectLabel.text = "Log in to Spotify"
-//		connectLabel.textColor = .
 		connectLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
 
 		connectButton.translatesAutoresizingMaskIntoConstraints = false
@@ -118,11 +120,11 @@ extension LogInViewController: SPTAppRemoteDelegate {
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
-		viewModel?.network.sessionManager?.renewSession()
+//		viewModel?.network.sessionManager?.renewSession()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 //		updateViewBasedOnConnected()
-		viewModel?.network.sessionManager?.renewSession()
+//		viewModel?.network.sessionManager?.renewSession()
 	}
 }

@@ -45,11 +45,11 @@ final class MusicBarController: UITabBarController {
 		viewModel?.subscribeToState()
 		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
 		bindViewModel()
-		self.miniPlayerView.playPauseTappedDelegate = { isPlay in
+		self.miniPlayerView.playPauseTappedDelegate = { [weak self] isPlay in
 			if isPlay {
-				self.viewModel?.play()
+				self?.viewModel?.play()
 			} else {
-				self.viewModel?.pause()
+				self?.viewModel?.pause()
 			}
 		}
 
@@ -176,7 +176,7 @@ final class MusicBarController: UITabBarController {
 	@objc func updateValue() {
 		guard let playerState = self.lastPlayerState else { return }
 		if !playerState.isPaused {
-			self.currentTime += 1 // Увеличиваем текущее время на 100 миллисекунд (0.1 секунды)
+			self.currentTime += 1
 			if self.currentTime >= self.durationTime {
 				self.stopTimer()
 				self.currentTime = self.durationTime
@@ -201,56 +201,6 @@ extension MusicBarController: UIViewControllerTransitioningDelegate {
 
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
 		return MiniPlayerCollapseAnimator(miniPlayerView: miniPlayerView)
-	}
-}
-
-class MiniPlayerExpandAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-	let miniPlayerView: UIView
-
-	init(miniPlayerView: UIView) {
-		self.miniPlayerView = miniPlayerView
-	}
-
-	func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-		return 0.3
-	}
-
-	func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-		guard let toVC = transitionContext.viewController(forKey: .to) else { return }
-		let containerView = transitionContext.containerView
-		containerView.addSubview(toVC.view)
-
-		toVC.view.frame = miniPlayerView.frame
-		toVC.view.layoutIfNeeded()
-
-		UIView.animate(withDuration: transitionDuration(using: transitionContext), animations: {
-			toVC.view.frame = containerView.bounds
-		}, completion: { finished in
-			transitionContext.completeTransition(finished)
-		})
-	}
-}
-
-class MiniPlayerCollapseAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-	let miniPlayerView: UIView
-
-	init(miniPlayerView: UIView) {
-		self.miniPlayerView = miniPlayerView
-	}
-
-	func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-		return 0.3
-	}
-
-	func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-		guard let fromVC = transitionContext.viewController(forKey: .from) else { return }
-
-		UIView.animate(withDuration: transitionDuration(using: transitionContext), animations: {
-			fromVC.view.frame = self.miniPlayerView.frame
-		}, completion: { finished in
-			fromVC.view.removeFromSuperview()
-			transitionContext.completeTransition(finished)
-		})
 	}
 }
 

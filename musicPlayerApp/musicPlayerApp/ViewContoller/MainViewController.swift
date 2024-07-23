@@ -66,7 +66,6 @@ final class MainViewController: UIViewController {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
 		self.layout()
-		self.viewModel?.getPlayerState()
 		self.viewModel?.getContentItems()
 		self.bindViewModel()
 	}
