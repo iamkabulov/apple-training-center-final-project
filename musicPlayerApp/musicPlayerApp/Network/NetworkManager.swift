@@ -12,6 +12,8 @@ final class NetworkManager: NSObject
 {
 	static let shared = NetworkManager()
 
+	private override init() {}
+
 	lazy var appRemote: SPTAppRemote = {
 		let appRemote = SPTAppRemote(configuration: configuration, logLevel: .debug)
 		appRemote.connectionParameters.accessToken = self.accessToken

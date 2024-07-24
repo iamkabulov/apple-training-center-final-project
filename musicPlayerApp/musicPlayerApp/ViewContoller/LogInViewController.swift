@@ -49,8 +49,8 @@ class LogInViewController: UIViewController {
 	}
 
 	@objc func didTapConnect(_ button: UIButton) {
-		viewModel?.getToken() { appRemote in
-			self.appRemoteDidEstablishConnection(appRemote)
+		viewModel?.getToken() { [weak self] appRemote in
+			self?.appRemoteDidEstablishConnection(appRemote)
 		}
 	}
 }
@@ -117,22 +117,15 @@ extension LogInViewController {
 // MARK: - SPTAppRemoteDelegate
 extension LogInViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
-		updateViewBasedOnConnected()
 		let vc = MusicBarController()
-//		vc.modalPresentationStyle = .fullScreen
-//		self.present(vc, animated: true)
-
 		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
 			sceneDelegate.switchRoot(vc: vc)
 		}
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
-//		viewModel?.network.sessionManager?.renewSession()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
-//		updateViewBasedOnConnected()
-//		viewModel?.network.sessionManager?.renewSession()
 	}
 }

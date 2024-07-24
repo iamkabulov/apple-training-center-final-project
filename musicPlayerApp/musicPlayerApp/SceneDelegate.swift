@@ -52,7 +52,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	}
 
 	func switchRoot(vc: UIViewController) {
-
 		window?.makeKeyAndVisible()
 		window?.rootViewController = vc
 	}

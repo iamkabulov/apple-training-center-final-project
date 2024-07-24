@@ -252,11 +252,9 @@ extension MusicBarController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("Failed")
-		viewModel?.network.sessionManager?.renewSession()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("Disconnected With Error")
-		viewModel?.network.sessionManager?.renewSession()
 	}
 }

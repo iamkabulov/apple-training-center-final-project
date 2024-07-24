@@ -74,8 +74,11 @@ final class ListViewController: UIViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		self.navigationController?.setNavigationBarHidden(false, animated: animated)
-
-		if self.artistItem != nil {
+		self.viewModel = ListViewModel(self)
+		if let artistItem = self.artistItem {
+			self.floatingHeaderView.set(artist: artistItem)
+			viewModel?.getArtistDetails(with: artistItem)
+			viewModel?.getTopTracks(with: artistItem)
 			return
 		}
 		if let viewModel = viewModel {
@@ -100,7 +103,6 @@ final class ListViewController: UIViewController {
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		bindViewModel()
-		self.collectionView.reloadData()
 	}
 
 	override func viewWillDisappear(_ animated: Bool) {
@@ -109,8 +111,15 @@ final class ListViewController: UIViewController {
 		viewModel?.childrenOfContent.unbind()
 		viewModel?.libraryStates.unbind()
 		viewModel?.item.unbind()
+		viewModel?.details.unbind()
+		viewModel?.artistPoster.unbind()
+		viewModel?.topTracks.unbind()
 		viewModel?.network.appRemote.delegate = nil
 		viewModel = nil
+	}
+
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
 	}
 
 	deinit {
@@ -124,6 +133,7 @@ final class ListViewController: UIViewController {
 		viewModel?.item.unbind()
 		viewModel?.details.unbind()
 		viewModel?.artistPoster.unbind()
+		viewModel?.topTracks.unbind()
 		self.navigationController?.popViewController(animated: true)
 		print("ListViewController deinitialized")
 	}
