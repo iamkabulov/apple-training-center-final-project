@@ -12,6 +12,7 @@ final class SearchViewModel {
 	var network = NetworkManager.shared
 	var trackPoster: Observable<UIImage> = Observable(nil)
 	var items: Observable<[Item]> = Observable(nil)
+	var poster: Observable<UIImage> = Observable(nil)
 
 	init(_ view: SPTAppRemoteDelegate) {
 		self.network.appRemote.delegate = view

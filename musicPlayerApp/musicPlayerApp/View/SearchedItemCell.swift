@@ -26,10 +26,10 @@ final class SearchedItemCell: UITableViewCell {
 	//MARK: - StackViews
 	private lazy var vStackView: UIStackView = {
 		let stack = UIStackView()
+		stack.addSubview(albumImageView)
 		stack.addSubview(titleLabel)
 		stack.addSubview(artistLabel)
 		stack.translatesAutoresizingMaskIntoConstraints = false
-//		stack.backgroundColor = .red
 		stack.axis = .vertical
 		stack.spacing = .zero
 		return stack
@@ -38,7 +38,7 @@ final class SearchedItemCell: UITableViewCell {
 	private lazy var titleLabel: UILabel = {
 		let trackLabel = UILabel()
 		trackLabel.translatesAutoresizingMaskIntoConstraints = false
-		trackLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+		trackLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
 		trackLabel.text = "Song"
 		trackLabel.textAlignment = .left
 		return trackLabel
@@ -49,8 +49,18 @@ final class SearchedItemCell: UITableViewCell {
 		trackLabel.translatesAutoresizingMaskIntoConstraints = false
 		trackLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
 		trackLabel.text = "Artist"
+		trackLabel.textColor = .systemGray
 		trackLabel.textAlignment = .left
 		return trackLabel
+	}()
+
+	lazy var albumImageView: UIImageView = {
+		let imageView = UIImageView()
+		imageView.translatesAutoresizingMaskIntoConstraints = false
+		imageView.contentMode = .scaleAspectFill
+		imageView.image = UIImage(named: "stpGreenIcon")
+		imageView.clipsToBounds = true
+		return imageView
 	}()
 
 	//MARK: - ViewLifeCycle
@@ -61,7 +71,7 @@ final class SearchedItemCell: UITableViewCell {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
-		contentView.layoutIfNeeded()
+		self.albumImageView.image = nil
 	}
 
 	required init?(coder: NSCoder) {
@@ -79,6 +89,11 @@ final class SearchedItemCell: UITableViewCell {
 			}
 		}
 	}
+
+	func setImage(data: UIImage) {
+		self.albumImageView.image = data
+	}
+
 }
 
 //MARK: - SectionCell
@@ -87,15 +102,22 @@ private extension SearchedItemCell {
 		contentView.addSubview(vStackView)
 		NSLayoutConstraint.activate([
 			vStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
-			vStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
+			vStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
 			vStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-			vStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: Spacing.large),
+			vStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
+			albumImageView.leadingAnchor.constraint(equalTo: vStackView.leadingAnchor, constant: Spacing.large),
+			albumImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+			albumImageView.widthAnchor.constraint(equalToConstant: 50),
+			albumImageView.heightAnchor.constraint(equalToConstant: 50),
 
 			titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.medium),
-			titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
+			titleLabel.leadingAnchor.constraint(equalTo: albumImageView.trailingAnchor, constant: Spacing.large),
+			titleLabel.trailingAnchor.constraint(equalTo: vStackView.trailingAnchor, constant: -Spacing.medium),
 
 			artistLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.medium),
-			artistLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
+			artistLabel.leadingAnchor.constraint(equalTo: albumImageView.trailingAnchor, constant: Spacing.large),
+			artistLabel.trailingAnchor.constraint(equalTo: vStackView.trailingAnchor, constant: -Spacing.medium)
 		])
 	}
 }

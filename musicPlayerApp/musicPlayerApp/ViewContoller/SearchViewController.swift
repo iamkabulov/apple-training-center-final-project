@@ -95,7 +95,7 @@ extension SearchViewController {
 			tableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 10),
 			tableView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
 			tableView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-			tableView.bottomAnchor.constraint(equalTo: stackView.bottomAnchor),
+			tableView.bottomAnchor.constraint(equalTo: stackView.bottomAnchor, constant: -64),
 
 			searchField.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 10),
 			searchField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
@@ -146,6 +146,12 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 		guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchedItemCell.identifier, for: indexPath) as? SearchedItemCell,
 			let items = dataSource
 		else { return UITableViewCell() }
+
+		self.viewModel?.network.fetchArtistImage(url: items[indexPath.row].album?.images?[0].url ?? "", completionHandler: { image in
+			DispatchQueue.main.async {
+				cell.setImage(data: image)
+			}
+		})
 		cell.setData(item: items[indexPath.row])
 		return cell
 	}

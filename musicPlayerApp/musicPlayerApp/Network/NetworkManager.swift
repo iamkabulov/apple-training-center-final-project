@@ -151,15 +151,11 @@ final class NetworkManager: NSObject
 		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
 			guard let data = data, error == nil else { return }
 			do {
-				let str = String(data: data, encoding: .utf8)
-				print("____________________________________")
-				print(str ?? "")
 				let response = try JSONDecoder().decode(TrackEntity.self, from: data)
-//				print(response)
 				completionHandler(response)
 				return
 			} catch {
-				return print(error)
+				return
 			}
 		}
 		task.resume()
@@ -218,16 +214,21 @@ final class NetworkManager: NSObject
 	}
 
 	func fetchArtistImage(url: String, completionHandler: @escaping ((UIImage) -> Void)) {
-		guard let URL = URL(string: url) else { return }
-		let request = URLRequest(url: URL)
+		if let cachedImage = ImageCache.shared.object(forKey: url as NSString) {
+			completionHandler(cachedImage)
+		} else {
+			guard let URL = URL(string: url) else { return }
+			let request = URLRequest(url: URL)
 
-		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-			guard let data = data, error == nil else { return }
-			guard let response = UIImage(data: data) else { return }
-			completionHandler(response)
-			return
+			let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+				guard let data = data, error == nil else { return }
+				guard let response = UIImage(data: data) else { return }
+				ImageCache.shared.setObject(response, forKey: url as NSString)
+				completionHandler(response)
+				return
+			}
+			task.resume()
 		}
-		task.resume()
 	}
 
 	func play(item uri: SPTAppRemoteContentItem) {
