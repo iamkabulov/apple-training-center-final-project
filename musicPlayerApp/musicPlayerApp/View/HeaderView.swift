@@ -7,10 +7,6 @@
 
 import UIKit
 
-struct Track {
-	let imageName: String
-}
-
 class HeaderView: UICollectionReusableView {
 
 	static var reuseIdentifier: String {
@@ -75,6 +71,10 @@ class HeaderView: UICollectionReusableView {
 
 	func set(data: SPTAppRemoteContentItem) {
 		self.albumTitle.text = data.subtitle == "" ? data.title : data.subtitle
+	}
+
+	func set(artist: SPTAppRemoteArtist) {
+		self.albumTitle.text = artist.name
 	}
 
 	func set(image: UIImage) {

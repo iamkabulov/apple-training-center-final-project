@@ -44,6 +44,10 @@ class LogInViewController: UIViewController {
 		self.viewModel = nil
 	}
 
+	deinit {
+		print("DEINIT LOGIN")
+	}
+
 	@objc func didTapConnect(_ button: UIButton) {
 		viewModel?.getToken() { appRemote in
 			self.appRemoteDidEstablishConnection(appRemote)
@@ -115,8 +119,12 @@ extension LogInViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		updateViewBasedOnConnected()
 		let vc = MusicBarController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+//		vc.modalPresentationStyle = .fullScreen
+//		self.present(vc, animated: true)
+
+		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+			sceneDelegate.switchRoot(vc: vc)
+		}
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {

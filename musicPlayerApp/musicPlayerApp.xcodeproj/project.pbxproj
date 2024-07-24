@@ -38,9 +38,8 @@
 		B0D53C7D2C4EC68F00E377A3 /* CachedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C7C2C4EC68F00E377A3 /* CachedImage.swift */; };
 		B0D53C7F2C4ECCD500E377A3 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C7E2C4ECCD500E377A3 /* AuthenticationManager.swift */; };
 		B0D53C812C4FA44A00E377A3 /* TabbarExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C802C4FA44A00E377A3 /* TabbarExtension.swift */; };
-		B0D53C832C4FC4AC00E377A3 /* ArtistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C822C4FC4AC00E377A3 /* ArtistViewController.swift */; };
-		B0D53C852C4FDD6500E377A3 /* ArtistViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C842C4FDD6500E377A3 /* ArtistViewModel.swift */; };
 		B0D53C872C4FDFCB00E377A3 /* ArtistEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C862C4FDFCB00E377A3 /* ArtistEntity.swift */; };
+		B0D53C892C50F37C00E377A3 /* TopTracksEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53C882C50F37C00E377A3 /* TopTracksEntity.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -78,9 +77,8 @@
 		B0D53C7C2C4EC68F00E377A3 /* CachedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedImage.swift; sourceTree = "<group>"; };
 		B0D53C7E2C4ECCD500E377A3 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		B0D53C802C4FA44A00E377A3 /* TabbarExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabbarExtension.swift; sourceTree = "<group>"; };
-		B0D53C822C4FC4AC00E377A3 /* ArtistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistViewController.swift; sourceTree = "<group>"; };
-		B0D53C842C4FDD6500E377A3 /* ArtistViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistViewModel.swift; sourceTree = "<group>"; };
 		B0D53C862C4FDFCB00E377A3 /* ArtistEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistEntity.swift; sourceTree = "<group>"; };
+		B0D53C882C50F37C00E377A3 /* TopTracksEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopTracksEntity.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,7 +150,6 @@
 				B0D53C672C45755600E377A3 /* PlayerViewModel.swift */,
 				B0D53C6D2C4962CA00E377A3 /* MusicBarViewModel.swift */,
 				B0D53C732C4A89A400E377A3 /* SearchViewModel.swift */,
-				B0D53C842C4FDD6500E377A3 /* ArtistViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -175,7 +172,6 @@
 				B0D53C5D2C42E45800E377A3 /* ListViewController.swift */,
 				B0D53C652C4570F300E377A3 /* PlayerViewController.swift */,
 				B0D53C6F2C4A741100E377A3 /* SearchViewController.swift */,
-				B0D53C822C4FC4AC00E377A3 /* ArtistViewController.swift */,
 			);
 			path = ViewContoller;
 			sourceTree = "<group>";
@@ -198,6 +194,7 @@
 			children = (
 				B0D53C762C4A8AFE00E377A3 /* TrackEntity.swift */,
 				B0D53C862C4FDFCB00E377A3 /* ArtistEntity.swift */,
+				B0D53C882C50F37C00E377A3 /* TopTracksEntity.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -275,6 +272,7 @@
 			files = (
 				B018EC1A2C3BEF590080009C /* LogInViewController.swift in Sources */,
 				B0D53C812C4FA44A00E377A3 /* TabbarExtension.swift in Sources */,
+				B0D53C892C50F37C00E377A3 /* TopTracksEntity.swift in Sources */,
 				B018EC162C3BEF590080009C /* AppDelegate.swift in Sources */,
 				B048503E2C3F015600C6F899 /* SectionCell.swift in Sources */,
 				B0D53C622C44EBD400E377A3 /* ListCell.swift in Sources */,
@@ -288,7 +286,6 @@
 				B04850352C3EB6FD00C6F899 /* MainViewController.swift in Sources */,
 				B018EC2F2C3C03BD0080009C /* Constants.swift in Sources */,
 				B0D53C702C4A741100E377A3 /* SearchViewController.swift in Sources */,
-				B0D53C852C4FDD6500E377A3 /* ArtistViewModel.swift in Sources */,
 				B0D53C6E2C4962CA00E377A3 /* MusicBarViewModel.swift in Sources */,
 				B0D53C5C2C41557400E377A3 /* MusicBarController.swift in Sources */,
 				B04850382C3ED94E00C6F899 /* RecommendationCell.swift in Sources */,
@@ -303,7 +300,6 @@
 				B0D53C662C4570F300E377A3 /* PlayerViewController.swift in Sources */,
 				B0D53C772C4A8AFE00E377A3 /* TrackEntity.swift in Sources */,
 				B0D53C7D2C4EC68F00E377A3 /* CachedImage.swift in Sources */,
-				B0D53C832C4FC4AC00E377A3 /* ArtistViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

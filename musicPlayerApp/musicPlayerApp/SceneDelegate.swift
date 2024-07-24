@@ -50,4 +50,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //			rootViewController.viewModel?.network.appRemote.disconnect()
 		}
 	}
+
+	func switchRoot(vc: UIViewController) {
+
+		window?.makeKeyAndVisible()
+		window?.rootViewController = vc
+	}
 }

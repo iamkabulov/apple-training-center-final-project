@@ -191,9 +191,35 @@ final class NetworkManager: NSObject
 		task.resume()
 	}
 
+	func getTopTracks(uri: String, completionHandler: @escaping ((TopTracksEntity) -> Void)) {
+		self.urlComponent.path = "/v1/artists/\(uri)/top-tracks"
+		guard let requestURL = self.urlComponent.url else { return }
+		guard let token = self.clientCredentials else { return }
+		let headers = [
+			"Authorization": "Bearer \(token)"
+		]
+		var request = URLRequest(url: requestURL)
+		print(request)
+		request.allHTTPHeaderFields = headers
+
+		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+			guard let data = data, error == nil else { return }
+			do {
+				let str = String(data: data, encoding: .utf8)
+				print(str ?? "")
+				let response = try JSONDecoder().decode(TopTracksEntity.self, from: data)
+				completionHandler(response)
+				return
+			} catch {
+				return print(error)
+			}
+		}
+		task.resume()
+	}
+
 	func fetchArtistImage(url: String, completionHandler: @escaping ((UIImage) -> Void)) {
 		guard let URL = URL(string: url) else { return }
-		var request = URLRequest(url: URL)
+		let request = URLRequest(url: URL)
 
 		let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
 			guard let data = data, error == nil else { return }
