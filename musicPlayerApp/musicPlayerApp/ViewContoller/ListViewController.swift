@@ -15,7 +15,9 @@ final class ListViewController: UIViewController {
 	var vc: MusicBarController?
 	private var item: SPTAppRemoteContentItem?
 	private var items: [SPTAppRemoteContentItem]?
+	private var topTracks: [TopTrack]?
 	private var libraryStates: [String: SPTAppRemoteLibraryState]?
+	private var artistItem: SPTAppRemoteArtist?
 	var collectionView: UICollectionView! = nil
 
 	private enum Action {
@@ -35,6 +37,12 @@ final class ListViewController: UIViewController {
 //		self.vc = vc
 	}
 
+	init(artistItem: SPTAppRemoteArtist) {
+		super.init(nibName: nil, bundle: nil)
+		self.viewModel = ListViewModel(self)
+		self.artistItem = artistItem
+	}
+
 	init() {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = ListViewModel(self)
@@ -47,12 +55,18 @@ final class ListViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		layout()
-		guard let item = self.item else {
-			viewModel?.getItem()
-			return
+		if let artist = self.artistItem {
+			self.floatingHeaderView.set(artist: artist)
+			viewModel?.getArtistDetails(with: artist)
+			viewModel?.getTopTracks(with: artist)
+		} else {
+			guard let item = self.item else {
+				viewModel?.getItem()
+				return
+			}
+			self.viewModel?.getListOf(content: item)
+			self.viewModel?.getPoster(for: item)
 		}
-		self.viewModel?.getListOf(content: item)
-		self.viewModel?.getPoster(for: item)
 		self.navigationController?.navigationBar.topItem?.title = ""
 		bindViewModel()
 	}
@@ -61,6 +75,9 @@ final class ListViewController: UIViewController {
 		super.viewWillAppear(animated)
 		self.navigationController?.setNavigationBarHidden(false, animated: animated)
 
+		if self.artistItem != nil {
+			return
+		}
 		if let viewModel = viewModel {
 			if let item = self.item  {
 				viewModel.getListOf(content: item)
@@ -77,13 +94,13 @@ final class ListViewController: UIViewController {
 				self.viewModel?.getItem()
 			}
 		}
-
 		bindViewModel()
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		bindViewModel()
+		self.collectionView.reloadData()
 	}
 
 	override func viewWillDisappear(_ animated: Bool) {
@@ -94,7 +111,6 @@ final class ListViewController: UIViewController {
 		viewModel?.item.unbind()
 		viewModel?.network.appRemote.delegate = nil
 		viewModel = nil
-		self.navigationController?.popViewController(animated: true)
 	}
 
 	deinit {
@@ -104,7 +120,11 @@ final class ListViewController: UIViewController {
 		viewModel?.network.appRemote.delegate = nil
 		viewModel = nil
 		items = nil
+		topTracks = nil
 		viewModel?.item.unbind()
+		viewModel?.details.unbind()
+		viewModel?.artistPoster.unbind()
+		self.navigationController?.popViewController(animated: true)
 		print("ListViewController deinitialized")
 	}
 
@@ -134,6 +154,25 @@ final class ListViewController: UIViewController {
 			self?.floatingHeaderView.set(data: item)
 			self?.viewModel?.getListOf(content: item)
 			self?.viewModel?.getPoster(for: item)
+		}
+
+		self.viewModel?.details.bind { [weak self] details in
+			self?.viewModel?.getPoster(url: details?.images[0].url ?? "")
+		}
+
+		self.viewModel?.artistPoster.bind { [weak self] image in
+			guard let image = image else { return }
+			DispatchQueue.main.async {
+				self?.floatingHeaderView.set(image: image)
+			}
+		}
+
+		self.viewModel?.topTracks.bind { [weak self] tracks in
+			guard let self = self else { return }
+			DispatchQueue.main.async {
+				self.topTracks = tracks?.tracks
+				self.collectionView.reloadData()
+			}
 		}
 	}
 
@@ -220,33 +259,58 @@ extension ListViewController {
 extension ListViewController: UICollectionViewDataSource {
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		guard let viewModel = self.viewModel else { return 0 }
-		return viewModel.getCount()
+		if artistItem != nil {
+			return self.topTracks?.count ?? 0
+		} else {
+			return viewModel.getCount()
+		}
 	}
 
 	// ListCell
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let cell = collectionView.dequeueReusableCell(
-			withReuseIdentifier: ListCell.reuseIdentifier,
-			for: indexPath) as! ListCell
-		
-		guard let item = items?[indexPath.row] else { return cell }
-		cell.set(title: item.title)
-		viewModel?.getTrackState(uri: item.uri)
-		if let state = libraryStates?[item.uri] {
-			cell.changeButtonState(state.isAdded)
-			cell.addRemoveButtonTappedHandler = { [weak self, weak cell] in
-				guard let self = self, let cell = cell else { return }
-				if state.isAdded {
-					self.viewModel?.removeFromLibrary(uri: item.uri)
-					cell.changeButtonState(false)
-					self.showAlert(on: self, title: item.title ?? "Music", withMessage: Action.removeMessage)
-				}
-				else {
-					self.viewModel?.addToLibrary(uri: item.uri)
-					cell.changeButtonState(true)
-					self.showAlert(on: self, title: item.title ?? "Music", withMessage: Action.addMessage)
+		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ListCell.reuseIdentifier, for: indexPath) as! ListCell
+
+		if let item = items?[indexPath.row] {
+			cell.set(title: item.title)
+			viewModel?.getTrackState(uri: item.uri)
+			if let state = libraryStates?[item.uri] {
+				cell.changeButtonState(state.isAdded)
+				cell.addRemoveButtonTappedHandler = { [weak self, weak cell] in
+					guard let self = self, let cell = cell else { return }
+					if state.isAdded {
+						self.viewModel?.removeFromLibrary(uri: item.uri)
+						cell.changeButtonState(false)
+						self.showAlert(on: self, title: item.title ?? "Music", withMessage: Action.removeMessage)
+					}
+					else {
+						self.viewModel?.addToLibrary(uri: item.uri)
+						cell.changeButtonState(true)
+						self.showAlert(on: self, title: item.title ?? "Music", withMessage: Action.addMessage)
+					}
 				}
 			}
+			return cell
+		}
+		if let item = topTracks?[indexPath.row] {
+			cell.set(title: item.name)
+			viewModel?.getTrackState(uri: item.uri)
+			if let state = libraryStates?[item.uri] {
+				cell.changeButtonState(state.isAdded)
+				cell.addRemoveButtonTappedHandler = { [weak self, weak cell] in
+					guard let self = self, let cell = cell else { return }
+					if state.isAdded {
+						self.viewModel?.removeFromLibrary(uri: item.uri)
+						cell.changeButtonState(false)
+						self.showAlert(on: self, title: item.name ?? "Music", withMessage: Action.removeMessage)
+					}
+					else {
+						self.viewModel?.addToLibrary(uri: item.uri)
+						cell.changeButtonState(true)
+						self.showAlert(on: self, title: item.name ?? "Music", withMessage: Action.addMessage)
+					}
+				}
+			}
+			return cell
 		}
 		return cell
 	}
@@ -266,8 +330,12 @@ extension ListViewController: UICollectionViewDataSource {
 	}
 
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		guard let item = self.items?[indexPath.row] else { return }
-		self.viewModel?.play(item: item)
+		if let item = self.items?[indexPath.row] {
+			self.viewModel?.play(item: item)
+		} 
+		if let track = self.topTracks?[indexPath.row] {
+			self.viewModel?.network.play(trackUri: track.uri)
+		}
 	}
 }
 

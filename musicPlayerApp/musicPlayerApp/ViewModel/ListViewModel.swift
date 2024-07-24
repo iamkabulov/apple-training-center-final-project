@@ -16,6 +16,9 @@ final class ListViewModel {
 	var playerState: Observable<SPTAppRemotePlayerState> = Observable(nil)
 	var libraryStates: ObservableDictionary<String, SPTAppRemoteLibraryState> = ObservableDictionary()
 	var item: Observable<SPTAppRemoteContentItem> = Observable(nil)
+	var artistPoster: Observable<UIImage> = Observable(nil)
+	var details: Observable<ArtistEntity> = Observable(nil)
+	var topTracks: Observable<TopTracksEntity> = Observable(nil)
 
 	init(_ view: SPTAppRemoteDelegate) {
 		self.network.appRemote.delegate = view
@@ -85,5 +88,31 @@ final class ListViewModel {
 
 	func play(item: SPTAppRemoteContentItem) {
 		network.play(item: item)
+	}
+
+	func getPoster(url: String) {
+		network.fetchArtistImage(url: url) { img in
+			self.artistPoster.value = img
+		}
+	}
+
+	func getArtistDetails(with data: SPTAppRemoteArtist) {
+		let components = data.uri.components(separatedBy: ":")
+		if components.count > 2 {
+			let artistID = components[2]
+			network.getArtistDetails(uri: artistID) { details in
+				self.details.value = details
+			}
+		}
+	}
+
+	func getTopTracks(with data: SPTAppRemoteArtist) {
+		let components = data.uri.components(separatedBy: ":")
+		if components.count > 2 {
+			let artistID = components[2]
+			network.getTopTracks(uri: artistID) { tracks in
+				self.topTracks.value = tracks
+			}
+		}
 	}
 }

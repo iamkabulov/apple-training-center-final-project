@@ -16,6 +16,11 @@ final class MusicBarController: UITabBarController {
 		return mini
 	}()
 
+
+	let mainViewController = MainViewController()
+	let profileController = SearchViewController()
+	let playListController = ListViewController()
+
 	let miniPlayerHeight: CGFloat = 64
 	private var viewModel: MusicBarViewModel?
 	private var isShuffled = false
@@ -41,6 +46,7 @@ final class MusicBarController: UITabBarController {
 		setupViews()
 		configure()
 		setupMiniPlayer()
+
 		viewModel?.getPlayerState()
 		viewModel?.subscribeToState()
 		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
@@ -80,9 +86,25 @@ final class MusicBarController: UITabBarController {
 		self.viewModel?.trackPoster.unbind()
 	}
 
+	func selectedNavController() -> UINavigationController? {
+			return self.selectedViewController as? UINavigationController
+		}
+
 	@objc private func miniPlayerTapped() {
 		guard let playerState = self.lastPlayerState else { return }
 		let vc = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self, isRepeat: self.isRepeat, isShuffled: self.isShuffled)
+
+		vc.openArtistViewHandler = { [weak self] artist in
+
+			if let selectedNavController = self?.selectedNavController() {
+				// Создаём экземпляр ArtistViewController
+				let targetViewController = ListViewController(artistItem: artist)
+				// Пушим новый контроллер в навигационный стек текущего навигационного контроллера
+				selectedNavController.pushViewController(targetViewController, animated: true)
+			} else {
+				print("Selected UINavigationController not found")
+			}
+		}
 
 		vc.upToDate(currentTime: self.currentTime)
 		vc.isRepeatHandler = { value in
@@ -97,16 +119,16 @@ final class MusicBarController: UITabBarController {
 	}
 
 	func setupViews() {
-		let mainViewController = MainViewController()
-		let profileController = SearchViewController()
-		let playListController = ListViewController()
 
 		let homeNav = UINavigationController(rootViewController: mainViewController)
+		let searchNav = UINavigationController(rootViewController: profileController)
+		let favouriteNav = UINavigationController(rootViewController: playListController)
+
 		mainViewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), selectedImage: nil)
 		profileController.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), selectedImage: nil)
 		playListController.tabBarItem = UITabBarItem(title: "Favourites", image: UIImage(systemName: "music.note.list"), selectedImage: nil)
 
-		let tabBarList = [homeNav, profileController, playListController]
+		let tabBarList = [homeNav, searchNav, favouriteNav]
 		self.viewControllers = tabBarList
 	}
 
