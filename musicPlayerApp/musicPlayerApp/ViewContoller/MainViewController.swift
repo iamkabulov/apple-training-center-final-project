@@ -57,7 +57,6 @@ final class MainViewController: UIViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		self.navigationController?.setNavigationBarHidden(true, animated: animated)
-		self.viewModel = MainViewModel(self)
 		self.viewModel?.network.appRemote.delegate = self
 		self.bindViewModel()
 	}
@@ -79,7 +78,6 @@ final class MainViewController: UIViewController {
 		self.viewModel?.contentItems.unbind()
 		self.viewModel?.itemPosters.unbind()
 		self.viewModel?.network.appRemote.delegate = nil
-		self.viewModel = nil
 	}
 }
 
@@ -159,7 +157,6 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionCell.identifier, for: indexPath) as? SectionCell else { return UITableViewCell() }
-		cell.selectionStyle = .none
 		guard let data = self.dataSource, let viewModel = self.viewModel else { return cell }
 		cell.setData(viewController: self, viewModel: viewModel, data: data[indexPath.row])
 		return cell

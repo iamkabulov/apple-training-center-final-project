@@ -68,6 +68,7 @@ final class SectionCell: UITableViewCell {
 	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)
 		setupLayout()
+		self.selectionStyle = .none
 	}
 
 	override func prepareForReuse() {
@@ -104,9 +105,10 @@ final class SectionCell: UITableViewCell {
 			} else {
 				self.titleLabel.text = data.title
 			}
-//			self.recommendationCollectionView.reloadData() ////тут подумать как сделать retainCycle
 		}
-		self.recommendationCollectionView.reloadData() ////тут подумать как сделать retainCycle
+		DispatchQueue.main.async { [weak self] in
+			self?.recommendationCollectionView.reloadData()
+		}
 	}
 }
 
