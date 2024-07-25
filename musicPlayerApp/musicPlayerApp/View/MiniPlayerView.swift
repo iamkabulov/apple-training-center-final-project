@@ -9,68 +9,76 @@ import UIKit
 
 class MiniPlayerView: UIView {
 
+	private enum Spacing {
+		enum Size {
+			static let height: CGFloat = 40
+			static let width: CGFloat = 40
+		}
+		static let small: CGFloat = 2
+		static let medium: CGFloat = 8
+		static let large: CGFloat = 20
+	}
+
 	var playPauseTappedDelegate: ((Bool) -> Void)?
 	private let buttonConfiguration = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular, scale: .default)
+	private lazy var pauseImage = UIImage(systemName: "pause.fill", withConfiguration: self.buttonConfiguration)
+	private lazy var playImage = UIImage(systemName: "play.fill", withConfiguration: self.buttonConfiguration)
+	var handler: (() -> Void)?
+
 	private var currentRotationAngle: CGFloat = 0
 	private var isAnimationPaused = false
 	private var isPlaying = true
-	lazy var albumImageView: UIImageView = {
-		let imageView = UIImageView()
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		imageView.contentMode = .scaleAspectFill
-		imageView.image = UIImage(named: "stpGreenIcon")
-		imageView.layer.cornerRadius = 20
-		imageView.clipsToBounds = true
-		return imageView
+	private lazy var albumImageView: UIImageView = {
+		return ImageViewBuilder()
+			.setContentMode(.scaleAspectFill)
+			.setImage(named: "stpGreenIcon")
+			.setCornerRadius(20)
+			.setClipsToBounds(true)
+			.build()
 	}()
 
-	lazy var songTitleLabel: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-		label.text = "Song"
-		return label
+	private lazy var songTitleLabel: UILabel = {
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 14, weight: .bold))
+			.setText("Song")
+			.build()
 	}()
 
-	lazy var artistNameLabel: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.font = UIFont.systemFont(ofSize: 12)
-		label.textColor = .systemGray
-		label.text = "Artis"
-		return label
+	private lazy var artistNameLabel: UILabel = {
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 12))
+			.setTextColor(.systemGray)
+			.setText("Artist")
+			.build()
 	}()
 
-	lazy var playPauseButton: UIButton = {
-		let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setImage(UIImage(systemName: "pause.fill",
-								withConfiguration: self.buttonConfiguration),
-						for: .normal)
-		button.tintColor = .black
-		button.addTarget(self, action: #selector(playPauseTapped), for: .touchUpInside)
-		return button
+	private lazy var playPauseButton: UIButton = {
+		return ButtonBuilder()
+			.setImage(self.pauseImage, for: .normal)
+			.setTintColor(.black)
+			.addTarget(self, action: #selector(playPauseTapped), for: .touchUpInside)
+			.build()
 	}()
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
-		setupView()
 		backgroundColor = UIColor.systemGray3.withAlphaComponent(0.97)
+		setupView()
 		addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
 	}
 
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
+}
 
+extension MiniPlayerView {
 	@objc private func handleTap() {
 		NotificationCenter.default.post(name: .miniPlayerTapped, object: nil)
 	}
 
 	@objc private func playPauseTapped() {
-		let playingImage = UIImage(systemName: "play.fill", withConfiguration: self.buttonConfiguration)
-		let pausedImage = UIImage(systemName: "pause.fill", withConfiguration: self.buttonConfiguration)
-		let newImage = isPlaying ? playingImage : pausedImage
+		let newImage = isPlaying ? playImage : pauseImage
 		playPauseButton.setImage(newImage, for: .normal)
 
 		if !isPlaying {
@@ -78,6 +86,7 @@ class MiniPlayerView: UIView {
 			self.isPlaying = true
 		} else {
 			stopAlbumImageRotation()
+			handler?()
 			self.isPlaying = false
 		}
 		playPauseTappedDelegate?(self.isPlaying)
@@ -88,7 +97,7 @@ class MiniPlayerView: UIView {
 			let rotation = CABasicAnimation(keyPath: "transform.rotation")
 			rotation.fromValue = self.currentRotationAngle
 			rotation.toValue = CGFloat.pi * 2
-			rotation.duration = 10 // Duration of one full rotation
+			rotation.duration = 10
 			rotation.isRemovedOnCompletion = false
 			rotation.repeatCount = .infinity
 			albumImageView.layer.add(rotation, forKey: "rotationAnimation")
@@ -120,37 +129,34 @@ class MiniPlayerView: UIView {
 
 	func setPlayerState(_ value: Bool) {
 		self.isPlaying = !value
-		let playingImage = UIImage(systemName: "play.fill", withConfiguration: self.buttonConfiguration)
-		let pausedImage = UIImage(systemName: "pause.fill", withConfiguration: self.buttonConfiguration)
-		let newImage = self.isPlaying ? pausedImage : playingImage
+		let newImage = self.isPlaying ? pauseImage : playImage
 		playPauseButton.setImage(newImage, for: .normal)
 	}
 
 	private func setupView() {
-		backgroundColor = .gray
 		addSubview(albumImageView)
 		addSubview(songTitleLabel)
 		addSubview(artistNameLabel)
 		addSubview(playPauseButton)
 
 		NSLayoutConstraint.activate([
-			albumImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+			albumImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Spacing.large),
 			albumImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-			albumImageView.widthAnchor.constraint(equalToConstant: 40),
-			albumImageView.heightAnchor.constraint(equalToConstant: 40),
+			albumImageView.widthAnchor.constraint(equalToConstant: Spacing.Size.width),
+			albumImageView.heightAnchor.constraint(equalToConstant: Spacing.Size.height),
 
-			songTitleLabel.leadingAnchor.constraint(equalTo: albumImageView.trailingAnchor, constant: 8),
-			songTitleLabel.bottomAnchor.constraint(equalTo: centerYAnchor, constant: -2),
-			songTitleLabel.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -8),
+			songTitleLabel.leadingAnchor.constraint(equalTo: albumImageView.trailingAnchor, constant: Spacing.medium),
+			songTitleLabel.bottomAnchor.constraint(equalTo: centerYAnchor, constant: -Spacing.small),
+			songTitleLabel.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -Spacing.medium),
 
 			artistNameLabel.leadingAnchor.constraint(equalTo: songTitleLabel.leadingAnchor),
-			artistNameLabel.topAnchor.constraint(equalTo: centerYAnchor, constant: 2),
+			artistNameLabel.topAnchor.constraint(equalTo: centerYAnchor, constant: Spacing.small),
 			artistNameLabel.trailingAnchor.constraint(equalTo: songTitleLabel.trailingAnchor),
 
-			playPauseButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+			playPauseButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Spacing.large),
 			playPauseButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-			playPauseButton.widthAnchor.constraint(equalToConstant: 40),
-			playPauseButton.heightAnchor.constraint(equalToConstant: 40),
+			playPauseButton.widthAnchor.constraint(equalToConstant: Spacing.Size.width),
+			playPauseButton.heightAnchor.constraint(equalToConstant: Spacing.Size.height),
 		])
 	}
 }
