@@ -5,7 +5,7 @@
 //  Created by Nursultan Kabulov on 25.07.2024.
 //
 
-import Foundation
+import UIKit
 
 class ButtonBuilder {
 	private let button: UIButton
@@ -17,6 +17,7 @@ class ButtonBuilder {
 
 	func setImage(_ image: UIImage?, for state: UIControl.State) -> ButtonBuilder {
 		self.button.setImage(image, for: state)
+		self.button.imageView?.contentMode = .scaleAspectFit
 		return self
 	}
 
@@ -47,6 +48,23 @@ class ButtonBuilder {
 
 	func addTarget(_ target: Any?, action: Selector, for event: UIControl.Event) -> ButtonBuilder {
 		self.button.addTarget(target, action: action, for: event)
+		return self
+	}
+
+	func setConfiguration(_ cfg: UIButton.Configuration) -> ButtonBuilder {
+		self.button.configuration = cfg
+		return self
+	}
+
+	func setFont(_ font: UIFont) -> ButtonBuilder {
+		self.button.titleLabel?.font = font
+		return self
+	}
+
+	func setBorder(color: CGColor, width: CGFloat, cornerRadius: CGFloat) -> ButtonBuilder {
+		self.button.layer.borderColor = color
+		self.button.layer.borderWidth = width
+		self.button.layer.cornerRadius = cornerRadius
 		return self
 	}
 

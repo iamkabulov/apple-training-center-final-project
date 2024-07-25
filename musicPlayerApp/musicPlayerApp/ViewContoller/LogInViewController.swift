@@ -9,12 +9,40 @@ import UIKit
 
 class LogInViewController: UIViewController {
 
+	private enum Spacing {
+		static let medium: CGFloat = 20
+	}
+
 	var viewModel: LogInViewModel?
 
 	// MARK: - Subviews
-	let stackView = UIStackView()
-	let connectLabel = UILabel()
-	let connectButton = UIButton(type: .custom)
+	private lazy var stackView = {
+		let stackView = UIStackView()
+		stackView.translatesAutoresizingMaskIntoConstraints = false
+		stackView.axis = .vertical
+		stackView.alignment = .center
+		return stackView
+	}()
+	private lazy var connectLabel = {
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 20, weight: .bold))
+			.setText("Log in to Spotify")
+			.build()
+	}()
+
+	private lazy var connectButton = {
+		var cfg = UIButton.Configuration.plain()
+		cfg.imagePadding = 10
+		return ButtonBuilder()
+			.setConfiguration(cfg)
+			.setTitle("Continue with Spotify", for: [])
+			.setTintColor(.black)
+			.setImage(UIImage(named: "stpGreenIcon"), for: [])
+			.setFont(UIFont.preferredFont(forTextStyle: .title2))
+			.setBorder(color: UIColor.black.cgColor, width: 2, cornerRadius: 14)
+			.addTarget(self, action: #selector(didTapConnect), for: .touchUpInside)
+			.build()
+	}()
 
 	// MARK: App Life Cycle
 	init() {
@@ -30,7 +58,6 @@ class LogInViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
-		style()
 		layout()
 	}
 
@@ -40,12 +67,6 @@ class LogInViewController: UIViewController {
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-	}
-
-	override func viewDidDisappear(_ animated: Bool) {
-		super.viewDidDisappear(animated)
-//		self.viewModel?.network.appRemote.delegate = nil
-//
 	}
 
 	deinit {
@@ -63,32 +84,7 @@ class LogInViewController: UIViewController {
 
 // MARK: Style & Layout
 extension LogInViewController {
-	func style() {
-		stackView.translatesAutoresizingMaskIntoConstraints = false
-		stackView.axis = .vertical
-		stackView.alignment = .center
-
-		connectLabel.translatesAutoresizingMaskIntoConstraints = false
-		connectLabel.text = "Log in to Spotify"
-		connectLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-
-		connectButton.translatesAutoresizingMaskIntoConstraints = false
-		var cfg = UIButton.Configuration.plain()
-		cfg.imagePadding = 10
-		connectButton.configuration = cfg
-		connectButton.setTitle("Continue with Spotify", for: [])
-		connectButton.tintColor = .black
-		connectButton.setImage(UIImage(named: "stpGreenIcon"), for: [])
-		connectButton.imageView?.contentMode = .scaleAspectFit
-		connectButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .title2)
-		connectButton.layer.borderColor = UIColor.black.cgColor
-		connectButton.layer.borderWidth = 2
-		connectButton.layer.cornerRadius = 14
-		connectButton.addTarget(self, action: #selector(didTapConnect), for: .touchUpInside)
-	}
-
 	func layout() {
-
 		stackView.addSubview(connectLabel)
 		stackView.addSubview(connectButton)
 
@@ -100,30 +96,18 @@ extension LogInViewController {
 			stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 			stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
 
-			connectLabel.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 20),
+			connectLabel.topAnchor.constraint(equalTo: stackView.topAnchor, constant: Spacing.medium),
 			connectLabel.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
 
 			connectButton.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
 			connectButton.centerYAnchor.constraint(equalTo: stackView.centerYAnchor),
 		])
 	}
-
-	func updateViewBasedOnConnected() {
-		if viewModel?.network.appRemote.isConnected == true {
-			connectButton.isHidden = true
-			connectLabel.isHidden = true
-		}
-		else { // show login
-			connectButton.isHidden = false
-			connectLabel.isHidden = false
-		}
-	}
 }
 
 // MARK: - SPTAppRemoteDelegate
 extension LogInViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
-//		viewModel?.network.appRemote.delegate = nil
 		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
 			let vc = MusicBarController()
 			sceneDelegate.switchRoot(vc: vc)
