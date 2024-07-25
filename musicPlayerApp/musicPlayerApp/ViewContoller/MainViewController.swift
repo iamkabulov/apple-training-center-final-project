@@ -1,26 +1,17 @@
-//
-//  MainViewController.swift
-//  musicPlayerApp
-//
-//  Created by Nursultan Kabulov on 10.07.2024.
-//
-
-import Foundation
+import UIKit
 
 final class MainViewController: UIViewController {
 	var viewModel: MainViewModel?
 	private var currentTime: Double = 0
 	private var lastPlayerState: SPTAppRemotePlayerState?
-	private var dataSource: [SPTAppRemoteContentItem]?
+	private var dataSource: [SPTAppRemoteContentItem]? {
+		didSet {
+			self.tableView.updateDataSource(dataSource ?? [])
+		}
+	}
 
-	private lazy var tableView: UITableView = {
-		let view = UITableView()
-		view.translatesAutoresizingMaskIntoConstraints = false
-		view.separatorStyle = .none
-		view.register(SectionCell.self, forCellReuseIdentifier: SectionCell.identifier)
-		view.delegate = self
-		view.rowHeight = SectionCell.rowHeight
-		view.dataSource = self
+	private lazy var tableView: MainTableView = {
+		let view = MainTableView(viewModel: self.viewModel, viewController: self)
 		return view
 	}()
 
@@ -33,21 +24,10 @@ final class MainViewController: UIViewController {
 		return stackView
 	}()
 
-//	private lazy var signOutButton: UIButton = {
-//		let signOutButton = UIButton()
-//		signOutButton.translatesAutoresizingMaskIntoConstraints = false
-//		signOutButton.setTitle("Sign out", for: .normal)
-//		signOutButton.setTitleColor(.black, for: .normal)
-//		signOutButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-//		signOutButton.addTarget(self, action: #selector(didTapSignOut(_:)), for: .touchUpInside)
-//		return signOutButton
-//	}()
-
 	//MARK: - View LifeCycle
 	init() {
 		super.init(nibName: nil, bundle: nil)
 		self.viewModel = MainViewModel(self)
-//		self.viewModel?.network.appRemote.playerAPI?.delegate = self
 	}
 
 	required init?(coder: NSCoder) {
@@ -76,16 +56,13 @@ final class MainViewController: UIViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
-		self.viewModel?.contentItems.unbind()
-		self.viewModel?.itemPosters.unbind()
-		self.viewModel?.network.appRemote.delegate = nil
+		cleanupResources()
 	}
 }
 
 extension MainViewController {
 	func layout() {
 		stackView.addSubview(tableView)
-
 		view.addSubview(stackView)
 
 		NSLayoutConstraint.activate([
@@ -101,64 +78,43 @@ extension MainViewController {
 		])
 	}
 
-	//MARK: - Actions
-//	@objc func didTapSignOut(_ button: UIButton) {
-//		if viewModel?.network.appRemote.isConnected == true {
-//			viewModel?.network.appRemote.disconnect()
-//			viewModel?.network.appRemote.delegate = nil
-//			let vc = LogInViewController()
-//			vc.modalPresentationStyle = .fullScreen
-//			self.present(vc, animated: true)
-//		}
-//	}
-
 	//MARK: - Binding ViewModel
 	func bindViewModel() {
 		self.viewModel?.contentItems.bind { [weak self] content in
 			guard let self = self, let content = content else { return }
 			self.dataSource = content.filter { $0.children != nil }
-			self.tableView.reloadData()
 		}
 
 		self.viewModel?.itemPosters.bind { [weak self] dict in
 			self?.tableView.reloadData()
 		}
 	}
+
+	private func cleanupResources() {
+		self.viewModel?.contentItems.unbind()
+		self.viewModel?.itemPosters.unbind()
+		self.viewModel?.network.appRemote.delegate = nil
+		self.viewModel = nil
+	}
 }
+
 //MARK: - SPTAppRemoteDelegate
 extension MainViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("Connected ")
 		self.viewModel?.getContentItems()
-//		self.tableView.reloadData()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("Failed")
-//		let vc = LogInViewController()
-//		vc.modalPresentationStyle = .fullScreen
-//		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("Disconnected With Error")
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
-	}
-}
-
-//MARK: - UITableViewDelegate & UITableViewDataSource
-extension MainViewController: UITableViewDelegate, UITableViewDataSource {
-	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		guard let data = dataSource else { return 0 }
-		return data.count
-	}
-
-	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionCell.identifier, for: indexPath) as? SectionCell else { return UITableViewCell() }
-		guard let data = self.dataSource, let viewModel = self.viewModel else { return cell }
-		cell.setData(viewController: self, viewModel: viewModel, data: data[indexPath.row])
-		return cell
+		cleanupResources()
+		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+			let vc = LogInViewController()
+			sceneDelegate.switchRoot(vc: vc)
+		}
 	}
 }
