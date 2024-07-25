@@ -8,19 +8,37 @@
 import UIKit
 
 final class ListViewController: UIViewController {
+
 	static var headerKind: String {
 		return String(describing: self)
 	}
+	
+	enum Spacing {
+		static let aboveMiniPlayer: CGFloat = 64
+	}
+
 	var viewModel: ListViewModel?
 	var vc: MusicBarController?
-	private var item: SPTAppRemoteContentItem?
-	private var items: [SPTAppRemoteContentItem]?
-	private var topTracks: [TopTrack]?
-	private var libraryStates: [String: SPTAppRemoteLibraryState]?
-	private var artistItem: SPTAppRemoteArtist?
-	var collectionView: UICollectionView! = nil
+	var item: SPTAppRemoteContentItem?
+	var items: [SPTAppRemoteContentItem]?
+	var topTracks: [TopTrack]?
+	var libraryStates: [String: SPTAppRemoteLibraryState]?
+	var artistItem: SPTAppRemoteArtist?
+	private lazy var collectionView: CustomCollectionView = {
+		let collectionView = CustomCollectionView()
+		collectionView.register(ListCell.self, forCellWithReuseIdentifier: ListCell.reuseIdentifier)
+		collectionView.register(HeaderView.self,
+								forSupplementaryViewOfKind: ListViewController.headerKind,
+								withReuseIdentifier: HeaderView.reuseIdentifier)
 
-	private enum Action {
+		collectionView.dataSource = self
+		collectionView.delegate = self
+		floatingHeaderView.translatesAutoresizingMaskIntoConstraints = false
+		floatingHeaderView.isFloating = true
+		return collectionView
+	}()
+
+	enum Action {
 		static let addMessage = "has been added to favourite library"
 		static let removeMessage = "has been removed from favourite library"
 	}
@@ -34,7 +52,6 @@ final class ListViewController: UIViewController {
 		self.title = item.title
 		self.item = item
 		self.floatingHeaderView.set(data: item)
-//		self.vc = vc
 	}
 
 	init(artistItem: SPTAppRemoteArtist) {
@@ -190,8 +207,7 @@ final class ListViewController: UIViewController {
 	func showAlert(on viewController: UIViewController, title: String, withMessage: String) {
 		let alert = UIAlertController(title: title, message: withMessage, preferredStyle: .alert)
 		viewController.present(alert, animated: true) {
-			// Закрытие алерта через 2 секунды
-			DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+			DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
 				alert.dismiss(animated: true, completion: nil)
 			}
 		}
@@ -200,163 +216,24 @@ final class ListViewController: UIViewController {
 
 // MARK: Layout
 extension ListViewController {
-
 	func layout() {
 		view.backgroundColor = .systemBackground
-		// Collection View
-		collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-		collectionView.translatesAutoresizingMaskIntoConstraints = false
-		collectionView.backgroundColor = .systemBackground
-
 		view.addSubview(collectionView)
+		view.addSubview(floatingHeaderView)
 
 		NSLayoutConstraint.activate([
 			collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
 			collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -64),
-		])
+			collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Spacing.aboveMiniPlayer),
 
-		collectionView.register(ListCell.self, forCellWithReuseIdentifier: ListCell.reuseIdentifier)
-		collectionView.register(HeaderView.self,
-								forSupplementaryViewOfKind: ListViewController.headerKind,
-								withReuseIdentifier: HeaderView.reuseIdentifier)
-
-		collectionView.dataSource = self
-		collectionView.delegate = self
-
-		// Floating header view
-		floatingHeaderView.translatesAutoresizingMaskIntoConstraints = false
-
-		view.addSubview(floatingHeaderView)
-
-		floatingHeaderView.isFloating = true
-		NSLayoutConstraint.activate([
 			floatingHeaderView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
 			floatingHeaderView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 		])
 
 	}
-
-	func createLayout() -> UICollectionViewLayout {
-
-		// ListCell layout
-		let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-											 heightDimension: .fractionalHeight(1.0))
-		let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-		let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-											  heightDimension: .absolute(44))
-		let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-
-		let section = NSCollectionLayoutSection(group: group)
-		section.interGroupSpacing = 5
-		section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-
-		// Header layout
-		let headerFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-													 heightDimension: .estimated(300))
-		let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-			layoutSize: headerFooterSize,
-			elementKind: ListViewController.headerKind, alignment: .top)
-
-		section.boundarySupplementaryItems = [sectionHeader]
-
-		let layout = UICollectionViewCompositionalLayout(section: section)
-		return layout
-	}
 }
 
-extension ListViewController: UICollectionViewDataSource {
-	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		guard let viewModel = self.viewModel else { return 0 }
-		if artistItem != nil {
-			return self.topTracks?.count ?? 0
-		} else {
-			return viewModel.getCount()
-		}
-	}
-
-	// ListCell
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ListCell.reuseIdentifier, for: indexPath) as! ListCell
-
-		if let item = items?[indexPath.row] {
-			cell.set(title: item.title)
-			viewModel?.getTrackState(uri: item.uri)
-			if let state = libraryStates?[item.uri] {
-				cell.changeButtonState(state.isAdded)
-				cell.addRemoveButtonTappedHandler = { [weak self, weak cell] in
-					guard let self = self, let cell = cell else { return }
-					if state.isAdded {
-						self.viewModel?.removeFromLibrary(uri: item.uri)
-						cell.changeButtonState(false)
-						self.showAlert(on: self, title: item.title ?? "Music", withMessage: Action.removeMessage)
-					}
-					else {
-						self.viewModel?.addToLibrary(uri: item.uri)
-						cell.changeButtonState(true)
-						self.showAlert(on: self, title: item.title ?? "Music", withMessage: Action.addMessage)
-					}
-				}
-			}
-			return cell
-		}
-		if let item = topTracks?[indexPath.row] {
-			cell.set(title: item.name)
-			viewModel?.getTrackState(uri: item.uri)
-			if let state = libraryStates?[item.uri] {
-				cell.changeButtonState(state.isAdded)
-				cell.addRemoveButtonTappedHandler = { [weak self, weak cell] in
-					guard let self = self, let cell = cell else { return }
-					if state.isAdded {
-						self.viewModel?.removeFromLibrary(uri: item.uri)
-						cell.changeButtonState(false)
-						self.showAlert(on: self, title: item.name ?? "Music", withMessage: Action.removeMessage)
-					}
-					else {
-						self.viewModel?.addToLibrary(uri: item.uri)
-						cell.changeButtonState(true)
-						self.showAlert(on: self, title: item.name ?? "Music", withMessage: Action.addMessage)
-					}
-				}
-			}
-			return cell
-		}
-		return cell
-	}
-
-	// HeaderView
-	func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-		let headerView = collectionView.dequeueReusableSupplementaryView(
-			ofKind: kind,
-			withReuseIdentifier: HeaderView.reuseIdentifier,
-			for: indexPath) as! HeaderView
-
-
-		self.headerView = headerView
-		self.headerView?.isHidden = true
-
-		return headerView
-	}
-
-	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		if let item = self.items?[indexPath.row] {
-			self.viewModel?.play(item: item)
-		} 
-		if let track = self.topTracks?[indexPath.row] {
-			self.viewModel?.network.play(trackUri: track.uri)
-		}
-	}
-}
-
-extension ListViewController: UICollectionViewDelegateFlowLayout {
-
-	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-		headerView?.scrollViewDidScroll(scrollView)
-		floatingHeaderView.scrollViewDidScroll(scrollView)
-	}
-}
 
 extension ListViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
@@ -365,17 +242,19 @@ extension ListViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("2")
-		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
+//		viewModel?.network.appRemote.delegate = nil
+//		let vc = LogInViewController()
+//		vc.modalPresentationStyle = .fullScreen
 //		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("3")
 		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-//		self.present(vc, animated: true)
+		viewModel = nil
+		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+			let vc = LogInViewController()
+			sceneDelegate.switchRoot(vc: vc)
+		}
 	}
 }

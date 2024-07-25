@@ -12,6 +12,7 @@
 		B003E4612C521E1F00920ED6 /* ButtonBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003E4602C521E1F00920ED6 /* ButtonBuilder.swift */; };
 		B003E4632C526F7E00920ED6 /* RecommendationCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003E4622C526F7E00920ED6 /* RecommendationCollectionView.swift */; };
 		B003E4652C52957D00920ED6 /* MainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003E4642C52957D00920ED6 /* MainTableView.swift */; };
+		B003E4672C5299CF00920ED6 /* CustomCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003E4662C5299CF00920ED6 /* CustomCollectionView.swift */; };
 		B018EC162C3BEF590080009C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC152C3BEF590080009C /* AppDelegate.swift */; };
 		B018EC182C3BEF590080009C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC172C3BEF590080009C /* SceneDelegate.swift */; };
 		B018EC1A2C3BEF590080009C /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC192C3BEF590080009C /* LogInViewController.swift */; };
@@ -53,6 +54,7 @@
 		B003E4602C521E1F00920ED6 /* ButtonBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonBuilder.swift; sourceTree = "<group>"; };
 		B003E4622C526F7E00920ED6 /* RecommendationCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationCollectionView.swift; sourceTree = "<group>"; };
 		B003E4642C52957D00920ED6 /* MainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableView.swift; sourceTree = "<group>"; };
+		B003E4662C5299CF00920ED6 /* CustomCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCollectionView.swift; sourceTree = "<group>"; };
 		B018EC122C3BEF590080009C /* musicPlayerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = musicPlayerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B018EC152C3BEF590080009C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B018EC172C3BEF590080009C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 				B003E45C2C52156B00920ED6 /* LabelBuilder.swift */,
 				B003E45E2C5216FB00920ED6 /* ImageViewBuilder.swift */,
 				B003E4602C521E1F00920ED6 /* ButtonBuilder.swift */,
+				B003E4662C5299CF00920ED6 /* CustomCollectionView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -312,6 +315,7 @@
 				B003E45F2C5216FB00920ED6 /* ImageViewBuilder.swift in Sources */,
 				B0D53C742C4A89A400E377A3 /* SearchViewModel.swift in Sources */,
 				B0D53C6C2C48F72F00E377A3 /* Extensions.swift in Sources */,
+				B003E4672C5299CF00920ED6 /* CustomCollectionView.swift in Sources */,
 				B0D53C5E2C42E45800E377A3 /* ListViewController.swift in Sources */,
 				B018EC3E2C3E89C20080009C /* MainViewModel.swift in Sources */,
 				B0D53C602C44EB6600E377A3 /* HeaderView.swift in Sources */,
