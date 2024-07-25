@@ -94,7 +94,6 @@ extension MainViewController {
 		self.viewModel?.contentItems.unbind()
 		self.viewModel?.itemPosters.unbind()
 		self.viewModel?.network.appRemote.delegate = nil
-		self.viewModel = nil
 	}
 }
 
@@ -112,6 +111,7 @@ extension MainViewController: SPTAppRemoteDelegate {
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("Disconnected With Error")
 		cleanupResources()
+		self.viewModel = nil
 		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
 			let vc = LogInViewController()
 			sceneDelegate.switchRoot(vc: vc)
