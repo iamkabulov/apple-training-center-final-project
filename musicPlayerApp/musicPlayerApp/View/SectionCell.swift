@@ -84,7 +84,7 @@ final class SectionCell: UITableViewCell {
 	}
 
 	deinit {
-		print("DEINIT")
+		print("SECTIONCELL DEINIT")
 	}
 
 

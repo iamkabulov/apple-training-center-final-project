@@ -1,10 +1,3 @@
-//
-//  MusicBarController.swift
-//  musicPlayerApp
-//
-//  Created by Nursultan Kabulov on 12.07.2024.
-//
-
 import UIKit
 
 final class MusicBarController: UITabBarController {
@@ -15,7 +8,6 @@ final class MusicBarController: UITabBarController {
 		mini.layer.cornerRadius = 10
 		return mini
 	}()
-
 
 	let mainViewController = MainViewController()
 	let profileController = SearchViewController()
@@ -35,11 +27,11 @@ final class MusicBarController: UITabBarController {
 		self.viewModel = MusicBarViewModel(self)
 		self.viewModel?.network.appRemote.playerAPI?.delegate = self
 	}
-	
+
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
-	
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		startTimer()
@@ -68,6 +60,7 @@ final class MusicBarController: UITabBarController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		self.viewModel?.network.appRemote.delegate = self
 		self.viewModel?.getPlayerState()
 		self.viewModel?.subscribeToState()
 		self.bindViewModel()
@@ -82,24 +75,35 @@ final class MusicBarController: UITabBarController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
+		cleanupResources()
+	}
+
+	deinit {
+		NotificationCenter.default.removeObserver(self)
+		cleanupResources()
+		print("MUSICBAR DELETED")
+	}
+
+	private func cleanupResources() {
 		self.viewModel?.playerState.unbind()
 		self.viewModel?.trackPoster.unbind()
+		self.viewModel?.network.appRemote.delegate = nil
+		self.viewModel = nil
+		stopTimer()
 	}
 
 	func selectedNavController() -> UINavigationController? {
-			return self.selectedViewController as? UINavigationController
-		}
+		return self.selectedViewController as? UINavigationController
+	}
 
 	@objc private func miniPlayerTapped() {
 		guard let playerState = self.lastPlayerState else { return }
 		let vc = PlayerViewController(playerState: playerState, currentTime: self.currentTime, vc: self, isRepeat: self.isRepeat, isShuffled: self.isShuffled)
 
 		vc.openArtistViewHandler = { [weak self] artist in
-
-			if let selectedNavController = self?.selectedNavController() {
-				// Создаём экземпляр ArtistViewController
+			guard let self = self else { return }
+			if let selectedNavController = self.selectedNavController() {
 				let targetViewController = ListViewController(artistItem: artist)
-				// Пушим новый контроллер в навигационный стек текущего навигационного контроллера
 				selectedNavController.pushViewController(targetViewController, animated: true)
 			} else {
 				print("Selected UINavigationController not found")
@@ -107,19 +111,18 @@ final class MusicBarController: UITabBarController {
 		}
 
 		vc.upToDate(currentTime: self.currentTime)
-		vc.isRepeatHandler = { value in
-			self.isRepeat = value
+		vc.isRepeatHandler = { [weak self] value in
+			self?.isRepeat = value
 		}
 
-		vc.isShuffleHandler = { value in
-			self.isShuffled = value
+		vc.isShuffleHandler = { [weak self] value in
+			self?.isShuffled = value
 		}
 		vc.modalPresentationStyle = .pageSheet
 		self.present(vc, animated: true, completion: nil)
 	}
 
 	func setupViews() {
-
 		let homeNav = UINavigationController(rootViewController: mainViewController)
 		let searchNav = UINavigationController(rootViewController: profileController)
 		let favouriteNav = UINavigationController(rootViewController: playListController)
@@ -142,8 +145,11 @@ final class MusicBarController: UITabBarController {
 			miniPlayerView.bottomAnchor.constraint(equalTo: tabBar.topAnchor),
 			miniPlayerView.heightAnchor.constraint(equalToConstant: miniPlayerHeight)
 		])
-	}
 
+		miniPlayerView.handler = { [weak self] in
+			self?.viewModel?.network.appRemote.delegate = self
+		}
+	}
 
 	func configure() {
 		self.tabBar.tintColor = .label
@@ -153,8 +159,8 @@ final class MusicBarController: UITabBarController {
 		guard let playerState = playerState else { return }
 		if lastPlayerState?.track.uri != playerState.track.uri {
 			self.viewModel?.getPoster(for: playerState.track)
-				self.currentTime = 0
-				self.startTimer()
+			self.currentTime = 0
+			self.startTimer()
 		}
 		self.startTimer()
 		self.miniPlayerView.setTrack(name: playerState.track.name,
@@ -162,7 +168,7 @@ final class MusicBarController: UITabBarController {
 									 isPaused: playerState.isPaused)
 	}
 
-	//MARK: - Binding ViewModel
+	// MARK: - Binding ViewModel
 	func bindViewModel() {
 		self.viewModel?.trackPoster.bind { [weak self] trackPoster in
 			guard let trackPoster = trackPoster else { return }
@@ -244,7 +250,7 @@ extension MusicBarController: SPTAppRemotePlayerStateDelegate {
 	}
 }
 
-//MARK: - SPTAppRemoteDelegate
+// MARK: - SPTAppRemoteDelegate
 extension MusicBarController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("Connected ")
@@ -256,5 +262,10 @@ extension MusicBarController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("Disconnected With Error")
+		cleanupResources()
+		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+			let vc = LogInViewController()
+			sceneDelegate.switchRoot(vc: vc)
+		}
 	}
 }

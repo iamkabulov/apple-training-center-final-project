@@ -52,7 +52,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	}
 
 	func switchRoot(vc: UIViewController) {
-		window?.makeKeyAndVisible()
-		window?.rootViewController = vc
+		guard let window = self.window else { return }
+		window.rootViewController = vc
+		UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve, animations: nil, completion: nil)
+		window.makeKeyAndVisible()
 	}
 }

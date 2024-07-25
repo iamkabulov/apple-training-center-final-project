@@ -71,6 +71,7 @@ final class MainViewController: UIViewController {
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
+		self.bindViewModel()
 	}
 
 	override func viewDidDisappear(_ animated: Bool) {
@@ -128,16 +129,15 @@ extension MainViewController {
 extension MainViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("Connected ")
-//		updateViewBasedOnConnected()
-//		self.viewModel?.getContentItems()
-		self.tableView.reloadData()
+		self.viewModel?.getContentItems()
+//		self.tableView.reloadData()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("Failed")
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+//		let vc = LogInViewController()
+//		vc.modalPresentationStyle = .fullScreen
+//		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {

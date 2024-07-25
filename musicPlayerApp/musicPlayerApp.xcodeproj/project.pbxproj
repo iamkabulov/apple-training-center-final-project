@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B003E45D2C52156B00920ED6 /* LabelBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003E45C2C52156B00920ED6 /* LabelBuilder.swift */; };
 		B003E45F2C5216FB00920ED6 /* ImageViewBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003E45E2C5216FB00920ED6 /* ImageViewBuilder.swift */; };
+		B003E4612C521E1F00920ED6 /* ButtonBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003E4602C521E1F00920ED6 /* ButtonBuilder.swift */; };
 		B018EC162C3BEF590080009C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC152C3BEF590080009C /* AppDelegate.swift */; };
 		B018EC182C3BEF590080009C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC172C3BEF590080009C /* SceneDelegate.swift */; };
 		B018EC1A2C3BEF590080009C /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018EC192C3BEF590080009C /* LogInViewController.swift */; };
@@ -47,6 +48,7 @@
 /* Begin PBXFileReference section */
 		B003E45C2C52156B00920ED6 /* LabelBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelBuilder.swift; sourceTree = "<group>"; };
 		B003E45E2C5216FB00920ED6 /* ImageViewBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewBuilder.swift; sourceTree = "<group>"; };
+		B003E4602C521E1F00920ED6 /* ButtonBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonBuilder.swift; sourceTree = "<group>"; };
 		B018EC122C3BEF590080009C /* musicPlayerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = musicPlayerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B018EC152C3BEF590080009C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B018EC172C3BEF590080009C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -191,6 +193,7 @@
 				B0D53C712C4A746700E377A3 /* SearchedItemCell.swift */,
 				B003E45C2C52156B00920ED6 /* LabelBuilder.swift */,
 				B003E45E2C5216FB00920ED6 /* ImageViewBuilder.swift */,
+				B003E4602C521E1F00920ED6 /* ButtonBuilder.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -298,6 +301,7 @@
 				B0D53C872C4FDFCB00E377A3 /* ArtistEntity.swift in Sources */,
 				B0D53C722C4A746700E377A3 /* SearchedItemCell.swift in Sources */,
 				B0D53C6A2C48F4CB00E377A3 /* MiniPlayerView.swift in Sources */,
+				B003E4612C521E1F00920ED6 /* ButtonBuilder.swift in Sources */,
 				B003E45F2C5216FB00920ED6 /* ImageViewBuilder.swift in Sources */,
 				B0D53C742C4A89A400E377A3 /* SearchViewModel.swift in Sources */,
 				B0D53C6C2C48F72F00E377A3 /* Extensions.swift in Sources */,

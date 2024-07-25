@@ -34,21 +34,27 @@ class LogInViewController: UIViewController {
 		layout()
 	}
 
+	override func viewWillAppear(_ animated: Bool) {
+		viewModel?.network.appRemote.delegate = self
+	}
+
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 	}
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
-		self.viewModel?.network.appRemote.delegate = nil
-		self.viewModel = nil
+//		self.viewModel?.network.appRemote.delegate = nil
+//
 	}
 
 	deinit {
+		self.viewModel = nil
 		print("DEINIT LOGIN")
 	}
 
 	@objc func didTapConnect(_ button: UIButton) {
+		self.viewModel?.network.appRemote.delegate = self
 		viewModel?.getToken() { [weak self] appRemote in
 			self?.appRemoteDidEstablishConnection(appRemote)
 		}
@@ -117,8 +123,9 @@ extension LogInViewController {
 // MARK: - SPTAppRemoteDelegate
 extension LogInViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
-		let vc = MusicBarController()
+//		viewModel?.network.appRemote.delegate = nil
 		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+			let vc = MusicBarController()
 			sceneDelegate.switchRoot(vc: vc)
 		}
 	}

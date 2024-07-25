@@ -469,12 +469,12 @@ extension PlayerViewController: SPTAppRemoteDelegate {
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
-		print("3")
 		lastPlayerState = nil
 		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+			let vc = LogInViewController()
+			sceneDelegate.switchRoot(vc: vc)
+		}
 	}
 }
 

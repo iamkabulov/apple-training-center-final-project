@@ -42,7 +42,7 @@ final class RecommendationCell: UICollectionViewCell {
 	private lazy var artistImage: UIImageView = {
 		let image = UIImageView()
 		image.translatesAutoresizingMaskIntoConstraints = false
-		image.image = nil
+		image.image = UIImage(named: "whiteBackground")
 		image.contentMode = .scaleAspectFit
 		image.heightAnchor.constraint(equalToConstant: 130).isActive = true
 		image.widthAnchor.constraint(equalToConstant: 130).isActive = true
@@ -78,9 +78,9 @@ final class RecommendationCell: UICollectionViewCell {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
-		artistImage.image = nil
+		artistImage.image = UIImage(named: "whiteBackground")
 		viewModel = nil
-		contentView.layoutIfNeeded()
+//		contentView.layoutIfNeeded()
 	}
 
 	func bindViewModel() {
