@@ -16,10 +16,10 @@ final class SearchedItemCell: UITableViewCell {
 
 	private enum Spacing {
 		enum Size {
-			static let height: CGFloat = 100
-			static let width: CGFloat = 100
+			static let height: CGFloat = 50
+			static let width: CGFloat = 50
 		}
-		static let small: CGFloat = 1
+		static let small: CGFloat = 4
 		static let medium: CGFloat = 8
 		static let large: CGFloat = 16
 	}
@@ -36,31 +36,26 @@ final class SearchedItemCell: UITableViewCell {
 	}()
 
 	private lazy var titleLabel: UILabel = {
-		let trackLabel = UILabel()
-		trackLabel.translatesAutoresizingMaskIntoConstraints = false
-		trackLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-		trackLabel.text = "Song"
-		trackLabel.textAlignment = .left
-		return trackLabel
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 18, weight: .bold))
+			.setTextAlignment(.left)
+			.build()
 	}()
 
 	private lazy var artistLabel: UILabel = {
-		let trackLabel = UILabel()
-		trackLabel.translatesAutoresizingMaskIntoConstraints = false
-		trackLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-		trackLabel.text = "Artist"
-		trackLabel.textColor = .systemGray
-		trackLabel.textAlignment = .left
-		return trackLabel
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 16, weight: .regular))
+			.setTextAlignment(.left)
+			.setTextColor(.systemGray)
+			.build()
 	}()
 
 	lazy var albumImageView: UIImageView = {
-		let imageView = UIImageView()
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		imageView.contentMode = .scaleAspectFill
-		imageView.image = UIImage(named: "stpGreenIcon")
-		imageView.clipsToBounds = true
-		return imageView
+		return ImageViewBuilder()
+			.setClipsToBounds(true)
+			.setContentMode(.scaleAspectFill)
+			.setImage(named: "stpGreenIcon")
+			.build()
 	}()
 
 	//MARK: - ViewLifeCycle
@@ -80,7 +75,7 @@ final class SearchedItemCell: UITableViewCell {
 
 
 	//MARK: - Methods
-	func setData(item: Item) {
+	func configure(item: Item) {
 		titleLabel.text = item.name
 
 		if let artists = item.artists, artists.count >= 1 {
@@ -108,8 +103,8 @@ private extension SearchedItemCell {
 
 			albumImageView.leadingAnchor.constraint(equalTo: vStackView.leadingAnchor, constant: Spacing.large),
 			albumImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-			albumImageView.widthAnchor.constraint(equalToConstant: 50),
-			albumImageView.heightAnchor.constraint(equalToConstant: 50),
+			albumImageView.widthAnchor.constraint(equalToConstant: Spacing.Size.width),
+			albumImageView.heightAnchor.constraint(equalToConstant: Spacing.Size.height),
 
 			titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.medium),
 			titleLabel.leadingAnchor.constraint(equalTo: albumImageView.trailingAnchor, constant: Spacing.large),

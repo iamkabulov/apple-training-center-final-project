@@ -152,7 +152,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 				cell.setImage(data: image)
 			}
 		})
-		cell.setData(item: items[indexPath.row])
+		cell.configure(item: items[indexPath.row])
 		return cell
 	}
 
