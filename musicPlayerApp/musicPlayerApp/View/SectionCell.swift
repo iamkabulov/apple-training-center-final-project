@@ -29,6 +29,7 @@ final class SectionCell: UITableViewCell {
 		static let medium: CGFloat = 8
 		static let large: CGFloat = 16
 	}
+
 	//MARK: - StackViews
 	private lazy var vStackView: UIStackView = {
 		let stack = UIStackView()
@@ -41,28 +42,14 @@ final class SectionCell: UITableViewCell {
 	}()
 
 	private lazy var titleLabel: UILabel = {
-		let trackLabel = UILabel()
-		trackLabel.translatesAutoresizingMaskIntoConstraints = false
-		trackLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
-		trackLabel.numberOfLines = 0
-		trackLabel.textAlignment = .left
-		return trackLabel
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 24, weight: .bold))
+			.setNumberOfLines(0)
+			.setTextAlignment(.left)
+			.build()
 	}()
 
-	private lazy var recommendationCollectionView: UICollectionView = {
-		let layout = UICollectionViewFlowLayout()
-		layout.scrollDirection = .horizontal
-		let view = UICollectionView(
-			frame: .zero,
-			collectionViewLayout: layout
-		)
-		view.showsHorizontalScrollIndicator = false
-		view.dataSource = self
-		view.delegate = self
-		view.register(RecommendationCell.self, forCellWithReuseIdentifier: RecommendationCell.identifier)
-		view.translatesAutoresizingMaskIntoConstraints = false
-		return view
-	}()
+	private lazy var recommendationCollectionView = RecommendationCollectionView()
 
 	//MARK: - ViewLifeCycle
 	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -76,7 +63,6 @@ final class SectionCell: UITableViewCell {
 		viewController = nil
 		viewModel = nil
 		dataSource = nil
-		contentView.layoutIfNeeded()
 	}
 
 	required init?(coder: NSCoder) {
@@ -87,13 +73,8 @@ final class SectionCell: UITableViewCell {
 		print("SECTIONCELL DEINIT")
 	}
 
-
 	//MARK: - Methods
-	func setData(viewController controller: MainViewController,
-				 viewModel vm: MainViewModel,
-				 data: SPTAppRemoteContentItem)
-	{
-		
+	func setData(viewController controller: MainViewController, viewModel vm: MainViewModel, data: SPTAppRemoteContentItem) {
 		self.viewController = controller
 		self.dataSource = data
 		self.viewModel = vm
@@ -106,9 +87,7 @@ final class SectionCell: UITableViewCell {
 				self.titleLabel.text = data.title
 			}
 		}
-		DispatchQueue.main.async { [weak self] in
-			self?.recommendationCollectionView.reloadData()
-		}
+		self.recommendationCollectionView.setData(viewController: controller, viewModel: vm, data: data)
 	}
 }
 
@@ -125,7 +104,6 @@ private extension SectionCell {
 			titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
 			titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
 			titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.large),
-//			titleLabel.heightAnchor.constraint(equalToConstant: 50),
 
 			recommendationCollectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.small),
 			recommendationCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
@@ -155,41 +133,5 @@ private extension SectionCell {
 		attributedText.append(largeText)
 
 		label.attributedText = attributedText
-	}
-}
-
-//MARK: - UICollectionViewDataSource & UICollectionViewDelegate
-extension SectionCell: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
-	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		guard let data = self.dataSource?.children else { return 0 }
-		return data.count
-	}
-
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		guard let data = self.dataSource?.children, let cell = self.recommendationCollectionView.dequeueReusableCell(withReuseIdentifier: RecommendationCell.identifier,
-																  for: indexPath) as? RecommendationCell
-		else {
-			return UICollectionViewCell()
-		}
-		if data.count > indexPath.row {
-			cell.setData(vm: self.viewModel, data[indexPath.row])
-			cell.bindViewModel()
-		}
-		return cell
-	}
-
-	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-		return CGSize(width: 130, height: 170)
-	}
-
-	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		guard let data = self.dataSource?.children else { return }
-		let vc = ListViewController(item: data[indexPath.row])
-		let cell = collectionView.cellForItem(at: indexPath) as? RecommendationCell
-		self.viewController?.navigationController?.pushViewController(vc, animated: true)
-
-		cell?.unBindViewModel()
-		viewModel = nil
-		viewController = nil
 	}
 }

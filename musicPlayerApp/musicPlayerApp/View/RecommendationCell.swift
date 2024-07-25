@@ -13,6 +13,16 @@ final class RecommendationCell: UICollectionViewCell {
 		return String(describing: self)
 	}
 
+	private enum Spacing {
+		enum Size {
+			static let height: CGFloat = 130
+			static let width: CGFloat = 130
+		}
+		static let small: CGFloat = 1
+		static let medium: CGFloat = 8
+		static let large: CGFloat = 16
+	}
+
 	weak var viewModel: MainViewModel?
 	var id: String?
 
@@ -29,25 +39,21 @@ final class RecommendationCell: UICollectionViewCell {
 
 	//MARK: - Labels
 	private lazy var artistName: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-		label.textAlignment = .left
-		label.textColor = .lightGray
-		label.numberOfLines = 2
-		return label
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 12, weight: .regular))
+			.setTextAlignment(.left)
+			.setTextColor(.lightGray)
+			.setNumberOfLines(2)
+			.build()
 	}()
 
 	//MARK: - Image
 	private lazy var artistImage: UIImageView = {
-		let image = UIImageView()
-		image.translatesAutoresizingMaskIntoConstraints = false
-		image.image = UIImage(named: "whiteBackground")
-		image.contentMode = .scaleAspectFit
-		image.heightAnchor.constraint(equalToConstant: 130).isActive = true
-		image.widthAnchor.constraint(equalToConstant: 130).isActive = true
-		image.clipsToBounds = true
-		return image
+		return ImageViewBuilder()
+			.setImage(named: "whiteBackground")
+			.setContentMode(.scaleAspectFit)
+			.setClipsToBounds(true)
+			.build()
 	}()
 
 	//MARK: - LifeCycle
@@ -80,7 +86,6 @@ final class RecommendationCell: UICollectionViewCell {
 		super.prepareForReuse()
 		artistImage.image = UIImage(named: "whiteBackground")
 		viewModel = nil
-//		contentView.layoutIfNeeded()
 	}
 
 	func bindViewModel() {
@@ -111,8 +116,10 @@ extension RecommendationCell {
 
 			artistImage.topAnchor.constraint(equalTo: contentView.topAnchor),
 			artistImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+			artistImage.heightAnchor.constraint(equalToConstant: Spacing.Size.height),
+			artistImage.widthAnchor.constraint(equalToConstant: Spacing.Size.width),
 
-			artistName.topAnchor.constraint(equalTo: artistImage.bottomAnchor, constant: 8),
+			artistName.topAnchor.constraint(equalTo: artistImage.bottomAnchor, constant: Spacing.medium),
 			artistName.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
 			artistName.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
 		])
