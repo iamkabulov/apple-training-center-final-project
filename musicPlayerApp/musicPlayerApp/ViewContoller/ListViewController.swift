@@ -161,6 +161,7 @@ final class ListViewController: UIViewController {
 		self.viewModel?.item.bind { [weak self] item in
 			guard let item = item else { return }
 			self?.item = item
+			self?.title = item.title
 			self?.floatingHeaderView.set(data: item)
 			self?.viewModel?.getListOf(content: item)
 			self?.viewModel?.getPoster(for: item)

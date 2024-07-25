@@ -13,6 +13,8 @@ class LabelBuilder {
 	init() {
 		self.label = UILabel()
 		self.label.translatesAutoresizingMaskIntoConstraints = false
+		self.label.adjustsFontForContentSizeCategory = true
+		self.label.adjustsFontSizeToFitWidth = true
 	}
 
 	func setFont(_ font: UIFont) -> LabelBuilder {

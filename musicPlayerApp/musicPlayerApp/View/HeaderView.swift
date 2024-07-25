@@ -12,7 +12,18 @@ class HeaderView: UICollectionReusableView {
 	static var reuseIdentifier: String {
 		return String(describing: self)
 	}
-	
+
+	private enum Spacing {
+		enum Size {
+			static let heightImage: CGFloat = 200
+			static let widthImage: CGFloat = 200
+			static let titleWidth: CGFloat = 350
+		}
+		static let small: CGFloat = 2
+		static let medium: CGFloat = 10
+		static let large: CGFloat = 20
+	}
+
 	private lazy var stackView: UIStackView = {
 		let stackView = UIStackView()
 		stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -24,41 +35,27 @@ class HeaderView: UICollectionReusableView {
 	}()
 
 	private lazy var imageView: UIImageView = {
-		let imageView = UIImageView()
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		self.widthConstraint = imageView.widthAnchor.constraint(equalToConstant: 200)
-		self.heightConstraint = imageView.heightAnchor.constraint(equalToConstant: 200)
-		imageView.layer.shadowColor = UIColor.black.cgColor
-		imageView.layer.shadowOpacity = 0.7
-		imageView.layer.shadowOffset = CGSize.zero
-		imageView.layer.shadowRadius = 10
-		imageView.layer.masksToBounds = false
-		return imageView
+		return ImageViewBuilder()
+			.setShadow(shadowColor: UIColor.black.cgColor,
+					   shadowOpacity: 0.7,
+					   shadowOffset: CGSize.zero,
+					   shadowRadius: 10,
+					   masksToBounds: false)
+			.build()
 	}()
 
 	private lazy var albumTitle: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.textColor = .systemGray
-		label.numberOfLines = 0
-		label.textAlignment = .center
-		label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-		return label
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 18, weight: .bold))
+			.setNumberOfLines(0)
+			.setTextAlignment(.center)
+			.setTextColor(.systemGray)
+			.build()
 	}()
 
-	var widthConstraint: NSLayoutConstraint?
-	var heightConstraint: NSLayoutConstraint?
-
+	private lazy var widthConstraint = self.imageView.widthAnchor.constraint(equalToConstant: Spacing.Size.widthImage)
+	private lazy var heightConstraint = self.imageView.heightAnchor.constraint(equalToConstant: Spacing.Size.heightImage)
 	var isFloating = false
-
-//	var track: Track? {
-//		didSet {
-//			guard let track = track else { return }
-//			let image = UIImage(named: track.imageName) ?? UIImage(named: "Spotify_Primary_Logo_RGB_Green")!
-//
-//			imageView.image = image
-//		}
-//	}
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -84,7 +81,6 @@ class HeaderView: UICollectionReusableView {
 }
 
 extension HeaderView {
-
 	func layout() {
 		addSubview(stackView)
 
@@ -94,34 +90,25 @@ extension HeaderView {
 			stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
 			stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-			widthConstraint!,
-			heightConstraint!,
+			widthConstraint,
+			heightConstraint,
 
-			imageView.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 10),
+			imageView.topAnchor.constraint(equalTo: stackView.topAnchor, constant: Spacing.medium),
 			imageView.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
 
-			albumTitle.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
+			albumTitle.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: Spacing.medium),
 			albumTitle.centerXAnchor.constraint(equalTo: centerXAnchor),
-			albumTitle.widthAnchor.constraint(equalToConstant: 350)
+			albumTitle.widthAnchor.constraint(equalToConstant: Spacing.Size.titleWidth)
 		])
 	}
-
-//	override var intrinsicContentSize: CGSize {
-//		return CGSize(width: 300, height: 400)
-//	}
 
 }
 
 extension HeaderView {
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
 		let y = scrollView.contentOffset.y
-		
-		guard
-			let widthConstraint = widthConstraint,
-			let heightConstraint = heightConstraint,
-			y > 0 else { return }
+		guard y > 0 else { return }
 
-		// Scroll
 		let normalizedScroll = y / 2
 
 		widthConstraint.constant = 200 - normalizedScroll
@@ -132,7 +119,6 @@ extension HeaderView {
 			albumTitle.isHidden = y > 30
 		}
 
-		// Alpha
 		let normalizedAlpha = y / 200
 		alpha = 1.0 - normalizedAlpha
 	}

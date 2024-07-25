@@ -45,6 +45,21 @@ class ImageViewBuilder {
 		return self
 	}
 
+	func setColor(_ color: UIColor) -> ImageViewBuilder {
+		self.imageView.tintColor = color
+		return self
+	}
+
+	func setShadow(shadowColor: CGColor, shadowOpacity: Float, shadowOffset: CGSize, shadowRadius: CGFloat, masksToBounds: Bool) -> ImageViewBuilder {
+		self.imageView.layer.shadowColor = shadowColor
+		self.imageView.layer.shadowOpacity = shadowOpacity
+		self.imageView.layer.shadowOffset = shadowOffset
+		self.imageView.layer.shadowRadius = shadowRadius
+		self.imageView.layer.masksToBounds = masksToBounds
+		return self
+	}
+
+
 	func build() -> UIImageView {
 		return self.imageView
 	}
