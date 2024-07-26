@@ -78,6 +78,22 @@ final class CustomCollectionView: UICollectionView {
 		let layout = UICollectionViewCompositionalLayout(section: section)
 		return layout
 	}
+
+	func updateData(items: [SPTAppRemoteContentItem]?, topTracks: [TopTrack]?, libraryStates: [String: SPTAppRemoteLibraryState]?, artistItem: SPTAppRemoteArtist?) {
+		if let items = items {
+			self.items = items
+		}
+		if let topTracks = topTracks {
+			self.topTracks = topTracks
+		}
+		if let libraryStates = libraryStates {
+			self.libraryStates = libraryStates
+		}
+		if let artistItem = artistItem {
+			self.artistItem = artistItem
+		}
+		self.reloadData()
+	}
 }
 
 extension ListViewController: UICollectionViewDataSource {

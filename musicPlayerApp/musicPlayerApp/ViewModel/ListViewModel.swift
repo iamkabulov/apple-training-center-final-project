@@ -19,6 +19,8 @@ final class ListViewModel {
 	var artistPoster: Observable<UIImage> = Observable(nil)
 	var details: Observable<ArtistEntity> = Observable(nil)
 	var topTracks: Observable<TopTracksEntity> = Observable(nil)
+	var isAdded: Observable<Bool> = Observable(false)
+	var isRemoved: Observable<Bool> = Observable(false)
 
 	init(_ view: SPTAppRemoteDelegate) {
 		self.network.appRemote.delegate = view
@@ -69,11 +71,16 @@ final class ListViewModel {
 	func addToLibrary(uri: String) {
 		network.addToLibraryWith(uri: uri)
 		self.libraryStates.removeValue(forKey: uri)
+		self.getTrackState(uri: uri)
+		self.isAdded.value = false
+
 	}
 
 	func removeFromLibrary(uri: String) {
 		network.removeFromLibrary(uri: uri)
 		self.libraryStates.removeValue(forKey: uri)
+		self.getTrackState(uri: uri)
+		self.isRemoved.value = false
 	}
 
 	func getTrackState(uri: String) {

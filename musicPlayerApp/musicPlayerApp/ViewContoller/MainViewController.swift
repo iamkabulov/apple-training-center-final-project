@@ -55,7 +55,11 @@ final class MainViewController: UIViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
+	}
+
+	deinit {
 		cleanupResources()
+		print("MAIN VIEW DEINIT")
 	}
 }
 
@@ -93,6 +97,7 @@ extension MainViewController {
 		self.viewModel?.contentItems.unbind()
 		self.viewModel?.itemPosters.unbind()
 		self.viewModel?.network.appRemote.delegate = nil
+		self.viewModel = nil
 	}
 }
 

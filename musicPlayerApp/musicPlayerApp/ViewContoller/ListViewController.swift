@@ -72,18 +72,7 @@ final class ListViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		layout()
-		if let artist = self.artistItem {
-			self.floatingHeaderView.set(artist: artist)
-			viewModel?.getArtistDetails(with: artist)
-			viewModel?.getTopTracks(with: artist)
-		} else {
-			guard let item = self.item else {
-				viewModel?.getItem()
-				return
-			}
-			self.viewModel?.getListOf(content: item)
-			self.viewModel?.getPoster(for: item)
-		}
+		fetchData()
 		self.navigationController?.navigationBar.topItem?.title = ""
 		bindViewModel()
 	}
@@ -91,48 +80,16 @@ final class ListViewController: UIViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		self.navigationController?.setNavigationBarHidden(false, animated: animated)
-		self.viewModel = ListViewModel(self)
-		if let artistItem = self.artistItem {
-			self.floatingHeaderView.set(artist: artistItem)
-			viewModel?.getArtistDetails(with: artistItem)
-			viewModel?.getTopTracks(with: artistItem)
-			return
-		}
-		if let viewModel = viewModel {
-			if let item = self.item  {
-				viewModel.getListOf(content: item)
-				viewModel.getPoster(for: item)
-			} else {
-				viewModel.getItem()
-			}
-		} else {
-			self.viewModel = ListViewModel(self)
-			if let item = self.item  {
-				self.viewModel?.getListOf(content: item)
-				self.viewModel?.getPoster(for: item)
-			} else {
-				self.viewModel?.getItem()
-			}
-		}
-		bindViewModel()
+		self.viewModel?.network.appRemote.delegate = self /// если что вернуть
+		refreshData()
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-		bindViewModel()
 	}
 
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
-		viewModel?.trackPoster.unbind()
-		viewModel?.childrenOfContent.unbind()
-		viewModel?.libraryStates.unbind()
-		viewModel?.item.unbind()
-		viewModel?.details.unbind()
-		viewModel?.artistPoster.unbind()
-		viewModel?.topTracks.unbind()
-		viewModel?.network.appRemote.delegate = nil
-		viewModel = nil
 	}
 
 	override func viewDidDisappear(_ animated: Bool) {
@@ -140,26 +97,38 @@ final class ListViewController: UIViewController {
 	}
 
 	deinit {
-		viewModel?.trackPoster.unbind()
-		viewModel?.childrenOfContent.unbind()
-		viewModel?.libraryStates.unbind()
-		viewModel?.network.appRemote.delegate = nil
-		viewModel = nil
-		items = nil
-		topTracks = nil
-		viewModel?.item.unbind()
-		viewModel?.details.unbind()
-		viewModel?.artistPoster.unbind()
-		viewModel?.topTracks.unbind()
+		clearResources()
 		self.navigationController?.popViewController(animated: true)
 		print("ListViewController deinitialized")
+	}
+
+	private func refreshData() {
+		fetchData()
+		bindViewModel()
+	}
+
+	private func fetchData() {
+		if let artist = artistItem {
+			floatingHeaderView.set(artist: artist)
+			viewModel?.getArtistDetails(with: artist)
+			viewModel?.getTopTracks(with: artist)
+		} else if let item = item {
+			viewModel?.getListOf(content: item)
+			viewModel?.getPoster(for: item)
+		} else {
+			viewModel?.getItem()
+		}
+	}
+
+	private func updateCollectionView() {
+		collectionView.updateData(items: items, topTracks: topTracks, libraryStates: libraryStates, artistItem: artistItem)
 	}
 
 	func bindViewModel() {
 		self.viewModel?.childrenOfContent.bind { [weak self] items in
 			DispatchQueue.main.async {
 				self?.items = items
-				self?.collectionView.reloadData()
+				self?.updateCollectionView()
 			}
 		}
 
@@ -172,7 +141,7 @@ final class ListViewController: UIViewController {
 
 		self.viewModel?.libraryStates.bind { [weak self] states in
 			self?.libraryStates = states
-			self?.collectionView.reloadData()
+			self?.updateCollectionView()
 		}
 
 		self.viewModel?.item.bind { [weak self] item in
@@ -180,8 +149,7 @@ final class ListViewController: UIViewController {
 			self?.item = item
 			self?.title = item.title
 			self?.floatingHeaderView.set(data: item)
-			self?.viewModel?.getListOf(content: item)
-			self?.viewModel?.getPoster(for: item)
+			self?.fetchData()
 		}
 
 		self.viewModel?.details.bind { [weak self] details in
@@ -190,16 +158,23 @@ final class ListViewController: UIViewController {
 
 		self.viewModel?.artistPoster.bind { [weak self] image in
 			guard let image = image else { return }
-			DispatchQueue.main.async {
-				self?.floatingHeaderView.set(image: image)
-			}
+			self?.floatingHeaderView.set(image: image)
 		}
 
 		self.viewModel?.topTracks.bind { [weak self] tracks in
-			guard let self = self else { return }
-			DispatchQueue.main.async {
-				self.topTracks = tracks?.tracks
-				self.collectionView.reloadData()
+			self?.topTracks = tracks?.tracks
+			self?.updateCollectionView()
+		}
+
+		self.viewModel?.isAdded.bind { [weak self] value in
+			DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+				self?.updateCollectionView()
+			}
+		}
+
+		self.viewModel?.isRemoved.bind { [weak self] value in
+			DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+				self?.updateCollectionView()
 			}
 		}
 	}
@@ -211,6 +186,22 @@ final class ListViewController: UIViewController {
 				alert.dismiss(animated: true, completion: nil)
 			}
 		}
+	}
+
+	func clearResources() {
+		viewModel?.network.appRemote.delegate = nil
+		viewModel?.trackPoster.unbind()
+		viewModel?.childrenOfContent.unbind()
+		viewModel?.libraryStates.unbind()
+		viewModel?.item.unbind()
+		viewModel?.details.unbind()
+		viewModel?.artistPoster.unbind()
+		viewModel?.topTracks.unbind()
+		viewModel?.isAdded.unbind()
+		viewModel?.isRemoved.unbind()
+		items = nil
+		topTracks = nil
+		viewModel = nil
 	}
 }
 
@@ -230,7 +221,6 @@ extension ListViewController {
 			floatingHeaderView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
 			floatingHeaderView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 		])
-
 	}
 }
 
@@ -242,10 +232,6 @@ extension ListViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("2")
-//		viewModel?.network.appRemote.delegate = nil
-//		let vc = LogInViewController()
-//		vc.modalPresentationStyle = .fullScreen
-//		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {

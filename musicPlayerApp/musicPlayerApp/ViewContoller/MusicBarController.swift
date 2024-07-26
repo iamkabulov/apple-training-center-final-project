@@ -75,12 +75,12 @@ final class MusicBarController: UITabBarController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
-		cleanupResources()
 	}
 
 	deinit {
 		NotificationCenter.default.removeObserver(self)
 		cleanupResources()
+		self.viewModel = nil
 		print("MUSICBAR DELETED")
 	}
 
@@ -88,7 +88,6 @@ final class MusicBarController: UITabBarController {
 		self.viewModel?.playerState.unbind()
 		self.viewModel?.trackPoster.unbind()
 		self.viewModel?.network.appRemote.delegate = nil
-		self.viewModel = nil
 		stopTimer()
 	}
 
