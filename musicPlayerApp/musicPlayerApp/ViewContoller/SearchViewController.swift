@@ -11,7 +11,13 @@ final class SearchViewController: UIViewController {
 	var viewModel: SearchViewModel?
 	private var currentTime: Double = 0
 	private var lastPlayerState: SPTAppRemotePlayerState?
+	private var libraryStates: [String: SPTAppRemoteLibraryState]?
 	private var dataSource: [Item]?
+
+	enum Action {
+		static let addMessage = "has been added to favourite library"
+		static let removeMessage = "has been removed from favourite library"
+	}
 
 	//MARK: - SearchView
 	private lazy var searchField: UISearchTextField = {
@@ -57,6 +63,7 @@ final class SearchViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		bindViewModel()
 		self.navigationController?.setNavigationBarHidden(true, animated: animated)
 	}
 
@@ -70,12 +77,23 @@ final class SearchViewController: UIViewController {
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-		self.bindViewModel()
+//		self.bindViewModel()
 	}
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
+	}
+
+	deinit {
+		clearResources()
+		print("DEINIT SEARCH VIEW")
+	}
+
+	func clearResources() {
 		viewModel?.items.unbind()
+		viewModel?.isAdded.unbind()
+		viewModel?.isRemoved.unbind()
+		viewModel?.libraryStates.unbind()
 	}
 }
 
@@ -109,6 +127,32 @@ extension SearchViewController {
 			self?.dataSource = content
 			self?.tableView.reloadData()
 		}
+
+		self.viewModel?.libraryStates.bind { [weak self] states in
+			self?.libraryStates = states
+			self?.tableView.reloadData()
+		}
+
+		self.viewModel?.isAdded.bind { [weak self] value in
+			DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+				self?.tableView.reloadData()
+			}
+		}
+
+		self.viewModel?.isRemoved.bind { [weak self] value in
+			DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+				self?.tableView.reloadData()
+			}
+		}
+	}
+
+	func showAlert(on viewController: UIViewController, title: String, withMessage: String) {
+		let alert = UIAlertController(title: title, message: withMessage, preferredStyle: .alert)
+		viewController.present(alert, animated: true) {
+			DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+				alert.dismiss(animated: true, completion: nil)
+			}
+		}
 	}
 }
 //MARK: - SPTAppRemoteDelegate
@@ -121,18 +165,17 @@ extension SearchViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("Failed")
-		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		print("Disconnected With Error")
+		clearResources()
 		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
+		viewModel = nil
+		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+			let vc = LogInViewController()
+			sceneDelegate.switchRoot(vc: vc)
+		}
 	}
 }
 
@@ -143,9 +186,27 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 	}
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchedItemCell.identifier, for: indexPath) as? SearchedItemCell,
-			let items = dataSource
-		else { return UITableViewCell() }
+		guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchedItemCell.identifier, for: indexPath) as? SearchedItemCell, let items = dataSource else { return UITableViewCell() }
+
+		viewModel?.getTrackState(uri: items[indexPath.row].uri)
+
+		if let state = libraryStates?[items[indexPath.row].uri] {
+			cell.changeButtonState(state.isAdded)
+			cell.addRemoveButtonTappedHandler = { [weak self, weak cell] in
+				guard let self = self, let cell = cell else { return }
+				if state.isAdded {
+					self.viewModel?.removeFromLibrary(uri: items[indexPath.row].uri)
+					cell.changeButtonState(false)
+					self.showAlert(on: self, title: items[indexPath.row].name ?? "Music", withMessage: Action.removeMessage)
+				}
+				else {
+					self.viewModel?.addToLibrary(uri: items[indexPath.row].uri)
+					cell.changeButtonState(true)
+					self.showAlert(on: self, title: items[indexPath.row].name ?? "Music", withMessage: Action.addMessage)
+				}
+			}
+		}
+		
 
 		self.viewModel?.network.fetchArtistImage(url: items[indexPath.row].album?.images?[0].url ?? "", completionHandler: { image in
 			DispatchQueue.main.async {

@@ -13,11 +13,16 @@ final class SearchedItemCell: UITableViewCell {
 		return String(describing: self)
 	}
 	static let rowHeight: CGFloat = 70
+	private lazy var buttonConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .light, scale: .default)
+	private lazy var minusImage = UIImage(systemName: "minus", withConfiguration: self.buttonConfiguration)
+	private lazy var plusImage = UIImage(systemName: "plus", withConfiguration: self.buttonConfiguration)
+	var addRemoveButtonTappedHandler: (() -> Void)?
 
 	private enum Spacing {
 		enum Size {
 			static let height: CGFloat = 50
 			static let width: CGFloat = 50
+			static let thickness: CGFloat = 0.5
 		}
 		static let small: CGFloat = 4
 		static let medium: CGFloat = 8
@@ -29,6 +34,8 @@ final class SearchedItemCell: UITableViewCell {
 		stack.addSubview(albumImageView)
 		stack.addSubview(titleLabel)
 		stack.addSubview(artistLabel)
+		stack.addSubview(addToLibraryButton)
+		stack.addSubview(seperatorView)
 		stack.translatesAutoresizingMaskIntoConstraints = false
 		stack.axis = .vertical
 		stack.spacing = .zero
@@ -56,6 +63,21 @@ final class SearchedItemCell: UITableViewCell {
 			.setContentMode(.scaleAspectFill)
 			.setImage(named: "stpGreenIcon")
 			.build()
+	}()
+
+	private lazy var addToLibraryButton: UIButton = {
+		return ButtonBuilder()
+			.setImage(plusImage, for: .normal)
+			.setTintColor(.black)
+			.addTarget(self, action: #selector(addRemoveButtonTapped), for: .touchUpInside)
+			.build()
+	}()
+
+	private lazy var seperatorView: UIView = {
+		let view = UIView()
+		view.translatesAutoresizingMaskIntoConstraints = false
+		view.backgroundColor = .systemGray
+		return view
 	}()
 
 	//MARK: - ViewLifeCycle
@@ -89,6 +111,18 @@ final class SearchedItemCell: UITableViewCell {
 		self.albumImageView.image = data
 	}
 
+	@objc func addRemoveButtonTapped() {
+		addRemoveButtonTappedHandler?()
+	}
+
+	func changeButtonState(_ value: Bool) {
+		if value {
+			addToLibraryButton.setImage(minusImage, for: .normal)
+		} else {
+			addToLibraryButton.setImage(plusImage, for: .normal)
+		}
+	}
+
 }
 
 //MARK: - SectionCell
@@ -108,11 +142,21 @@ private extension SearchedItemCell {
 
 			titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.medium),
 			titleLabel.leadingAnchor.constraint(equalTo: albumImageView.trailingAnchor, constant: Spacing.large),
-			titleLabel.trailingAnchor.constraint(equalTo: vStackView.trailingAnchor, constant: -Spacing.medium),
+			titleLabel.trailingAnchor.constraint(equalTo: addToLibraryButton.leadingAnchor, constant: Spacing.medium),
 
 			artistLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.medium),
 			artistLabel.leadingAnchor.constraint(equalTo: albumImageView.trailingAnchor, constant: Spacing.large),
-			artistLabel.trailingAnchor.constraint(equalTo: vStackView.trailingAnchor, constant: -Spacing.medium)
+			artistLabel.trailingAnchor.constraint(equalTo: addToLibraryButton.leadingAnchor, constant: Spacing.medium),
+
+			addToLibraryButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+			addToLibraryButton.widthAnchor.constraint(equalToConstant: Spacing.Size.width),
+			addToLibraryButton.heightAnchor.constraint(equalToConstant: Spacing.Size.height),
+			addToLibraryButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.medium),
+
+			seperatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.large),
+			seperatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+			seperatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.large),
+			seperatorView.heightAnchor.constraint(equalToConstant: Spacing.Size.thickness)
 		])
 	}
 }
