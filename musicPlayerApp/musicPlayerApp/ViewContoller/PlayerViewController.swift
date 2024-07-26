@@ -9,6 +9,20 @@ import UIKit
 
 final class PlayerViewController: UIViewController {
 
+	private enum Spacing {
+		enum Size {
+			static let height: CGFloat = 300
+			static let width: CGFloat = 300
+		}
+		static let small: CGFloat = 4
+		static let medium: CGFloat = 10
+		static let large: CGFloat = 30
+	}
+
+	let configurationLarge = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
+	let configurationSmall = UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .large)
+	let configurationExSmall = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .default)
+
 	var viewModel: PlayerViewModel?
 	private var vc: MusicBarController?
 	var isRepeatHandler: ((Bool) -> Void)?
@@ -16,49 +30,38 @@ final class PlayerViewController: UIViewController {
 	var openArtistViewHandler: ((SPTAppRemoteArtist) -> Void)?
 	var artistItem: SPTAppRemoteArtist?
 	private var isPaused = false
-	private var item: SPTAppRemoteContentItem?
 	private var timer: Timer?
 	private var currentTime: Double = 0
 	private var durationTime: Double = 0
 	private var lastPlayerState: SPTAppRemotePlayerState?
 	private var isShuffled = false
 	private var isRepeat = false
+	private var isAdded = false
 
-	private lazy var imageView: UIImageView = {
-		let imageView = UIImageView()
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		imageView.widthAnchor.constraint(equalToConstant: 300).isActive = true
-		imageView.heightAnchor.constraint(equalToConstant: 300).isActive = true
-		return imageView
-	}()
+	private var imageView = ImageViewBuilder()
+			.build()
 
 	private lazy var trackLabel: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.adjustsFontForContentSizeCategory = true
-		label.font = UIFont.systemFont(ofSize: 22, weight: .bold)
-		label.textColor = .label
-		label.adjustsFontSizeToFitWidth = true
-		return label
+		return LabelBuilder()
+			.setFont(UIFont.systemFont(ofSize: 22, weight: .bold))
+			.setTextColor(.label)
+			.build()
 	}()
 
 	private lazy var artistButton: UIButton = {
-		let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.titleLabel?.textColor = .black
-		button.setTitleColor(.systemGray2, for: .normal)
-		button.contentHorizontalAlignment = .left
-		button.addTarget(self, action: #selector(didTappedArtist), for: .touchUpInside)
-		return button
+		return ButtonBuilder()
+			.setTitleColor(.systemGray2, for: .normal)
+			.addTarget(self, action: #selector(didTappedArtist), for: .touchUpInside)
+			.setTextAlignment(.left)
+			.build()
 	}()
 
 	private lazy var slider: UISlider = {
 		let slider = UISlider()
 		slider.translatesAutoresizingMaskIntoConstraints = false
-		slider.widthAnchor.constraint(equalToConstant: 300).isActive = true
+		slider.widthAnchor.constraint(equalToConstant: Spacing.Size.width).isActive = true
 		slider.thumbTintColor = .black// button
 		slider.tintColor = .black // used value
-		//		slider.value = 0
 		slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .touchUpInside)
 		let configuration = UIImage.SymbolConfiguration(pointSize: 12)
 		let image = UIImage(systemName: "circle.fill", withConfiguration: configuration)
@@ -67,113 +70,82 @@ final class PlayerViewController: UIViewController {
 	}()
 
 	private lazy var currentTimeLabel: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.adjustsFontForContentSizeCategory = true
-		label.font = UIFont.preferredFont(forTextStyle: .body)
-		label.textColor = .label
-		label.adjustsFontSizeToFitWidth = true
-		return label
+		return LabelBuilder()
+			.setFont(UIFont.preferredFont(forTextStyle: .body))
+			.setTextColor(.label)
+			.build()
 	}()
 
 	private lazy var durationTimeLabel: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.adjustsFontForContentSizeCategory = true
-		label.font = UIFont.preferredFont(forTextStyle: .body)
-		label.textColor = .label
-		label.adjustsFontSizeToFitWidth = true
-		return label
+		return LabelBuilder()
+			.setFont(UIFont.preferredFont(forTextStyle: .body))
+			.setTextColor(.label)
+			.build()
 	}()
 
 	private lazy var playPauseButton: UIButton = {
-		let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
-		let configuration = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
-		button.tintColor = .black
-
-		button.addTarget(self, action: #selector(didTapPauseOrPlay), for: .touchUpInside)
-		return button
+		return ButtonBuilder()
+			.setTintColor(.black)
+			.addTarget(self, action: #selector(didTapPauseOrPlay), for: .touchUpInside)
+			.build()
 	}()
 
 	private lazy var nextButton: UIButton = {
-		let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
-		let configuration = UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .large)
-		button.setImage(UIImage(systemName: "forward.end.fill", withConfiguration: configuration), for: .normal)
-		button.tintColor = .black
-		button.addTarget(self, action: #selector(didTapNextButton), for: .touchUpInside)
-		return button
+		return ButtonBuilder()
+			.addTarget(self, action: #selector(didTapNextButton), for: .touchUpInside)
+			.setImage(UIImage(systemName: "forward.end.fill", withConfiguration: configurationSmall), for: .normal)
+			.setTintColor(.black)
+			.build()
 	}()
 
 	private lazy var previousButton: UIButton = {
-		let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
-		let configuration = UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .large)
-		button.setImage(UIImage(systemName: "backward.end.fill", withConfiguration: configuration), for: .normal)
-		button.tintColor = .black
-		button.addTarget(self, action: #selector(didTapPreviousButton), for: .touchUpInside)
-		return button
+		return ButtonBuilder()
+			.addTarget(self, action: #selector(didTapPreviousButton), for: .touchUpInside)
+			.setImage(UIImage(systemName: "backward.end.fill", withConfiguration: configurationSmall), for: .normal)
+			.setTintColor(.black)
+			.build()
 	}()
 
 	private lazy var shuffleButton: UIButton = {
-		let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
-		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
-		button.setImage(UIImage(systemName: "shuffle", withConfiguration: configuration), for: .normal)
-		button.tintColor = .black
-		button.addTarget(self, action: #selector(didTapShuffleButton), for: .touchUpInside)
-		return button
+		return ButtonBuilder()
+			.addTarget(self, action: #selector(didTapShuffleButton), for: .touchUpInside)
+			.setImage(UIImage(systemName: "shuffle", withConfiguration: configurationExSmall), for: .normal)
+			.setTintColor(.black)
+			.build()
 	}()
 
 	private lazy var repeatButton: UIButton = {
-		let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
-		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
-		button.setImage(UIImage(systemName: "repeat", withConfiguration: configuration), for: .normal)
-		button.tintColor = .black
-		button.addTarget(self, action: #selector(didTapRepeatButton), for: .touchUpInside)
-		return button
+		return ButtonBuilder()
+			.addTarget(self, action: #selector(didTapRepeatButton), for: .touchUpInside)
+			.setImage(UIImage(systemName: "repeat", withConfiguration: configurationExSmall), for: .normal)
+			.setTintColor(.black)
+			.build()
 	}()
 
-//	private lazy var closeButton: UIButton = {
-//		let button = UIButton()
-//		button.translatesAutoresizingMaskIntoConstraints = false
-//		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular, scale: .large)
-//		button.setImage(UIImage(systemName: "xmark", withConfiguration: configuration), for: .normal)
-//		button.tintColor = .black
-//		button.addTarget(self, action: #selector(didTapClose), for: .touchUpInside)
-//		return button
-//	}()
-
-
-	init(item: SPTAppRemoteContentItem) {
-		self.item = item
-		super.init(nibName: nil, bundle: nil)
-		self.viewModel = PlayerViewModel(self)
-		self.viewModel?.network.appRemote.playerAPI?.delegate = self
-		self.viewModel?.subscribeToState()
-		self.viewModel?.playMusic(item)
-		self.viewModel?.getPoster(for: item)
-		self.viewModel?.getPlayerState()
-//		closeButton.isHidden = true
-	}
+	private lazy var addRemoveButton: UIButton = {
+		return ButtonBuilder()
+			.addTarget(self, action: #selector(addRemoveTapped), for: .touchUpInside)
+			.setTitle("Добавить в избранное", for: .normal)
+			.setTitleColor(.black, for: .normal)
+			.build()
+	}()
 
 	init(playerState: SPTAppRemotePlayerState, currentTime: Double, vc: MusicBarController, isRepeat: Bool, isShuffled: Bool) {
 		super.init(nibName: nil, bundle: nil)
 		self.vc = vc
 		self.viewModel = PlayerViewModel(self)
+		self.viewModel?.network.appRemote.delegate = self
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
+		self.viewModel?.subscribeToState()
+		self.viewModel?.getPoster(for: playerState.track)
+		self.viewModel?.getPlayerState()
 		self.lastPlayerState = playerState
 		self.currentTime = currentTime
 		self.setCurrentTime(currentTime)
 		self.slider.value = Float(currentTime)
-		self.viewModel?.network.appRemote.playerAPI?.delegate = self
-		self.viewModel?.subscribeToState()
-		self.viewModel?.getPoster(for: playerState.track)
 		self.isPaused = playerState.isPaused
 		self.isRepeat = isRepeat
 		self.isShuffled = isShuffled
-		self.viewModel?.getPlayerState()
 		self.startTimer()
 		self.update()
 	}
@@ -212,8 +184,17 @@ final class PlayerViewController: UIViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
+	}
+
+	deinit {
 		viewModel?.trackPoster.unbind()
-		viewModel?.trackPoster.unbind()
+		viewModel?.playerState.unbind()
+		viewModel?.network.appRemote.delegate = nil
+		viewModel?.network.appRemote.playerAPI?.delegate = nil
+		viewModel = nil
+		timer?.invalidate()
+		timer = nil
+		print("Player DEINIT")
 	}
 
 	func bindViewModel() {
@@ -228,11 +209,13 @@ final class PlayerViewController: UIViewController {
 			if playerState?.track.uri == self?.lastPlayerState?.track.uri {
 				guard let playerState = playerState else { return }
 				self?.lastPlayerState = playerState
-
+				self?.isAdded = playerState.track.isSaved
+				self?.isAdded(playerState.track.isSaved)
 				DispatchQueue.main.async {
 					self?.durationTime = Double(playerState.track.duration / 1000)
 					self?.trackLabel.text = playerState.track.name
 					self?.artistItem = playerState.track.artist
+					self?.isPaused = playerState.isPaused
 					self?.artistButton.setTitle(playerState.track.artist.name, for: .normal)
 					self?.slider.maximumValue = Float(self?.durationTime ?? 0)
 					self?.durationTimeLabel.text = self?.formatTime(self?.durationTime ?? 0)
@@ -253,7 +236,6 @@ final class PlayerViewController: UIViewController {
 
 	func startTimer() {
 		if timer != nil {
-			// Если таймер уже запущен, ничего не делаем
 			return
 		}
 		timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateSlider), userInfo: nil, repeats: true)
@@ -267,7 +249,7 @@ final class PlayerViewController: UIViewController {
 	@objc func updateSlider() {
 		DispatchQueue.main.async {
 			if !self.isPaused {
-				self.currentTime += 1 // Увеличиваем текущее время на 100 миллисекунд (0.1 секунды)
+				self.currentTime += 1
 				if self.currentTime >= self.durationTime {
 					self.stopTimer()
 					self.currentTime = self.durationTime
@@ -280,6 +262,21 @@ final class PlayerViewController: UIViewController {
 			self.slider.value = Float(self.currentTime)
 			self.setCurrentTime(self.currentTime)
 			self.startTimer()
+		}
+	}
+
+	@objc func addRemoveTapped() {
+		guard let playerState = self.lastPlayerState else { return }
+		if isAdded {
+			self.addRemoveButton.setTitle("Добавить в избранное", for: .normal)
+			self.addRemoveButton.setTitleColor(.black, for: .normal)
+			viewModel?.removeFromLibrary(uri: playerState.track.uri)
+			isAdded = false
+		} else {
+			self.addRemoveButton.setTitle("Удалить из избранного", for: .normal)
+			self.addRemoveButton.setTitleColor(.red, for: .normal)
+			viewModel?.addToLibrary(uri: playerState.track.uri)
+			isAdded = true
 		}
 	}
 
@@ -329,12 +326,11 @@ final class PlayerViewController: UIViewController {
 	}
 
 	@objc func didTapShuffleButton(_ button: UIButton) {
-		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
 		if isShuffled {
-			self.shuffleButton.setImage(UIImage(systemName: "shuffle", withConfiguration: configuration), for: .normal)
+			self.shuffleButton.setImage(UIImage(systemName: "shuffle", withConfiguration: configurationExSmall), for: .normal)
 			self.isShuffled = false
 		} else {
-			self.shuffleButton.setImage(UIImage(systemName: "infinity", withConfiguration: configuration), for: .normal)
+			self.shuffleButton.setImage(UIImage(systemName: "infinity", withConfiguration: configurationExSmall), for: .normal)
 			self.isShuffled = true
 		}
 		self.isShuffleHandler?(self.isShuffled)
@@ -343,13 +339,12 @@ final class PlayerViewController: UIViewController {
 
 	@objc func didTapRepeatButton(_ button: UIButton) {
 		guard self.lastPlayerState != nil else { return }
-		let configuration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
 		if isRepeat {
-			self.repeatButton.setImage(UIImage(systemName: "repeat", withConfiguration: configuration), for: .normal)
+			self.repeatButton.setImage(UIImage(systemName: "repeat", withConfiguration: configurationExSmall), for: .normal)
 			self.viewModel?.repeatMode(.off)
 			self.isRepeat = false
 		} else {
-			self.repeatButton.setImage(UIImage(systemName: "repeat.1", withConfiguration: configuration), for: .normal)
+			self.repeatButton.setImage(UIImage(systemName: "repeat.1", withConfiguration: configurationExSmall), for: .normal)
 			self.viewModel?.repeatMode(.track)
 			self.isRepeat = true
 		}
@@ -362,37 +357,37 @@ final class PlayerViewController: UIViewController {
 		return String(format: "%d:%02d", minutes, remainingSeconds)
 	}
 
-	// Установка длительности трека и перезапуск таймера
 	func setCurrentTime(_ duration: Double) {
 		currentTimeLabel.text = formatTime(currentTime)
 	}
 
 	func update() {
-		let configuration = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
-
 		if isPaused {
-			DispatchQueue.main.async {
-				self.playPauseButton.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: configuration), for: .normal)
-			}
+			self.playPauseButton.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: configurationLarge), for: .normal)
 		} else {
-			DispatchQueue.main.async {
-				self.playPauseButton.setImage(UIImage(systemName: "pause.circle.fill", withConfiguration: configuration), for: .normal)
-
-			}
+			self.playPauseButton.setImage(UIImage(systemName: "pause.circle.fill", withConfiguration: configurationLarge), for: .normal)
 		}
 
-
-		let configurationSmall = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .large)
 		if isRepeat {
-			self.repeatButton.setImage(UIImage(systemName: "repeat.1", withConfiguration: configurationSmall), for: .normal)
+			self.repeatButton.setImage(UIImage(systemName: "repeat.1", withConfiguration: configurationExSmall), for: .normal)
 		} else {
-			self.repeatButton.setImage(UIImage(systemName: "repeat", withConfiguration: configurationSmall), for: .normal)
+			self.repeatButton.setImage(UIImage(systemName: "repeat", withConfiguration: configurationExSmall), for: .normal)
 		}
 
 		if isShuffled {
-			self.shuffleButton.setImage(UIImage(systemName: "infinity", withConfiguration: configurationSmall), for: .normal)
+			self.shuffleButton.setImage(UIImage(systemName: "infinity", withConfiguration: configurationExSmall), for: .normal)
 		} else {
-			self.shuffleButton.setImage(UIImage(systemName: "shuffle", withConfiguration: configurationSmall), for: .normal)
+			self.shuffleButton.setImage(UIImage(systemName: "shuffle", withConfiguration: configurationExSmall), for: .normal)
+		}
+	}
+
+	func isAdded(_ value: Bool) {
+		if value {
+			self.addRemoveButton.setTitle("Удалить из избранного", for: .normal)
+			self.addRemoveButton.setTitleColor(.red, for: .normal)
+		} else {
+			self.addRemoveButton.setTitle("Добавить в избранное", for: .normal)
+			self.addRemoveButton.setTitleColor(.black, for: .normal)
 		}
 	}
 }
@@ -410,33 +405,36 @@ extension PlayerViewController {
 		view.addSubview(previousButton)
 		view.addSubview(shuffleButton)
 		view.addSubview(repeatButton)
+		view.addSubview(addRemoveButton)
 
 		NSLayoutConstraint.activate([
-			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+			imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Spacing.large),
 			imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			imageView.widthAnchor.constraint(equalToConstant: Spacing.Size.width),
+			imageView.heightAnchor.constraint(equalToConstant: Spacing.Size.height),
 
-			trackLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
+			trackLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: Spacing.medium),
 			trackLabel.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
 			trackLabel.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
 
-			artistButton.topAnchor.constraint(equalTo: trackLabel.bottomAnchor, constant: 10),
+			artistButton.topAnchor.constraint(equalTo: trackLabel.bottomAnchor, constant: Spacing.small),
 			artistButton.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
 			artistButton.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
 
 			slider.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			slider.topAnchor.constraint(equalTo: artistButton.bottomAnchor, constant: 10),
+			slider.topAnchor.constraint(equalTo: artistButton.bottomAnchor, constant: Spacing.medium),
 
-			currentTimeLabel.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 4),
+			currentTimeLabel.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: Spacing.small),
 			currentTimeLabel.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
 
 			durationTimeLabel.topAnchor.constraint(equalTo: currentTimeLabel.topAnchor),
 			durationTimeLabel.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
 
-			playPauseButton.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 20),
+			playPauseButton.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: Spacing.large),
 			playPauseButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
 			nextButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
-			nextButton.leadingAnchor.constraint(equalTo: playPauseButton.trailingAnchor, constant: 20),
+			nextButton.leadingAnchor.constraint(equalTo: playPauseButton.trailingAnchor, constant: Spacing.medium),
 
 			shuffleButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
 			shuffleButton.trailingAnchor.constraint(equalTo: slider.trailingAnchor),
@@ -445,10 +443,10 @@ extension PlayerViewController {
 			repeatButton.leadingAnchor.constraint(equalTo: slider.leadingAnchor),
 
 			previousButton.centerYAnchor.constraint(equalTo: playPauseButton.centerYAnchor),
-			previousButton.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -20),
+			previousButton.trailingAnchor.constraint(equalTo: playPauseButton.leadingAnchor, constant: -Spacing.medium),
 
-//			closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
-//			closeButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -5)
+			addRemoveButton.topAnchor.constraint(equalTo: playPauseButton.bottomAnchor, constant: Spacing.medium),
+			addRemoveButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
 		])
 	}
 }
@@ -456,16 +454,12 @@ extension PlayerViewController {
 extension PlayerViewController: SPTAppRemoteDelegate {
 	func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
 		print("1")
-		viewModel?.subscribeToState()
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
 		print("2")
 		lastPlayerState = nil
 		viewModel?.network.appRemote.delegate = nil
-		let vc = LogInViewController()
-		vc.modalPresentationStyle = .fullScreen
-		self.present(vc, animated: true)
 	}
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {

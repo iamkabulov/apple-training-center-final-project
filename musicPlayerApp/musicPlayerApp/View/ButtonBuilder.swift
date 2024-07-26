@@ -68,6 +68,11 @@ class ButtonBuilder {
 		return self
 	}
 
+	func setTextAlignment(_ alignment: UIControl.ContentHorizontalAlignment) -> ButtonBuilder {
+		self.button.contentHorizontalAlignment = alignment
+		return self
+	}
+
 	func build() -> UIButton {
 		return self.button
 	}

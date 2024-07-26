@@ -18,7 +18,6 @@ final class ListViewController: UIViewController {
 	}
 
 	var viewModel: ListViewModel?
-	var vc: MusicBarController?
 	var item: SPTAppRemoteContentItem?
 	var items: [SPTAppRemoteContentItem]?
 	var topTracks: [TopTrack]?
@@ -81,6 +80,7 @@ final class ListViewController: UIViewController {
 		super.viewWillAppear(animated)
 		self.navigationController?.setNavigationBarHidden(false, animated: animated)
 		self.viewModel?.network.appRemote.delegate = self /// если что вернуть
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
 		refreshData()
 	}
 
@@ -118,6 +118,7 @@ final class ListViewController: UIViewController {
 		} else {
 			viewModel?.getItem()
 		}
+		self.viewModel?.subscribeToState()
 	}
 
 	private func updateCollectionView() {
@@ -241,6 +242,15 @@ extension ListViewController: SPTAppRemoteDelegate {
 		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
 			let vc = LogInViewController()
 			sceneDelegate.switchRoot(vc: vc)
+		}
+	}
+}
+
+extension ListViewController: SPTAppRemotePlayerStateDelegate {
+	func playerStateDidChange(_ playerState: SPTAppRemotePlayerState) {
+		debugPrint("Spotify Track name: %@", playerState.track.name)
+		if let vc = tabBarController as? MusicBarController {
+			vc.playerStateDidChange(playerState)
 		}
 	}
 }

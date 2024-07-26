@@ -11,7 +11,6 @@ final class PlayerViewModel {
 
 	var network = NetworkManager.shared
 	var trackPoster: Observable<UIImage> = Observable(nil)
-	var childrenOfContent: Observable<[SPTAppRemoteContentItem]> = Observable(nil)
 	var playerState: Observable<SPTAppRemotePlayerState> = Observable(nil)
 
 	init(_ view: SPTAppRemoteDelegate) {
@@ -21,12 +20,6 @@ final class PlayerViewModel {
 	func getPoster(for track: SPTAppRemoteImageRepresentable) {
 		network.fetchArtwork(for: track) { image in
 			self.trackPoster.value = image
-		}
-	}
-
-	func getListOf(content: SPTAppRemoteContentItem) {
-		network.fetchContentItemChildren(contentItem: content) { items in
-			self.childrenOfContent.value = items
 		}
 	}
 
@@ -79,5 +72,14 @@ final class PlayerViewModel {
 
 	func repeatMode(_ option: SPTAppRemotePlaybackOptionsRepeatMode) {
 		network.repeatMode(option)
+	}
+
+	func addToLibrary(uri: String) {
+		network.addToLibraryWith(uri: uri)
+
+	}
+
+	func removeFromLibrary(uri: String) {
+		network.removeFromLibrary(uri: uri)
 	}
 }

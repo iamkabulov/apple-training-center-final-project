@@ -42,7 +42,6 @@ final class MusicBarController: UITabBarController {
 		viewModel?.getPlayerState()
 		viewModel?.subscribeToState()
 		NotificationCenter.default.addObserver(self, selector: #selector(miniPlayerTapped), name: .miniPlayerTapped, object: nil)
-		bindViewModel()
 		self.miniPlayerView.playPauseTappedDelegate = { [weak self] isPlay in
 			if isPlay {
 				self?.viewModel?.play()
@@ -56,11 +55,14 @@ final class MusicBarController: UITabBarController {
 		appearance.shadowImage = nil
 		appearance.shadowColor = nil
 		tabBar.standardAppearance = appearance
+
+		bindViewModel()
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		self.viewModel?.network.appRemote.delegate = self
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
 		self.viewModel?.getPlayerState()
 		self.viewModel?.subscribeToState()
 		self.bindViewModel()
@@ -110,6 +112,7 @@ final class MusicBarController: UITabBarController {
 		}
 
 		vc.upToDate(currentTime: self.currentTime)
+		
 		vc.isRepeatHandler = { [weak self] value in
 			self?.isRepeat = value
 		}
