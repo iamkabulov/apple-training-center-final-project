@@ -15,8 +15,8 @@ final class SearchViewController: UIViewController {
 	private var dataSource: [Item]?
 
 	enum Action {
-		static let addMessage = "has been added to favourite library"
-		static let removeMessage = "has been removed from favourite library"
+		static let addMessage = "добавлен в избранное"
+		static let removeMessage = "удален из избранных"
 	}
 
 	//MARK: - SearchView
@@ -26,7 +26,7 @@ final class SearchViewController: UIViewController {
 		input.autocorrectionType = .no
 		input.tintColor = .black
 		input.delegate = self
-		input.placeholder = "Search"
+		input.placeholder = "Что хочешь послушать?"
 		return input
 	}()
 

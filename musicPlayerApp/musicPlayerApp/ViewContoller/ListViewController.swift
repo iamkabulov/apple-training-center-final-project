@@ -38,8 +38,8 @@ final class ListViewController: UIViewController {
 	}()
 
 	enum Action {
-		static let addMessage = "has been added to favourite library"
-		static let removeMessage = "has been removed from favourite library"
+		static let addMessage = "добавлен в избранное"
+		static let removeMessage = "удален из избранных"
 	}
 
 	var headerView: HeaderView?
@@ -148,7 +148,6 @@ final class ListViewController: UIViewController {
 		self.viewModel?.item.bind { [weak self] item in
 			guard let item = item else { return }
 			self?.item = item
-			self?.title = item.title
 			self?.floatingHeaderView.set(data: item)
 			self?.fetchData()
 		}

@@ -129,9 +129,9 @@ final class MusicBarController: UITabBarController {
 		let searchNav = UINavigationController(rootViewController: profileController)
 		let favouriteNav = UINavigationController(rootViewController: playListController)
 
-		mainViewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), selectedImage: nil)
-		profileController.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), selectedImage: nil)
-		playListController.tabBarItem = UITabBarItem(title: "Favourites", image: UIImage(systemName: "music.note.list"), selectedImage: nil)
+		mainViewController.tabBarItem = UITabBarItem(title: "Главная", image: UIImage(systemName: "house"), selectedImage: nil)
+		profileController.tabBarItem = UITabBarItem(title: "Поиск", image: UIImage(systemName: "magnifyingglass"), selectedImage: nil)
+		playListController.tabBarItem = UITabBarItem(title: "Избранное", image: UIImage(systemName: "music.note.list"), selectedImage: nil)
 
 		let tabBarList = [homeNav, searchNav, favouriteNav]
 		self.viewControllers = tabBarList
