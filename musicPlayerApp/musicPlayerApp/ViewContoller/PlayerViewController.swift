@@ -184,16 +184,10 @@ final class PlayerViewController: UIViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
+		clearResources()
 	}
 
 	deinit {
-		viewModel?.trackPoster.unbind()
-		viewModel?.playerState.unbind()
-		viewModel?.network.appRemote.delegate = nil
-		viewModel?.network.appRemote.playerAPI?.delegate = nil
-		viewModel = nil
-		timer?.invalidate()
-		timer = nil
 		print("Player DEINIT")
 	}
 
@@ -390,6 +384,16 @@ final class PlayerViewController: UIViewController {
 			self.addRemoveButton.setTitleColor(.black, for: .normal)
 		}
 	}
+
+	func clearResources() {
+		viewModel?.trackPoster.unbind()
+		viewModel?.playerState.unbind()
+		viewModel?.network.appRemote.delegate = nil
+		viewModel?.network.appRemote.playerAPI?.delegate = nil
+		viewModel = nil
+		timer?.invalidate()
+		timer = nil
+	}
 }
 
 extension PlayerViewController {
@@ -464,7 +468,7 @@ extension PlayerViewController: SPTAppRemoteDelegate {
 
 	func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
 		lastPlayerState = nil
-		viewModel?.network.appRemote.delegate = nil
+		clearResources()
 		if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
 			let vc = LogInViewController()
 			sceneDelegate.switchRoot(vc: vc)
