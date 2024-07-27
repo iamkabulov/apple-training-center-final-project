@@ -19,6 +19,16 @@ final class SearchViewController: UIViewController {
 		static let removeMessage = "удален из избранных"
 	}
 
+	private enum Spacing {
+		enum Size {
+			static let height: CGFloat = 200
+			static let width: CGFloat = 200
+		}
+		static let small: CGFloat = 4
+		static let medium: CGFloat = 10
+		static let miniPlayerOffset: CGFloat = 64
+	}
+
 	//MARK: - SearchView
 	private lazy var searchField: UISearchTextField = {
 		let input = UISearchTextField()
@@ -48,6 +58,13 @@ final class SearchViewController: UIViewController {
 		stackView.spacing = 20
 		stackView.alignment = .center
 		return stackView
+	}()
+
+	private lazy var imageView: UIImageView = {
+		return ImageViewBuilder()
+			.setImage(named: "music-note-svgrepo-com")
+			.setContentMode(.scaleAspectFit)
+			.build()
 	}()
 
 	//MARK: - View LifeCycle
@@ -101,6 +118,7 @@ extension SearchViewController {
 	func layout() {
 		stackView.addSubview(tableView)
 		stackView.addSubview(searchField)
+		stackView.addSubview(imageView)
 
 		view.addSubview(stackView)
 
@@ -110,14 +128,19 @@ extension SearchViewController {
 			stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 			stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
 
-			tableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 10),
+			tableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: Spacing.medium),
 			tableView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
 			tableView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-			tableView.bottomAnchor.constraint(equalTo: stackView.bottomAnchor, constant: -64),
+			tableView.bottomAnchor.constraint(equalTo: stackView.bottomAnchor, constant: -Spacing.miniPlayerOffset),
 
-			searchField.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 10),
-			searchField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-			searchField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+			searchField.topAnchor.constraint(equalTo: stackView.topAnchor, constant: Spacing.medium),
+			searchField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.medium),
+			searchField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.medium),
+
+			imageView.centerYAnchor.constraint(equalTo: stackView.centerYAnchor),
+			imageView.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+			imageView.heightAnchor.constraint(equalToConstant: Spacing.Size.height),
+			imageView.widthAnchor.constraint(equalToConstant: Spacing.Size.width)
 		])
 	}
 
@@ -182,7 +205,12 @@ extension SearchViewController: SPTAppRemoteDelegate {
 //MARK: - UITableViewDelegate & UITableViewDataSource
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return dataSource?.count ?? 0
+		guard let data = dataSource else {
+			imageView.isHidden = false
+			return 0
+		}
+		imageView.isHidden = true
+		return  data.count
 	}
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -230,7 +258,9 @@ extension SearchViewController: UITextFieldDelegate {
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
 		guard let title = textField.text else { return true }
 		if title == "" {
-			//пусто
+			imageView.isHidden = false
+			dataSource = nil
+			tableView.reloadData()
 		} else {
 			viewModel?.search(title)
 		}
