@@ -188,6 +188,7 @@ final class PlayerViewController: UIViewController {
 	}
 
 	deinit {
+		vc?.viewWillAppear(true)
 		print("Player DEINIT")
 	}
 
