@@ -216,6 +216,11 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchedItemCell.identifier, for: indexPath) as? SearchedItemCell, let items = dataSource else { return UITableViewCell() }
 
+		self.viewModel?.network.fetchArtistImage(url: items[indexPath.row].album?.images?[0].url ?? "", completionHandler: { image in
+			DispatchQueue.main.async {
+				cell.setImage(data: image)
+			}
+		})
 		viewModel?.getTrackState(uri: items[indexPath.row].uri)
 
 		if let state = libraryStates?[items[indexPath.row].uri] {
@@ -234,13 +239,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 				}
 			}
 		}
-		
 
-		self.viewModel?.network.fetchArtistImage(url: items[indexPath.row].album?.images?[0].url ?? "", completionHandler: { image in
-			DispatchQueue.main.async {
-				cell.setImage(data: image)
-			}
-		})
 		cell.configure(item: items[indexPath.row])
 		return cell
 	}
