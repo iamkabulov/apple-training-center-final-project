@@ -81,6 +81,8 @@ final class SearchViewController: UIViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 //		bindViewModel()
+		self.viewModel?.network.appRemote.playerAPI?.delegate = self
+		self.viewModel?.subscribeToState()
 		self.navigationController?.setNavigationBarHidden(true, animated: animated)
 	}
 
@@ -158,13 +160,13 @@ extension SearchViewController {
 		}
 
 		self.viewModel?.isAdded.bind { [weak self] value in
-			DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+			DispatchQueue.main.async {
 				self?.tableView.reloadData()
 			}
 		}
 
 		self.viewModel?.isRemoved.bind { [weak self] value in
-			DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+			DispatchQueue.main.async{
 				self?.tableView.reloadData()
 			}
 		}
@@ -248,8 +250,17 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		guard let uri = self.dataSource?[indexPath.row].uri else { return }
 		print(uri)
-		self.viewModel?.network.play(trackUri: uri)
+		self.viewModel?.play(trackUri: uri)
 		tableView.deselectRow(at: indexPath, animated: true)
+	}
+}
+
+extension SearchViewController: SPTAppRemotePlayerStateDelegate {
+	func playerStateDidChange(_ playerState: SPTAppRemotePlayerState) {
+		debugPrint("Spotify Track name: %@", playerState.track.name)
+		if let vc = tabBarController as? MusicBarController {
+			vc.playerStateDidChange(playerState)
+		}
 	}
 }
 

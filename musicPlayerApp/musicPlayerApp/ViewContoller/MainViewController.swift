@@ -38,7 +38,7 @@ final class MainViewController: UIViewController {
 		super.viewWillAppear(animated)
 		self.navigationController?.setNavigationBarHidden(true, animated: animated)
 		self.viewModel?.network.appRemote.delegate = self
-//		self.bindViewModel() /// интересно, зачем это нужно было?
+		self.bindViewModel()
 	}
 
 	override func viewDidLoad() {

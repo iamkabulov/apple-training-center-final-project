@@ -16,6 +16,7 @@ final class SearchViewModel {
 	var libraryStates: ObservableDictionary<String, SPTAppRemoteLibraryState> = ObservableDictionary()
 	var isAdded: Observable<Bool> = Observable(false)
 	var isRemoved: Observable<Bool> = Observable(false)
+	var playerState: Observable<SPTAppRemotePlayerState> = Observable(nil)
 
 	init(_ view: SPTAppRemoteDelegate) {
 		self.network.appRemote.delegate = view
@@ -64,6 +65,16 @@ final class SearchViewModel {
 
 		network.getTrackState(uri: uri) { libraryState in
 			self.libraryStates.updateValue(libraryState, forKey: uri)
+		}
+	}
+
+	func play(trackUri uri: String) {
+		network.play(trackUri: uri)
+	}
+
+	func subscribeToState() {
+		network.subscribeToState { playerState in
+			self.playerState.value = playerState
 		}
 	}
 }

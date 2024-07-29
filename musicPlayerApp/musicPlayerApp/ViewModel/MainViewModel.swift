@@ -24,6 +24,10 @@ final class MainViewModel {
 	}
 
 	func getPosters(forCellWithID cellID: String, for uri: SPTAppRemoteContentItem?) {
+		guard let id = uri?.uri else { return }
+		if let cachedImage = ImageCache.shared.object(forKey: id as NSString) {
+			return
+		}
 		network.fetchContentItem(uri: uri) { image in
 			if let image = image {
 				self.itemPosters.updateValue(image, forKey: cellID)
