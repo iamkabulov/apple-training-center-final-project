@@ -353,8 +353,7 @@ extension NetworkManager: SPTSessionManagerDelegate {
 	}
 
 	func sessionManager(manager: SPTSessionManager, didRenew session: SPTSession) {
-//		presentAlertController(title: "Session Renewed", message: session.description, buttonTitle: "Sweet")
-		///VIEW BIND
+
 	}
 
 	func sessionManager(manager: SPTSessionManager, didInitiate session: SPTSession) {

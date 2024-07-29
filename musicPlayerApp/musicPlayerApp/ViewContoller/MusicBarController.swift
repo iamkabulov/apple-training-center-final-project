@@ -199,6 +199,7 @@ final class MusicBarController: UITabBarController {
 	}
 
 	func stopTimer() {
+		self.currentTime = 0
 		timer?.invalidate()
 		timer = nil
 	}
@@ -210,7 +211,6 @@ final class MusicBarController: UITabBarController {
 			if self.currentTime >= self.durationTime {
 				self.stopTimer()
 				self.currentTime = self.durationTime
-				self.currentTime = 0
 			}
 		}
 		self.startTimer()
@@ -242,12 +242,12 @@ extension MusicBarController: SPTAppRemotePlayerStateDelegate {
 				self.lastPlayerState = playerState
 				self.viewModel?.getPoster(for: playerState.track)
 				self.viewModel?.getPlayerState()
+				self.stopTimer()
 			}
 			self.update(playerState: playerState)
 		}
 
 		self.miniPlayerView.setPlayerState(playerState.isPaused)
-		stopTimer()
 		startTimer()
 	}
 }
