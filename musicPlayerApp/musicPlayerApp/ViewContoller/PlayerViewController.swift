@@ -27,6 +27,7 @@ final class PlayerViewController: UIViewController {
 	private var vc: MusicBarController?
 	var isRepeatHandler: ((Bool) -> Void)?
 	var isShuffleHandler: ((Bool) -> Void)?
+	var timeValueChangedHandler: ((Double) -> Void)?
 	var openArtistViewHandler: ((SPTAppRemoteArtist) -> Void)?
 	var artistItem: SPTAppRemoteArtist?
 	private var isPaused = false
@@ -66,6 +67,7 @@ final class PlayerViewController: UIViewController {
 		let configuration = UIImage.SymbolConfiguration(pointSize: 12)
 		let image = UIImage(systemName: "circle.fill", withConfiguration: configuration)
 		slider.setThumbImage(image, for: .normal)
+		slider.setThumbImage(image, for: .highlighted)
 		return slider
 	}()
 
@@ -282,8 +284,9 @@ final class PlayerViewController: UIViewController {
 	}
 
 	@objc func sliderValueChanged(_ sender: UISlider) {
-		currentTime = Double(sender.value)
+		self.currentTime = Double(sender.value)
 		viewModel?.seekToPosition(Int(sender.value))
+		self.timeValueChangedHandler?(self.currentTime)
 		self.updateSlider()
 	}
 

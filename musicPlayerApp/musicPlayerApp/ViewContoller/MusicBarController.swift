@@ -120,6 +120,11 @@ final class MusicBarController: UITabBarController {
 		vc.isShuffleHandler = { [weak self] value in
 			self?.isShuffled = value
 		}
+
+		vc.timeValueChangedHandler = { [weak self] time in
+			self?.currentTime = time
+		}
+		
 		vc.modalPresentationStyle = .pageSheet
 		self.present(vc, animated: true, completion: nil)
 	}

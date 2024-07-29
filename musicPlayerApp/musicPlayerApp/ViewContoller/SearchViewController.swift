@@ -21,8 +21,8 @@ final class SearchViewController: UIViewController {
 
 	private enum Spacing {
 		enum Size {
-			static let height: CGFloat = 200
-			static let width: CGFloat = 200
+			static let height: CGFloat = 150
+			static let width: CGFloat = 150
 		}
 		static let small: CGFloat = 4
 		static let medium: CGFloat = 10
@@ -80,13 +80,14 @@ final class SearchViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		bindViewModel()
+//		bindViewModel()
 		self.navigationController?.setNavigationBarHidden(true, animated: animated)
 	}
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		self.hideKeyboardWhenTappedAround() 
+		self.imageView.alpha = 0.5
 		view.backgroundColor = .systemBackground
 		self.layout()
 		self.bindViewModel()
